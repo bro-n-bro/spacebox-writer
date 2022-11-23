@@ -9,3 +9,11 @@ clickhouse:
 graphql:
   address: "localhost:8081"
   start_timeout: 10s
+
+broker:
+  address: "localhost"
+  group_id: "myGroup"
+  auto_offset_reset: "earliest"
+  topics:
+    - "myTopic"
+    - "^aRegex.*[Tt]opic"

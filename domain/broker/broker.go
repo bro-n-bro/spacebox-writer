@@ -2,7 +2,6 @@ package broker
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -28,7 +27,7 @@ func New(cfg Config) *Broker {
 func (brk *Broker) Start(context.Context) (err error) {
 
 	errCh := make(chan error)
-	brk.log.Debug().Msgf("start broker")
+	brk.log.Debug().Msgf("start broker consumer")
 	go func() {
 
 		brk.con, err = kafka.NewConsumer(&kafka.ConfigMap{
@@ -47,9 +46,9 @@ func (brk *Broker) Start(context.Context) (err error) {
 		for {
 			msg, err := brk.con.ReadMessage(-1)
 			if err == nil {
-				fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+				brk.log.Info().Msgf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 			} else {
-				fmt.Printf("Consumer error: %v (%v)\n", err, msg)
+				brk.log.Error().Msgf("Consumer error: %v (%v)\n", err, msg)
 			}
 		}
 
@@ -65,6 +64,8 @@ func (brk *Broker) Start(context.Context) (err error) {
 }
 
 func (brk *Broker) Stop(ctx context.Context) (err error) {
-
+	if err = brk.con.Close(); err != nil {
+		return err
+	}
 	return nil
 }
