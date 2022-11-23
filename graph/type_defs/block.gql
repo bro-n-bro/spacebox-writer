@@ -1,0 +1,10 @@
+type Block {
+    Created: Int
+    From: String
+    To: String
+    Value: Float
+}
+
+type Query {
+    getBlocks: [Block!]!
+}

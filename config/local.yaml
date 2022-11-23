@@ -1,0 +1,11 @@
+start_timeout: 20s
+stop_timeout: 20s
+
+clickhouse:
+  dsn: "clickhouse://default:@localhost:9000/my_test"
+  migrations_path: "adapter/clickhouse/migrations"
+  auto_migrate: true
+
+graphql:
+  address: "localhost:8081"
+  start_timeout: 10s
