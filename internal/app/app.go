@@ -7,7 +7,6 @@ import (
 
 	clhs "spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/consts"
-	gql "spacebox-writer/domain/graphql"
 	"spacebox-writer/internal/rep"
 	"spacebox-writer/models"
 
@@ -41,14 +40,11 @@ func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 
 	clickhouse := clhs.New(a.cfg.Clickhouse)
-	gormDB := clickhouse.GetGormDB(ctx)
-	graphql := gql.New(a.cfg.GraphQL, gormDB)
 	brk := broker.New(a.cfg.Broker)
 
 	a.cmps = append(
 		a.cmps,
 		cmp{clickhouse, "clickhouse"},
-		cmp{graphql, "graphql"},
 		cmp{brk, "broker"},
 	)
 

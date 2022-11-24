@@ -24,8 +24,7 @@ func New(cfg Config) *Broker {
 	}
 }
 
-func (brk *Broker) Start(context.Context) (err error) {
-
+func (brk *Broker) Start(ctx context.Context) (err error) {
 	errCh := make(chan error)
 	brk.log.Debug().Msgf("start broker consumer")
 	go func() {
@@ -35,6 +34,7 @@ func (brk *Broker) Start(context.Context) (err error) {
 			"group.id":          brk.cfg.GroupID,
 			"auto.offset.reset": brk.cfg.AutoOffsetReset,
 		})
+
 		if err != nil {
 			errCh <- err
 		}
@@ -46,9 +46,14 @@ func (brk *Broker) Start(context.Context) (err error) {
 		for {
 			msg, err := brk.con.ReadMessage(-1)
 			if err == nil {
-				brk.log.Info().Msgf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+				// TODO:
+				brk.log.Info().Msg(msg.String())
 			} else {
-				brk.log.Error().Msgf("Consumer error: %v (%v)\n", err, msg)
+				brk.log.
+					Error().
+					Err(err).
+					Interface("msg", msg).
+					Msg("consumer error")
 			}
 		}
 

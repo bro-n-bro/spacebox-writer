@@ -6,10 +6,6 @@ clickhouse:
   migrations_path: "adapter/clickhouse/migrations"
   auto_migrate: true
 
-graphql:
-  address: "localhost:8081"
-  start_timeout: 10s
-
 broker:
   address: "localhost"
   group_id: "myGroup"
