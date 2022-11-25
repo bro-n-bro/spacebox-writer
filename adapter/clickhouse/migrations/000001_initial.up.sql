@@ -1,4 +1,9 @@
-CREATE TABLE my_test.testtable1
+CREATE TABLE my_test.account
 (
-    name1 varchar(20), name2 int
-) engine = Null
+    address TEXT,
+    height  BIGINT,
+    PRIMARY KEY(address)
+
+) ENGINE = MergeTree()
+
+-- help me please :((((
