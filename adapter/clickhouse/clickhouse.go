@@ -77,7 +77,9 @@ func (clhs *Clickhouse) Start(context.Context) error {
 
 	if clhs.cfg.AutoMigrate {
 		err = func() error {
-			driver, err := migrator.WithInstance(sqlDB, &migrator.Config{})
+			driver, err := migrator.WithInstance(sqlDB, &migrator.Config{
+				MultiStatementEnabled: true,
+			})
 			if err != nil {
 				return err
 			}

@@ -40,7 +40,7 @@ func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 
 	clickhouse := clhs.New(a.cfg.Clickhouse)
-	brk := broker.New(a.cfg.Broker)
+	brk := broker.New(a.cfg.Broker, clickhouse)
 
 	a.cmps = append(
 		a.cmps,
