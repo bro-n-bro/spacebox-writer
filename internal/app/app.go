@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 	"os"
-	"spacebox-writer/domain/broker"
 
 	clhs "spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/consts"
+	"spacebox-writer/domain/modules"
 	"spacebox-writer/internal/rep"
 	"spacebox-writer/models"
 
@@ -40,12 +40,12 @@ func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 
 	clickhouse := clhs.New(a.cfg.Clickhouse)
-	brk := broker.New(a.cfg.Broker, clickhouse)
+	mods := modules.New(a.cfg.Modules, a.cfg.Broker, clickhouse)
 
 	a.cmps = append(
 		a.cmps,
 		cmp{clickhouse, "clickhouse"},
-		cmp{brk, "broker"},
+		cmp{mods, "modules"},
 	)
 
 	okCh, errCh := make(chan struct{}), make(chan error)
@@ -57,7 +57,6 @@ func (a *App) Start(ctx context.Context) error {
 				errCh <- errors.Wrapf(err, consts.FmtCannotStart, c.Name)
 			}
 		}
-
 		okCh <- struct{}{}
 	}()
 
