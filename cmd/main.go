@@ -10,7 +10,6 @@ import (
 
 	"spacebox-writer/internal/app"
 
-	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -20,16 +19,27 @@ func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }
 
+const (
+	DefaultEnvFile = ".env"
+	EnvFile        = "ENV_FILE"
+)
+
 func main() {
 	//flag.StringVar(&configPath, "config", "config/local.yaml", "Config file path")
 	//flag.Parse()
 
-	var cfg configs.Config
+	// try to get .env file from Environments
+	fileName, ok := os.LookupEnv(EnvFile)
+	if !ok {
+		fileName = DefaultEnvFile
+	}
 
-	if err := godotenv.Load(); err != nil {
+	// load environment variables based on .env file
+	if err := godotenv.Load(fileName); err != nil {
 		panic(err)
 	}
 
+	var cfg configs.Config
 	if err := env.Parse(&cfg); err != nil {
 		panic(err)
 	}
