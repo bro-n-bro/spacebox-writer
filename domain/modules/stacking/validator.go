@@ -3,6 +3,7 @@ package stacking
 import (
 	"context"
 	"encoding/json"
+	"spacebox-writer/internal/configs"
 
 	"github.com/hexy-dev/spacebox/broker/model"
 	"spacebox-writer/adapter/broker"
@@ -41,7 +42,7 @@ func (v *validator) handle(ctx context.Context) {
 	}
 }
 
-func (v *validator) subscribe(cfg broker.Config, db *clickhouse.Clickhouse) error {
+func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse) error {
 	v.ch = make(chan any, 10)
 	v.db = db
 

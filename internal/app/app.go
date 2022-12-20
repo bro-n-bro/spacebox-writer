@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"os"
+	"spacebox-writer/internal/configs"
 
 	clhs "spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/consts"
@@ -23,10 +24,10 @@ type cmp struct {
 type App struct {
 	log  *zerolog.Logger
 	cmps []cmp
-	cfg  Config
+	cfg  configs.Config
 }
 
-func New(cfg Config) *App {
+func New(cfg configs.Config) *App {
 	l := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().
 		Str("cmp", "app").Logger()
 	return &App{
@@ -39,8 +40,8 @@ func New(cfg Config) *App {
 func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 
-	clickhouse := clhs.New(a.cfg.Clickhouse)
-	mods := modules.New(a.cfg.Modules, a.cfg.Broker, clickhouse)
+	clickhouse := clhs.New(a.cfg)
+	mods := modules.New(a.cfg, clickhouse)
 
 	a.cmps = append(
 		a.cmps,

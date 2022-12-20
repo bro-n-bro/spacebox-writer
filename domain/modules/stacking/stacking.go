@@ -2,12 +2,12 @@ package stacking
 
 import (
 	"context"
-	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/internal/configs"
 )
 
 type H interface {
-	subscribe(broker.Config, *clickhouse.Clickhouse) error
+	subscribe(configs.Config, *clickhouse.Clickhouse) error
 	handle(context.Context)
 }
 
@@ -23,21 +23,21 @@ var (
 
 type (
 	Module struct {
-		bCfg    broker.Config
+		cfg     configs.Config
 		storage *clickhouse.Clickhouse
 	}
 )
 
-func New(bCfg broker.Config, cl *clickhouse.Clickhouse) *Module {
+func New(cfg configs.Config, cl *clickhouse.Clickhouse) *Module {
 	return &Module{
-		bCfg:    bCfg,
+		cfg:     cfg,
 		storage: cl,
 	}
 }
 
 func (m *Module) Subscribe() error {
 	for _, handler := range modules {
-		if err := handler.subscribe(m.bCfg, m.storage); err != nil {
+		if err := handler.subscribe(m.cfg, m.storage); err != nil {
 			return err
 		}
 	}

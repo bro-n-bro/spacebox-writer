@@ -3,6 +3,7 @@ package broker
 import (
 	"context"
 	"os"
+	"spacebox-writer/internal/configs"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/rs/zerolog"
@@ -11,11 +12,11 @@ import (
 type Broker struct {
 	log *zerolog.Logger
 	con *kafka.Consumer
-	cfg Config
+	cfg configs.Config
 	ch  chan any
 }
 
-func New(cfg Config, ch chan any) *Broker {
+func New(cfg configs.Config, ch chan any) *Broker {
 	lg := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().
 		Str("cmp", "broker").Logger()
 	return &Broker{

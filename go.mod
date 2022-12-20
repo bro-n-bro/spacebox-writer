@@ -4,10 +4,11 @@ go 1.18
 
 require (
 	github.com/99designs/gqlgen v0.17.20
+	github.com/caarlos0/env/v6 v6.10.1
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/hexy-dev/spacebox v0.0.0-20221209104819-31797caf8405
-	github.com/jinzhu/configor v1.2.1
+	github.com/joho/godotenv v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.15.0
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
@@ -16,7 +17,6 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/ClickHouse/ch-go v0.48.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.3.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
@@ -47,6 +47,5 @@ require (
 	golang.org/x/sys v0.0.0-20221006211917-84dc82d7e875 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.12 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

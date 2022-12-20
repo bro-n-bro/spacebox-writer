@@ -2,26 +2,24 @@ package modules
 
 import (
 	"context"
-	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/domain/modules/stacking"
+	"spacebox-writer/internal/configs"
 )
 
 type Modules struct {
-	cfg  Config
-	bCfg broker.Config
-	st   *clickhouse.Clickhouse
+	cfg configs.Config
+	st  *clickhouse.Clickhouse
 }
 
 type subscriber interface {
 	Subscribe() error
 }
 
-func New(cfg Config, brokerCfg broker.Config, s *clickhouse.Clickhouse) *Modules {
+func New(cfg configs.Config, s *clickhouse.Clickhouse) *Modules {
 	return &Modules{
-		cfg:  cfg,
-		st:   s,
-		bCfg: brokerCfg,
+		cfg: cfg,
+		st:  s,
 	}
 }
 
@@ -30,7 +28,7 @@ func (m *Modules) Start(ctx context.Context) error {
 	for _, moduleName := range m.cfg.Modules {
 		switch moduleName {
 		case "stacking":
-			activeModules = append(activeModules, stacking.New(m.bCfg, m.st))
+			activeModules = append(activeModules, stacking.New(m.cfg, m.st))
 		}
 	}
 
