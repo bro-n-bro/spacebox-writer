@@ -8,6 +8,7 @@ import (
 	"spacebox-writer/internal/configs"
 	"syscall"
 
+	"github.com/caarlos0/env/v6"
 	"spacebox-writer/internal/app"
 
 	"github.com/joho/godotenv"
