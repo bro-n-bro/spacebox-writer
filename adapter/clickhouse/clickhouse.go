@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"spacebox-writer/internal/configs"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -21,7 +22,7 @@ type Clickhouse struct {
 	log  *zerolog.Logger
 	sql  *sql.DB
 	gorm *gorm.DB
-	cfg  Config
+	cfg  configs.Config
 }
 
 const (
@@ -31,7 +32,7 @@ const (
 
 func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
 
-func New(cfg Config) *Clickhouse {
+func New(cfg configs.Config) *Clickhouse {
 	lg := zerolog.New(os.Stderr).
 		Output(zerolog.ConsoleWriter{Out: os.Stderr}).
 		With().

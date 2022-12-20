@@ -2,32 +2,39 @@ package main
 
 import (
 	"context"
-	"flag"
+	"fmt"
 	"os"
 	"os/signal"
+	"spacebox-writer/internal/configs"
 	"syscall"
 
 	"spacebox-writer/internal/app"
 
-	"github.com/jinzhu/configor"
+	"github.com/caarlos0/env/v6"
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
-
-var configPath string
 
 func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }
 
 func main() {
-	flag.StringVar(&configPath, "config", "config/local.yaml", "Config file path")
-	flag.Parse()
+	//flag.StringVar(&configPath, "config", "config/local.yaml", "Config file path")
+	//flag.Parse()
 
-	var cfg app.Config
-	if err := configor.New(&configor.Config{ErrorOnUnmatchedKeys: true}).Load(&cfg, configPath); err != nil {
-		log.Fatal().Err(err).Msg("cannot load config")
+	var cfg configs.Config
+
+	if err := godotenv.Load(); err != nil {
+		panic(err)
 	}
+
+	if err := env.Parse(&cfg); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%+v\n", cfg)
 
 	application := app.New(cfg)
 

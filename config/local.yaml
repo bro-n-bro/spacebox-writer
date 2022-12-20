@@ -1,6 +1,17 @@
 start_timeout: 20s
 stop_timeout: 20s
 
+modules:
+  modules:
+    - stacking
+#    - bank
+#    - gov
+#    - auth
+#    - mint
+#    - slashing
+#    - distribution
+#    - core
+
 clickhouse:
   dsn: "clickhouse://default:@localhost:9000/my_test"
   migrations_path: "adapter/clickhouse/migrations"
@@ -10,6 +21,3 @@ broker:
   address: "localhost"
   group_id: "myGroup"
   auto_offset_reset: "earliest"
-  topics:
-    - "myTopic"
-    - "^aRegex.*[Tt]opic"

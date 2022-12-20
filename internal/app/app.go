@@ -3,10 +3,11 @@ package app
 import (
 	"context"
 	"os"
-	"spacebox-writer/domain/broker"
+	"spacebox-writer/internal/configs"
 
 	clhs "spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/consts"
+	"spacebox-writer/domain/modules"
 	"spacebox-writer/internal/rep"
 	"spacebox-writer/models"
 
@@ -23,10 +24,10 @@ type cmp struct {
 type App struct {
 	log  *zerolog.Logger
 	cmps []cmp
-	cfg  Config
+	cfg  configs.Config
 }
 
-func New(cfg Config) *App {
+func New(cfg configs.Config) *App {
 	l := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().
 		Str("cmp", "app").Logger()
 	return &App{
@@ -39,13 +40,13 @@ func New(cfg Config) *App {
 func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 
-	clickhouse := clhs.New(a.cfg.Clickhouse)
-	brk := broker.New(a.cfg.Broker, clickhouse)
+	clickhouse := clhs.New(a.cfg)
+	mods := modules.New(a.cfg, clickhouse)
 
 	a.cmps = append(
 		a.cmps,
 		cmp{clickhouse, "clickhouse"},
-		cmp{brk, "broker"},
+		cmp{mods, "modules"},
 	)
 
 	okCh, errCh := make(chan struct{}), make(chan error)
@@ -57,7 +58,6 @@ func (a *App) Start(ctx context.Context) error {
 				errCh <- errors.Wrapf(err, consts.FmtCannotStart, c.Name)
 			}
 		}
-
 		okCh <- struct{}{}
 	}()
 
