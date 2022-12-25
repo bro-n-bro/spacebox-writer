@@ -3,7 +3,6 @@ package stacking
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/rs/zerolog"
 	"spacebox-writer/internal/configs"
 
@@ -12,14 +11,14 @@ import (
 	"spacebox-writer/adapter/clickhouse"
 )
 
-type validator struct {
+type validatorStatus struct {
 	db     *clickhouse.Clickhouse // interface with needed methods
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
 }
 
-func (v *validator) handle(ctx context.Context) {
+func (v *validatorStatus) handle(ctx context.Context) {
 	for message := range v.ch {
 		select {
 		case <-ctx.Done():
@@ -33,31 +32,20 @@ func (v *validator) handle(ctx context.Context) {
 			continue
 		}
 
-		val := model.Validator{}
+		val := model.ValidatorStatus{}
 		if err := json.Unmarshal(bytes, &val); err != nil {
 			v.log.Error().Err(err).Msg("unmarshall error")
 			continue
 		}
 
-		var (
-			count int64
-			db    = v.db.GetGormDB(ctx)
-		)
+		v.db.GetGormDB(ctx).Table("validator_status").Create(val)
 
-		if db.Table("validator").
-			Where("consensus_address = ?", val.ConsensusAddress).
-			Count(&count); count == 0 {
-			db.Table("validator").
-				Create(val)
-		} else {
-			fmt.Println(val.ConsensusAddress, "already exists. Skip.")
-		}
-
+		// v.db.SaveValidator() // interface implementation in adapter
 	}
 }
 
-func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "validator").Msg("start consumer")
+func (v *validatorStatus) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
+	log.Info().Str("consumer", "validator_status").Msg("start consumer")
 
 	v.log = log
 	v.ch = make(chan any, 10)
@@ -67,7 +55,7 @@ func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log
 	ctx, cancel := context.WithCancel(context.Background())
 	v.cancel = cancel
 
-	if err := b.Subscribe(ctx, "validator"); err != nil {
+	if err := b.Subscribe(ctx, "validator_status"); err != nil {
 		return err
 	}
 
@@ -76,7 +64,7 @@ func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log
 	return nil
 }
 
-func (v *validator) stop() {
+func (v *validatorStatus) stop() {
 	close(v.ch)
 	v.cancel()
 }

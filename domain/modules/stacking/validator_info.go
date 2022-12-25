@@ -3,7 +3,6 @@ package stacking
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/rs/zerolog"
 	"spacebox-writer/internal/configs"
 
@@ -12,14 +11,14 @@ import (
 	"spacebox-writer/adapter/clickhouse"
 )
 
-type validator struct {
+type validatorInfo struct {
 	db     *clickhouse.Clickhouse // interface with needed methods
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
 }
 
-func (v *validator) handle(ctx context.Context) {
+func (v *validatorInfo) handle(ctx context.Context) {
 	for message := range v.ch {
 		select {
 		case <-ctx.Done():
@@ -33,31 +32,19 @@ func (v *validator) handle(ctx context.Context) {
 			continue
 		}
 
-		val := model.Validator{}
+		val := model.ValidatorInfo{}
 		if err := json.Unmarshal(bytes, &val); err != nil {
 			v.log.Error().Err(err).Msg("unmarshall error")
 			continue
 		}
 
-		var (
-			count int64
-			db    = v.db.GetGormDB(ctx)
-		)
-
-		if db.Table("validator").
-			Where("consensus_address = ?", val.ConsensusAddress).
-			Count(&count); count == 0 {
-			db.Table("validator").
-				Create(val)
-		} else {
-			fmt.Println(val.ConsensusAddress, "already exists. Skip.")
-		}
+		v.db.GetGormDB(ctx).Table("validator_info").Create(val)
 
 	}
 }
 
-func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "validator").Msg("start consumer")
+func (v *validatorInfo) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
+	log.Info().Str("consumer", "validator_info").Msg("start consumer")
 
 	v.log = log
 	v.ch = make(chan any, 10)
@@ -67,7 +54,7 @@ func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log
 	ctx, cancel := context.WithCancel(context.Background())
 	v.cancel = cancel
 
-	if err := b.Subscribe(ctx, "validator"); err != nil {
+	if err := b.Subscribe(ctx, "validator_info"); err != nil {
 		return err
 	}
 
@@ -76,7 +63,7 @@ func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log
 	return nil
 }
 
-func (v *validator) stop() {
+func (v *validatorInfo) stop() {
 	close(v.ch)
 	v.cancel()
 }

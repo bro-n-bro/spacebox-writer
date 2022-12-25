@@ -40,8 +40,8 @@ func New(cfg configs.Config) *App {
 func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 
-	clickhouse := clhs.New(a.cfg)
-	mods := modules.New(a.cfg, clickhouse)
+	clickhouse := clhs.New(a.cfg, a.log)
+	mods := modules.New(a.cfg, clickhouse, a.log)
 
 	a.cmps = append(
 		a.cmps,
