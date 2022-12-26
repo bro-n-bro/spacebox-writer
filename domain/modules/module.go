@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/rs/zerolog"
 	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/domain/modules/auth"
 	"spacebox-writer/domain/modules/staking"
 	"spacebox-writer/internal/configs"
 )
@@ -33,6 +34,8 @@ func (m *Modules) Start(ctx context.Context) error {
 		switch moduleName {
 		case "staking":
 			activeModules = append(activeModules, staking.New(m.cfg, m.st, m.log))
+		case "auth":
+			activeModules = append(activeModules, auth.New(m.cfg, m.st, m.log))
 		}
 	}
 
