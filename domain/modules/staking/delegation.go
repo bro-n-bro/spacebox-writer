@@ -1,10 +1,8 @@
-package stacking
+package staking
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/pkg/errors"
-	"gorm.io/gorm"
 
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
@@ -15,14 +13,14 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type delegationMessage struct {
+type delegation struct {
 	db     *clickhouse.Clickhouse // interface with needed methods
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
 }
 
-func (v *delegationMessage) handle(ctx context.Context) {
+func (v *delegation) handle(ctx context.Context) {
 	for message := range v.ch {
 		select {
 		case <-ctx.Done():
@@ -36,9 +34,9 @@ func (v *delegationMessage) handle(ctx context.Context) {
 			continue
 		}
 
-		val := model.DelegationMessage{}
+		val := model.Delegation{}
 		if err := json.Unmarshal(bytes, &val); err != nil {
-			v.log.Error().Err(err).Msg("unmarshall error")
+			v.log.Error().Err(err).Msg("marshall error")
 			continue
 		}
 
@@ -48,42 +46,20 @@ func (v *delegationMessage) handle(ctx context.Context) {
 			continue
 		}
 
-		val2 := storageModel.DelegationMessage{
+		val2 := storageModel.Delegation{
 			OperatorAddress:  val.OperatorAddress,
 			DelegatorAddress: val.DelegatorAddress,
 			Coin:             string(bytes),
 			Height:           val.Height,
-			TxHash:           val.TxHash,
 		}
 
-		var (
-			getVal storageModel.DelegationMessage
-			db     = v.db.GetGormDB(ctx)
-		)
+		v.db.GetGormDB(ctx).Table("delegation").Create(val2)
 
-		if err := db.Table("delegation_message").
-			Where("operator_address = ? AND delegator_address = ? AND height = ?",
-				val2.OperatorAddress,
-				val2.DelegatorAddress,
-				val2.Height,
-			).First(&getVal).Error; err != nil {
-
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err = db.Table("delegation_message").Create(val2).Error; err != nil {
-					v.log.Error().Err(err).Msg("error of create")
-					continue
-				}
-			} else {
-				v.log.Error().Err(err).Msg("error of database")
-				continue
-			}
-
-		}
 	}
 }
 
-func (v *delegationMessage) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "delegation_message").Msg("start consumer")
+func (v *delegation) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
+	log.Info().Str("consumer", "delegation").Msg("start consumer")
 
 	v.log = log
 	v.ch = make(chan any, 10)
@@ -93,7 +69,7 @@ func (v *delegationMessage) subscribe(cfg configs.Config, db *clickhouse.Clickho
 	ctx, cancel := context.WithCancel(context.Background())
 	v.cancel = cancel
 
-	if err := b.Subscribe(ctx, "delegation_message"); err != nil {
+	if err := b.Subscribe(ctx, "delegation"); err != nil {
 		return err
 	}
 
@@ -102,7 +78,7 @@ func (v *delegationMessage) subscribe(cfg configs.Config, db *clickhouse.Clickho
 	return nil
 }
 
-func (v *delegationMessage) stop() {
+func (v *delegation) stop() {
 	close(v.ch)
 	v.cancel()
 }

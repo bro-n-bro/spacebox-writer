@@ -1,4 +1,4 @@
-package stacking
+package auth
 
 import (
 	"context"
@@ -14,14 +14,14 @@ import (
 	"spacebox-writer/adapter/clickhouse"
 )
 
-type validatorInfo struct {
+type account struct {
 	db     *clickhouse.Clickhouse // interface with needed methods
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
 }
 
-func (v *validatorInfo) handle(ctx context.Context) {
+func (v *account) handle(ctx context.Context) {
 	for message := range v.ch {
 		select {
 		case <-ctx.Done():
@@ -35,7 +35,7 @@ func (v *validatorInfo) handle(ctx context.Context) {
 			continue
 		}
 
-		val := model.ValidatorInfo{}
+		val := model.Account{}
 		if err := json.Unmarshal(bytes, &val); err != nil {
 			v.log.Error().Err(err).Msg("unmarshall error")
 			continue
@@ -43,16 +43,16 @@ func (v *validatorInfo) handle(ctx context.Context) {
 
 		var (
 			db      = v.db.GetGormDB(ctx)
-			updates model.ValidatorInfo
-			getVal  model.ValidatorInfo
+			updates model.Account
+			getVal  model.Account
 		)
 
-		if err := db.Table("validator_info").
-			Where("consensus_address = ?", val.ConsensusAddress).
+		if err := db.Table("account").
+			Where("address = ?", val.Address).
 			First(&getVal).Error; err != nil {
 
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err = db.Table("validator_info").Create(val).Error; err != nil {
+				if err = db.Table("account").Create(val).Error; err != nil {
 					v.log.Error().Err(err).Msg("error of create")
 					continue
 				}
@@ -61,15 +61,17 @@ func (v *validatorInfo) handle(ctx context.Context) {
 				continue
 			}
 
-		} else if val.Height < getVal.Height {
+		}
 
-			if err = copier.Copy(&val, &updates); err != nil {
+		if val.Height < getVal.Height {
+
+			if err := copier.Copy(&val, &updates); err != nil {
 				v.log.Error().Err(err).Msg("error of prepare update")
 				continue
 			}
 
-			if err = db.Table("validator_info").
-				Where("consensus_address = ?", val.ConsensusAddress).
+			if err := db.Table("account").
+				Where("address = ?", val.Height).
 				Updates(&updates).Error; err != nil {
 				v.log.Error().Err(err).Msg("error of update")
 				continue
@@ -77,13 +79,11 @@ func (v *validatorInfo) handle(ctx context.Context) {
 
 		}
 
-		// v.db.GetGormDB(ctx).Table("validator_info").Create(val)
-
 	}
 }
 
-func (v *validatorInfo) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "validator_info").Msg("start consumer")
+func (v *account) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
+	log.Info().Str("consumer", "account").Msg("start consumer")
 
 	v.log = log
 	v.ch = make(chan any, 10)
@@ -93,7 +93,7 @@ func (v *validatorInfo) subscribe(cfg configs.Config, db *clickhouse.Clickhouse,
 	ctx, cancel := context.WithCancel(context.Background())
 	v.cancel = cancel
 
-	if err := b.Subscribe(ctx, "validator_info"); err != nil {
+	if err := b.Subscribe(ctx, "account"); err != nil {
 		return err
 	}
 
@@ -102,7 +102,7 @@ func (v *validatorInfo) subscribe(cfg configs.Config, db *clickhouse.Clickhouse,
 	return nil
 }
 
-func (v *validatorInfo) stop() {
+func (v *account) stop() {
 	close(v.ch)
 	v.cancel()
 }

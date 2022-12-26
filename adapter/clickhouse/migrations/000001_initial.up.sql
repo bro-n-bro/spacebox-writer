@@ -10,7 +10,6 @@ CREATE TABLE spacebox.block
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
-
 --
 CREATE TABLE spacebox.message
 (
@@ -47,7 +46,6 @@ CREATE TABLE spacebox.account
     `height`  Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
-
 
 --
 CREATE TABLE spacebox.supply

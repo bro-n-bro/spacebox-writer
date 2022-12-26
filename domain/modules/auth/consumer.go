@@ -1,4 +1,4 @@
-package stacking
+package auth
 
 import (
 	"context"

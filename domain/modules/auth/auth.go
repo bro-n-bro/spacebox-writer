@@ -1,4 +1,4 @@
-package stacking
+package auth
 
 import (
 	"spacebox-writer/adapter/clickhouse"
@@ -9,17 +9,7 @@ import (
 
 var (
 	consumers = []Consumer{
-		&validator{},                  // ok
-		&validatorStatus{},            // ok
-		&validatorInfo{},              // ok
-		&stakingParams{},              // ok
-		&stakingPool{},                // ok
-		&redelegation{},               // ok
-		&redelegationMessage{},        // ok
-		&unbondingDelegation{},        // ok
-		&unbondingDelegationMessage{}, // ok
-		&delegation{},                 // ok
-		&delegationMessage{},          // ok
+		&account{},
 	}
 )
 

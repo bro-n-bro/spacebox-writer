@@ -1,4 +1,4 @@
-package stacking
+package staking
 
 import (
 	"context"
