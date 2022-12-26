@@ -19,7 +19,8 @@ RUN echo "build binary" && \
     export GOPRIVATE=github.com/hexy-dev/space-box/ && \
     go mod download && \
     go build -tags musl /go/src/github.com/space-box-writer/cmd/main.go && \
-    mkdir -p /space-box-writer && \
+    mkdir -p /space-box-writer/migrations && \
+    mv adapter/clickhouse/migrations /space-box-writer/migrations && \
     mv main /space-box-writer/main && \
     rm -Rf /usr/local/go/src
 
