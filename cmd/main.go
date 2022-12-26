@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"spacebox-writer/internal/configs"
@@ -25,16 +24,11 @@ const (
 )
 
 func main() {
-	//flag.StringVar(&configPath, "config", "config/local.yaml", "Config file path")
-	//flag.Parse()
-
-	// try to get .env file from Environments
 	fileName, ok := os.LookupEnv(EnvFile)
 	if !ok {
 		fileName = DefaultEnvFile
 	}
 
-	// load environment variables based on .env file
 	if err := godotenv.Load(fileName); err != nil {
 		panic(err)
 	}
@@ -43,8 +37,6 @@ func main() {
 	if err := env.Parse(&cfg); err != nil {
 		panic(err)
 	}
-
-	fmt.Printf("%+v\n", cfg)
 
 	application := app.New(cfg)
 

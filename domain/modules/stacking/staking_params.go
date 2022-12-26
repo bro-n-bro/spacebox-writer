@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/rs/zerolog"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
 	"spacebox-writer/internal/configs"
 
 	"github.com/hexy-dev/spacebox/broker/model"
@@ -11,14 +12,14 @@ import (
 	"spacebox-writer/adapter/clickhouse"
 )
 
-type validator struct {
+type stakingParams struct {
 	db     *clickhouse.Clickhouse // interface with needed methods
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
 }
 
-func (v *validator) handle(ctx context.Context) {
+func (v *stakingParams) handle(ctx context.Context) {
 	for message := range v.ch {
 		select {
 		case <-ctx.Done():
@@ -32,10 +33,21 @@ func (v *validator) handle(ctx context.Context) {
 			continue
 		}
 
-		val := model.Validator{}
+		val := model.StakingParams{}
 		if err := json.Unmarshal(bytes, &val); err != nil {
 			v.log.Error().Err(err).Msg("unmarshall error")
 			continue
+		}
+
+		bytes, err := json.Marshal(val.Params)
+		if err != nil {
+			v.log.Error().Err(err).Msg("marshall error")
+			continue
+		}
+
+		val2 := storageModel.StakingParams{
+			Params: string(bytes),
+			Height: val.Height,
 		}
 
 		var (
@@ -43,13 +55,14 @@ func (v *validator) handle(ctx context.Context) {
 			db    = v.db.GetGormDB(ctx)
 		)
 
-		if db.Table("validator").
-			Where("consensus_address = ?", val.ConsensusAddress).
+		if db.Table("staking_params").
+			Where("height = ?", val.Height).
 			Count(&count); count != 0 {
 			continue
+
 		}
 
-		if err := db.Table("validator").Create(val).Error; err != nil {
+		if err = db.Table("staking_params").Create(val2).Error; err != nil {
 			v.log.Error().Err(err).Msg("error of create")
 			continue
 		}
@@ -57,8 +70,8 @@ func (v *validator) handle(ctx context.Context) {
 	}
 }
 
-func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "validator").Msg("start consumer")
+func (v *stakingParams) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
+	log.Info().Str("consumer", "staking_params").Msg("start consumer")
 
 	v.log = log
 	v.ch = make(chan any, 10)
@@ -68,7 +81,7 @@ func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log
 	ctx, cancel := context.WithCancel(context.Background())
 	v.cancel = cancel
 
-	if err := b.Subscribe(ctx, "validator"); err != nil {
+	if err := b.Subscribe(ctx, "staking_params"); err != nil {
 		return err
 	}
 
@@ -77,7 +90,7 @@ func (v *validator) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log
 	return nil
 }
 
-func (v *validator) stop() {
+func (v *stakingParams) stop() {
 	close(v.ch)
 	v.cancel()
 }

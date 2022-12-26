@@ -2,6 +2,7 @@ package modules
 
 import (
 	"context"
+	"github.com/rs/zerolog"
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/domain/modules/stacking"
 	"spacebox-writer/internal/configs"
@@ -10,25 +11,28 @@ import (
 type Modules struct {
 	cfg configs.Config
 	st  *clickhouse.Clickhouse
+	log *zerolog.Logger
 }
 
 type subscriber interface {
 	Subscribe() error
 }
 
-func New(cfg configs.Config, s *clickhouse.Clickhouse) *Modules {
+func New(cfg configs.Config, s *clickhouse.Clickhouse, log *zerolog.Logger) *Modules {
 	return &Modules{
 		cfg: cfg,
 		st:  s,
+		log: log,
 	}
 }
 
 func (m *Modules) Start(ctx context.Context) error {
 	activeModules := make([]subscriber, 0)
 	for _, moduleName := range m.cfg.Modules {
+		m.log.Info().Str("module", moduleName).Msg("start")
 		switch moduleName {
 		case "stacking":
-			activeModules = append(activeModules, stacking.New(m.cfg, m.st))
+			activeModules = append(activeModules, stacking.New(m.cfg, m.st, m.log))
 		}
 	}
 
@@ -43,5 +47,4 @@ func (m *Modules) Start(ctx context.Context) error {
 
 func (m *Modules) Stop(ctx context.Context) error {
 	return nil
-
 }

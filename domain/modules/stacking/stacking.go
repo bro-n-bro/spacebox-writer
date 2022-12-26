@@ -1,46 +1,49 @@
 package stacking
 
 import (
-	"context"
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/internal/configs"
+
+	"github.com/rs/zerolog"
 )
 
-type H interface {
-	subscribe(configs.Config, *clickhouse.Clickhouse) error
-	handle(context.Context)
-}
-
 var (
-	topics = []string{
-		"validator",
-		"validator_status",
-		"validator_info",
+	consumers = []Consumer{
+		&validator{},                  // ok
+		&validatorStatus{},            // ok
+		&validatorInfo{},              // ok
+		&stakingParams{},              // ok
+		&stakingPool{},                // ok
+		&redelegation{},               // ok
+		&redelegationMessage{},        // ok
+		&unbondingDelegation{},        // ok
+		&unbondingDelegationMessage{}, // ok
+		&delegation{},                 // ok
+		&delegationMessage{},          // ok
 	}
-
-	modules = []H{&validator{}}
 )
 
 type (
 	Module struct {
 		cfg     configs.Config
 		storage *clickhouse.Clickhouse
+		log     *zerolog.Logger
 	}
 )
 
-func New(cfg configs.Config, cl *clickhouse.Clickhouse) *Module {
+func New(cfg configs.Config, cl *clickhouse.Clickhouse, log *zerolog.Logger) *Module {
 	return &Module{
 		cfg:     cfg,
 		storage: cl,
+		log:     log,
 	}
 }
 
 func (m *Module) Subscribe() error {
-	for _, handler := range modules {
-		if err := handler.subscribe(m.cfg, m.storage); err != nil {
+	for _, handler := range consumers {
+		if err := handler.subscribe(m.cfg, m.storage, m.log); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }

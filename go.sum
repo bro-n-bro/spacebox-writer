@@ -698,6 +698,10 @@ github.com/hashicorp/serf v0.8.2/go.mod h1:6hOLApaqBFA1NXqRQAsxw9QxuDEvNxSQRwA/J
 github.com/heetch/avro v0.3.1/go.mod h1:4xn38Oz/+hiEUTpbVfGVLfvOg0yKLlRP7Q9+gJJILgA=
 github.com/hexy-dev/spacebox v0.0.0-20221209104819-31797caf8405 h1:Yu6aYBOLPm/+MPkfulFuzmVRoCW+jzFwGSBpfHD274g=
 github.com/hexy-dev/spacebox v0.0.0-20221209104819-31797caf8405/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
+github.com/hexy-dev/spacebox v0.0.0-20221225171329-709e7f628c79 h1:gtgAEvRV4WnOEMQSdr9arp95Wo/n3OLu0jD9u83JjcM=
+github.com/hexy-dev/spacebox v0.0.0-20221225171329-709e7f628c79/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
+github.com/hexy-dev/spacebox v0.0.0-20221226144256-fad79f7b65a3 h1:rIkWer9k710HSQ6BPrNanWLuMMsASHuYOpFxqB8KXmQ=
+github.com/hexy-dev/spacebox v0.0.0-20221226144256-fad79f7b65a3/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/iancoleman/orderedmap v0.0.0-20190318233801-ac98e3ecb4b0/go.mod h1:N0Wam8K1arqPXNWjMo21EXnBPOPp36vB07FNRdD2geA=
 github.com/iancoleman/strcase v0.2.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
@@ -763,6 +767,8 @@ github.com/jhump/gopoet v0.1.0/go.mod h1:me9yfT6IJSlOL3FCfrg+L6yzUEZ+5jW6WHt4Sk+
 github.com/jhump/goprotoc v0.5.0/go.mod h1:VrbvcYrQOrTi3i0Vf+m+oqQWk9l72mjkJCYo7UvLHRQ=
 github.com/jhump/protoreflect v1.11.0/go.mod h1:U7aMIjN0NWq9swDP7xDdoMfRHb35uiuTd3Z9nFXJf5E=
 github.com/jhump/protoreflect v1.12.0/go.mod h1:JytZfP5d0r8pVNLZvai7U/MCuTWITgrI4tTg7puQFKI=
+github.com/jinzhu/copier v0.3.5 h1:GlvfUwHk62RokgqVNvYsku0TATCF7bAHVwEXoBh3iJg=
+github.com/jinzhu/copier v0.3.5/go.mod h1:DfbEm0FYsaqBcKcFuvmOZb218JkPGtvSHsKg8S8hyyg=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.1/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=

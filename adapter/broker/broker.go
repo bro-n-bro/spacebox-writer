@@ -26,25 +26,12 @@ func New(cfg configs.Config, ch chan any) *Broker {
 	}
 }
 
-func (brk *Broker) Start(ctx context.Context) (err error) {
-	brk.con, err = kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": brk.cfg.Address,
-		"group.id":          brk.cfg.GroupID,
-		"auto.offset.reset": brk.cfg.AutoOffsetReset,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
 	brk.con, err = kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": brk.cfg.Address,
-		"group.id":          brk.cfg.GroupID,
-		"auto.offset.reset": brk.cfg.AutoOffsetReset,
+		"bootstrap.servers":        brk.cfg.Address,
+		"group.id":                 brk.cfg.GroupID,
+		"auto.offset.reset":        brk.cfg.AutoOffsetReset,
+		"allow.auto.create.topics": true,
 	})
 
 	if err != nil {
@@ -65,7 +52,7 @@ func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
 
 			msg, err := brk.con.ReadMessage(-1)
 			if err == nil {
-				brk.log.Info().Msgf("msg: [%v] %s", msg.String(), msg.Value)
+				brk.log.Info().Msgf("[%v]: %s", msg.String(), msg.Value)
 				brk.ch <- msg.Value
 
 			} else {
@@ -74,6 +61,7 @@ func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
 					Err(err).
 					Interface("msg", msg).
 					Msg("consumer error")
+
 			}
 
 		}

@@ -32,15 +32,15 @@ const (
 
 func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
 
-func New(cfg configs.Config) *Clickhouse {
-	lg := zerolog.New(os.Stderr).
-		Output(zerolog.ConsoleWriter{Out: os.Stderr}).
-		With().
-		Timestamp().
-		Str(keyCMP, driverName).Logger()
+func New(cfg configs.Config, log *zerolog.Logger) *Clickhouse {
+	//lg := zerolog.New(os.Stderr).
+	//	Output(zerolog.ConsoleWriter{Out: os.Stderr}).
+	//	With().
+	//	Timestamp().
+	//	Str(keyCMP, driverName).Logger()
 
 	return &Clickhouse{
-		log:  &lg,
+		log:  log,
 		cfg:  cfg,
 		gorm: &gorm.DB{},
 	}
@@ -61,7 +61,7 @@ func (clhs *Clickhouse) Start(context.Context) error {
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Warn,
+			LogLevel:                  logger.Silent,
 			IgnoreRecordNotFoundError: true,
 			Colorful:                  true,
 		},
