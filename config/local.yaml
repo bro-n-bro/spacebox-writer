@@ -13,7 +13,7 @@ modules:
 #    - core
 
 clickhouse:
-  dsn: "clickhouse://default:@localhost:9000/my_test"
+  dsn: "clickhouse://default:@localhost:9000/spacebox"
   migrations_path: "adapter/clickhouse/migrations"
   auto_migrate: true
 
