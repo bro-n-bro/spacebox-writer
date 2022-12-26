@@ -9,17 +9,17 @@ import (
 
 var (
 	consumers = []Consumer{
-		//&validator{},
-		//&validatorStatus{},
-		//&validatorInfo{},
-		//&stakingParams{},
-		//&stakingPool{},
-		//&redelegation{}, // fix it
-		&redelegationMessage{},
-		//&unbondingDelegation{},
-		//&unbondingDelegationMessage{},
-		//&delegation{},
-		//&delegationMessage{},
+		&validator{},                  // ok
+		&validatorStatus{},            // ok
+		&validatorInfo{},              // ok
+		&stakingParams{},              // ok
+		&stakingPool{},                // ok
+		&redelegation{},               // ok
+		&redelegationMessage{},        // ok
+		&unbondingDelegation{},        // ok
+		&unbondingDelegationMessage{}, // ok
+		&delegation{},                 // ok
+		&delegationMessage{},          // ok
 	}
 )
 

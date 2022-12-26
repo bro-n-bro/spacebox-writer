@@ -3,6 +3,8 @@ package stacking
 import (
 	"context"
 	"encoding/json"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
@@ -54,9 +56,29 @@ func (v *delegationMessage) handle(ctx context.Context) {
 			TxHash:           val.TxHash,
 		}
 
-		v.db.GetGormDB(ctx).Table("delegation_message").Create(val2)
+		var (
+			getVal storageModel.DelegationMessage
+			db     = v.db.GetGormDB(ctx)
+		)
 
-		// v.db.SaveValidator() // interface implementation in adapter
+		if err := db.Table("delegation_message").
+			Where("operator_address = ? AND delegator_address = ? AND height = ?",
+				val2.OperatorAddress,
+				val2.DelegatorAddress,
+				val2.Height,
+			).First(&getVal).Error; err != nil {
+
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				if err = db.Table("delegation_message").Create(val2).Error; err != nil {
+					v.log.Error().Err(err).Msg("error of create")
+					continue
+				}
+			} else {
+				v.log.Error().Err(err).Msg("error of database")
+				continue
+			}
+
+		}
 	}
 }
 

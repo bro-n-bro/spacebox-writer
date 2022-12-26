@@ -58,11 +58,6 @@ func (v *stakingParams) handle(ctx context.Context) {
 		if db.Table("staking_params").
 			Where("height = ?", val.Height).
 			Count(&count); count != 0 {
-
-			v.log.Debug().
-				Int64("height", val.Height).
-				Int64("count_of_records", count).
-				Msg("already exists")
 			continue
 
 		}

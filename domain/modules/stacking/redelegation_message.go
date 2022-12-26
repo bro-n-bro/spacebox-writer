@@ -62,18 +62,17 @@ func (v *redelegationMessage) handle(ctx context.Context) {
 		)
 
 		if db.Table("redelegation_message").
-			Where("height = ?", val2.Height).
-			Count(&count); count != 0 {
-
-			v.log.Debug().
-				Int64("height", val2.Height).
-				Int64("count_of_records", count).
-				Msg("already exists")
+			Where("height = ? AND src_validator_address = ? AND delegator_address = ? AND dst_validator_address = ?",
+				val2.Height,
+				val2.SrcValidatorAddress,
+				val2.DelegatorAddress,
+				val2.DstValidatorAddress,
+			).Count(&count); count != 0 {
 			continue
 
 		}
 
-		if err := db.Table("redelegation_message").Create(val2).Error; err != nil {
+		if err = db.Table("redelegation_message").Create(val2).Error; err != nil {
 			v.log.Error().Err(err).Msg("error of create")
 			continue
 		}

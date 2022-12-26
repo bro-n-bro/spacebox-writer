@@ -52,7 +52,7 @@ func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
 
 			msg, err := brk.con.ReadMessage(-1)
 			if err == nil {
-				brk.log.Info().Msgf("msg: [%v] %s", msg.String(), msg.Value)
+				brk.log.Info().Msgf("[%v]: %s", msg.String(), msg.Value)
 				brk.ch <- msg.Value
 
 			} else {
@@ -61,6 +61,7 @@ func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
 					Err(err).
 					Interface("msg", msg).
 					Msg("consumer error")
+
 			}
 
 		}

@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
 	storageModel "spacebox-writer/adapter/clickhouse/models"
@@ -53,9 +55,32 @@ func (v *unbondingDelegationMessage) handle(ctx context.Context) {
 			TxHash:              val.TxHash,
 		}
 
-		v.db.GetGormDB(ctx).Table("unbonding_delegation_message").Create(val2)
+		var (
+			getVal storageModel.UnbondingDelegationMessage
+			db     = v.db.GetGormDB(ctx)
+		)
 
-		// v.db.SaveValidator() // interface implementation in adapter
+		if err := db.Table("unbonding_delegation_message").
+			Where("validator_address = ? AND delegator_address = ? AND height = ?",
+				val2.ValidatorAddress,
+				val2.DelegatorAddress,
+				val2.Height,
+			).First(&getVal).Error; err != nil {
+
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				if err = db.Table("unbonding_delegation_message").Create(val2).Error; err != nil {
+					v.log.Error().Err(err).Msg("error of create")
+					continue
+				}
+			} else {
+				v.log.Error().Err(err).Msg("error of database")
+				continue
+			}
+
+		}
+
+		// v.db.GetGormDB(ctx).Table("unbonding_delegation_message").Create(val2)
+
 	}
 }
 

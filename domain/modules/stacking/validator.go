@@ -46,11 +46,6 @@ func (v *validator) handle(ctx context.Context) {
 		if db.Table("validator").
 			Where("consensus_address = ?", val.ConsensusAddress).
 			Count(&count); count != 0 {
-
-			v.log.Debug().
-				Str("consensus_address", val.ConsensusAddress).
-				Int64("count_of_records", count).
-				Msg("already exists")
 			continue
 		}
 

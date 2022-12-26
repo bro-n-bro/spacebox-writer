@@ -28,7 +28,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
-	github.com/hexy-dev/spacebox v0.0.0-20221225171329-709e7f628c79 // indirect
+	github.com/hexy-dev/spacebox v0.0.0-20221226144256-fad79f7b65a3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect

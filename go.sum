@@ -700,6 +700,8 @@ github.com/hexy-dev/spacebox v0.0.0-20221209104819-31797caf8405 h1:Yu6aYBOLPm/+M
 github.com/hexy-dev/spacebox v0.0.0-20221209104819-31797caf8405/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
 github.com/hexy-dev/spacebox v0.0.0-20221225171329-709e7f628c79 h1:gtgAEvRV4WnOEMQSdr9arp95Wo/n3OLu0jD9u83JjcM=
 github.com/hexy-dev/spacebox v0.0.0-20221225171329-709e7f628c79/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
+github.com/hexy-dev/spacebox v0.0.0-20221226144256-fad79f7b65a3 h1:rIkWer9k710HSQ6BPrNanWLuMMsASHuYOpFxqB8KXmQ=
+github.com/hexy-dev/spacebox v0.0.0-20221226144256-fad79f7b65a3/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/iancoleman/orderedmap v0.0.0-20190318233801-ac98e3ecb4b0/go.mod h1:N0Wam8K1arqPXNWjMo21EXnBPOPp36vB07FNRdD2geA=
 github.com/iancoleman/strcase v0.2.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
