@@ -3,13 +3,12 @@ package stacking
 import (
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog"
-	"spacebox-writer/internal/configs"
-	"time"
-
 	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/rs/zerolog"
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
+	"spacebox-writer/internal/configs"
 )
 
 type unbondingDelegation struct {
@@ -17,14 +16,6 @@ type unbondingDelegation struct {
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
-}
-
-type UnbondingDelegationStorage struct {
-	CompletionTimestamp time.Time `json:"completion_timestamp"`
-	Coin                string    `json:"coin"`
-	DelegatorAddress    string    `json:"delegator_address"`
-	ValidatorAddress    string    `json:"validator_oper_addr"`
-	Height              int64     `json:"height"`
 }
 
 func (v *unbondingDelegation) handle(ctx context.Context) {
@@ -50,9 +41,10 @@ func (v *unbondingDelegation) handle(ctx context.Context) {
 		bytes, err := json.Marshal(val.Coin)
 		if err != nil {
 			v.log.Error().Err(err).Msg("marshall error")
+			continue
 		}
 
-		val2 := UnbondingDelegationStorage{
+		val2 := storageModel.UnbondingDelegation{
 			CompletionTimestamp: val.CompletionTimestamp,
 			Coin:                string(bytes),
 			DelegatorAddress:    val.DelegatorAddress,
@@ -62,7 +54,6 @@ func (v *unbondingDelegation) handle(ctx context.Context) {
 
 		v.db.GetGormDB(ctx).Table("unbonding_delegation").Create(val2)
 
-		// v.db.SaveValidator() // interface implementation in adapter
 	}
 }
 

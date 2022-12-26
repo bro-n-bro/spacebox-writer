@@ -3,7 +3,10 @@ package stacking
 import (
 	"context"
 	"encoding/json"
+	"github.com/jinzhu/copier"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 	"spacebox-writer/internal/configs"
 
 	"github.com/hexy-dev/spacebox/broker/model"
@@ -38,7 +41,43 @@ func (v *validatorInfo) handle(ctx context.Context) {
 			continue
 		}
 
-		v.db.GetGormDB(ctx).Table("validator_info").Create(val)
+		var (
+			db      = v.db.GetGormDB(ctx)
+			updates model.ValidatorInfo
+			getVal  model.ValidatorInfo
+		)
+
+		if err := db.Table("validator_info").
+			Where("consensus_address = ?", val.ConsensusAddress).
+			First(&getVal).Error; err != nil {
+
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				if err = db.Table("validator_info").Create(val).Error; err != nil {
+					v.log.Error().Err(err).Msg("error of create")
+					continue
+				}
+			} else {
+				v.log.Error().Err(err).Msg("error of database")
+				continue
+			}
+
+		} else if val.Height < getVal.Height {
+
+			if err = copier.Copy(&val, &updates); err != nil {
+				v.log.Error().Err(err).Msg("error of prepare update")
+				continue
+			}
+
+			if err = db.Table("validator_info").
+				Where("consensus_address = ?", val.ConsensusAddress).
+				Updates(&updates).Error; err != nil {
+				v.log.Error().Err(err).Msg("error of update")
+				continue
+			}
+
+		}
+
+		// v.db.GetGormDB(ctx).Table("validator_info").Create(val)
 
 	}
 }

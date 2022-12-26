@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/rs/zerolog"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
 	"spacebox-writer/internal/configs"
 
 	"github.com/hexy-dev/spacebox/broker/model"
@@ -16,11 +17,6 @@ type stakingParams struct {
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
-}
-
-type StakingParamsStorage struct {
-	Params string `json:"params"`
-	Height int64  `json:"height"`
 }
 
 func (v *stakingParams) handle(ctx context.Context) {
@@ -46,16 +42,36 @@ func (v *stakingParams) handle(ctx context.Context) {
 		bytes, err := json.Marshal(val.Params)
 		if err != nil {
 			v.log.Error().Err(err).Msg("marshall error")
+			continue
 		}
 
-		val2 := StakingParamsStorage{
+		val2 := storageModel.StakingParams{
 			Params: string(bytes),
 			Height: val.Height,
 		}
 
-		v.db.GetGormDB(ctx).Table("staking_params").Create(val2)
+		var (
+			count int64
+			db    = v.db.GetGormDB(ctx)
+		)
 
-		// v.db.SaveValidator() // interface implementation in adapter
+		if db.Table("staking_params").
+			Where("height = ?", val.Height).
+			Count(&count); count != 0 {
+
+			v.log.Debug().
+				Int64("height", val.Height).
+				Int64("count_of_records", count).
+				Msg("already exists")
+			continue
+
+		}
+
+		if err = db.Table("staking_params").Create(val2).Error; err != nil {
+			v.log.Error().Err(err).Msg("error of create")
+			continue
+		}
+
 	}
 }
 

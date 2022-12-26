@@ -3,12 +3,14 @@ package stacking
 import (
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog"
+
+	"spacebox-writer/adapter/broker"
+	"spacebox-writer/adapter/clickhouse"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
 	"spacebox-writer/internal/configs"
 
 	"github.com/hexy-dev/spacebox/broker/model"
-	"spacebox-writer/adapter/broker"
-	"spacebox-writer/adapter/clickhouse"
+	"github.com/rs/zerolog"
 )
 
 type delegationMessage struct {
@@ -16,14 +18,6 @@ type delegationMessage struct {
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
-}
-
-type DelegationMessageStorage struct {
-	OperatorAddress  string `json:"operator_address"`
-	DelegatorAddress string `json:"delegator_address"`
-	Coin             string `json:"coin"`
-	Height           int64  `json:"height"`
-	TxHash           string `json:"tx_hash"`
 }
 
 func (v *delegationMessage) handle(ctx context.Context) {
@@ -49,9 +43,10 @@ func (v *delegationMessage) handle(ctx context.Context) {
 		bytes, err := json.Marshal(val.Coin)
 		if err != nil {
 			v.log.Error().Err(err).Msg("marshall error")
+			continue
 		}
 
-		val2 := DelegationMessageStorage{
+		val2 := storageModel.DelegationMessage{
 			OperatorAddress:  val.OperatorAddress,
 			DelegatorAddress: val.DelegatorAddress,
 			Coin:             string(bytes),

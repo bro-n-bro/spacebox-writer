@@ -3,13 +3,14 @@ package stacking
 import (
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog"
-	"spacebox-writer/internal/configs"
-	"time"
 
-	"github.com/hexy-dev/spacebox/broker/model"
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
+	"spacebox-writer/internal/configs"
+
+	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/rs/zerolog"
 )
 
 type redelegation struct {
@@ -17,15 +18,6 @@ type redelegation struct {
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
-}
-
-type RedelegationStorage struct {
-	CompletionTime      time.Time `json:"completion_time"`
-	Coin                string    `json:"coin"`
-	DelegatorAddress    string    `json:"delegator_address"`
-	SrcValidatorAddress string    `json:"src_validator"`
-	DstValidatorAddress string    `json:"dst_validator"`
-	Height              int64     `json:"height"`
 }
 
 func (v *redelegation) handle(ctx context.Context) {
@@ -51,9 +43,10 @@ func (v *redelegation) handle(ctx context.Context) {
 		bytes, err := json.Marshal(val.Coin)
 		if err != nil {
 			v.log.Error().Err(err).Msg("marshall error")
+			continue
 		}
 
-		val2 := RedelegationStorage{
+		val2 := storageModel.Redelegation{
 			CompletionTime:      val.CompletionTime,
 			Coin:                string(bytes),
 			DelegatorAddress:    val.DelegatorAddress,

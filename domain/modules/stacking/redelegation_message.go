@@ -3,13 +3,14 @@ package stacking
 import (
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog"
-	"spacebox-writer/internal/configs"
-	"time"
 
-	"github.com/hexy-dev/spacebox/broker/model"
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
+	"spacebox-writer/internal/configs"
+
+	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/rs/zerolog"
 )
 
 type redelegationMessage struct {
@@ -17,16 +18,6 @@ type redelegationMessage struct {
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
-}
-
-type RedelegationMessageStorage struct {
-	CompletionTime      time.Time `json:"completion_time"`
-	Coin                string    `json:"coin"`
-	DelegatorAddress    string    `json:"delegator_address"`
-	SrcValidatorAddress string    `json:"src_validator"`
-	DstValidatorAddress string    `json:"dst_validator"`
-	Height              int64     `json:"height"`
-	TxHash              string    `json:"tx_hash"`
 }
 
 func (v *redelegationMessage) handle(ctx context.Context) {
@@ -52,9 +43,10 @@ func (v *redelegationMessage) handle(ctx context.Context) {
 		bytes, err := json.Marshal(val.Coin)
 		if err != nil {
 			v.log.Error().Err(err).Msg("marshall error")
+			continue
 		}
 
-		val2 := RedelegationMessageStorage{
+		val2 := storageModel.RedelegationMessage{
 			CompletionTime:      val.CompletionTime,
 			Coin:                string(bytes),
 			DelegatorAddress:    val.DelegatorAddress,
@@ -64,9 +56,28 @@ func (v *redelegationMessage) handle(ctx context.Context) {
 			TxHash:              val.TxHash,
 		}
 
-		v.db.GetGormDB(ctx).Table("redelegation_message").Create(val2)
+		var (
+			count int64
+			db    = v.db.GetGormDB(ctx)
+		)
 
-		// v.db.SaveValidator() // interface implementation in adapter
+		if db.Table("redelegation_message").
+			Where("height = ?", val2.Height).
+			Count(&count); count != 0 {
+
+			v.log.Debug().
+				Int64("height", val2.Height).
+				Int64("count_of_records", count).
+				Msg("already exists")
+			continue
+
+		}
+
+		if err := db.Table("redelegation_message").Create(val2).Error; err != nil {
+			v.log.Error().Err(err).Msg("error of create")
+			continue
+		}
+
 	}
 }
 

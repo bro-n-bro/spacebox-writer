@@ -26,21 +26,6 @@ func New(cfg configs.Config, ch chan any) *Broker {
 	}
 }
 
-func (brk *Broker) Start(ctx context.Context) (err error) {
-	brk.con, err = kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":        brk.cfg.Address,
-		"group.id":                 brk.cfg.GroupID,
-		"auto.offset.reset":        brk.cfg.AutoOffsetReset,
-		"allow.auto.create.topics": true,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
 	brk.con, err = kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":        brk.cfg.Address,

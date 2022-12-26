@@ -3,13 +3,12 @@ package stacking
 import (
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog"
-	"spacebox-writer/internal/configs"
-	"time"
-
 	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/rs/zerolog"
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
+	"spacebox-writer/internal/configs"
 )
 
 type unbondingDelegationMessage struct {
@@ -17,15 +16,6 @@ type unbondingDelegationMessage struct {
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
-}
-
-type UnbondingDelegationMessageStorage struct {
-	CompletionTimestamp time.Time `json:"completion_timestamp"`
-	Coin                string    `json:"coin"`
-	DelegatorAddress    string    `json:"delegator_address"`
-	ValidatorAddress    string    `json:"validator_oper_addr"`
-	Height              int64     `json:"height"`
-	TxHash              string    `json:"tx_hash"`
 }
 
 func (v *unbondingDelegationMessage) handle(ctx context.Context) {
@@ -51,9 +41,10 @@ func (v *unbondingDelegationMessage) handle(ctx context.Context) {
 		bytes, err := json.Marshal(val.Coin)
 		if err != nil {
 			v.log.Error().Err(err).Msg("marshall error")
+			continue
 		}
 
-		val2 := UnbondingDelegationMessageStorage{
+		val2 := storageModel.UnbondingDelegationMessage{
 			CompletionTimestamp: val.CompletionTimestamp,
 			Coin:                string(bytes),
 			DelegatorAddress:    val.DelegatorAddress,

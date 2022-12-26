@@ -3,12 +3,16 @@ package stacking
 import (
 	"context"
 	"encoding/json"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 	"spacebox-writer/internal/configs"
 
 	"github.com/hexy-dev/spacebox/broker/model"
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
+
+	"github.com/jinzhu/copier"
 )
 
 type validatorStatus struct {
@@ -38,9 +42,42 @@ func (v *validatorStatus) handle(ctx context.Context) {
 			continue
 		}
 
-		v.db.GetGormDB(ctx).Table("validator_status").Create(val)
+		var (
+			updates model.ValidatorStatus
+			getVal  model.ValidatorStatus
+			db      = v.db.GetGormDB(ctx)
+		)
 
-		// v.db.SaveValidator() // interface implementation in adapter
+		if err := db.Table("validator_status").
+			Where("validator_address = ?", val.ValidatorAddress).
+			First(&getVal).Error; err != nil {
+
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				if err = db.Table("validator_status").Create(val).Error; err != nil {
+					v.log.Error().Err(err).Msg("error of create")
+					continue
+				}
+			} else {
+				v.log.Error().Err(err).Msg("error of database")
+				continue
+			}
+
+		} else if val.Height > getVal.Height {
+
+			if err = copier.Copy(&val, &updates); err != nil {
+				v.log.Error().Err(err).Msg("error of prepare update")
+				continue
+			}
+
+			if err = db.Table("validator_status").
+				Where("validator_address = ?", val.ValidatorAddress).
+				Updates(&updates).Error; err != nil {
+				v.log.Error().Err(err).Msg("error of update")
+				continue
+			}
+
+		}
+
 	}
 }
 
