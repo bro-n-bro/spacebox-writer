@@ -1,9 +1,10 @@
-package stacking
+package staking
 
 import (
 	"context"
 	"encoding/json"
 	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
@@ -13,14 +14,14 @@ import (
 	"spacebox-writer/internal/configs"
 )
 
-type unbondingDelegationMessage struct {
+type unbondingDelegation struct {
 	db     *clickhouse.Clickhouse // interface with needed methods
 	cancel context.CancelFunc
 	ch     chan any
 	log    *zerolog.Logger
 }
 
-func (v *unbondingDelegationMessage) handle(ctx context.Context) {
+func (v *unbondingDelegation) handle(ctx context.Context) {
 	for message := range v.ch {
 		select {
 		case <-ctx.Done():
@@ -34,7 +35,7 @@ func (v *unbondingDelegationMessage) handle(ctx context.Context) {
 			continue
 		}
 
-		val := model.UnbondingDelegationMessage{}
+		val := model.UnbondingDelegation{}
 		if err := json.Unmarshal(bytes, &val); err != nil {
 			v.log.Error().Err(err).Msg("unmarshall error")
 			continue
@@ -46,29 +47,33 @@ func (v *unbondingDelegationMessage) handle(ctx context.Context) {
 			continue
 		}
 
-		val2 := storageModel.UnbondingDelegationMessage{
+		val2 := storageModel.UnbondingDelegation{
 			CompletionTimestamp: val.CompletionTimestamp,
 			Coin:                string(bytes),
 			DelegatorAddress:    val.DelegatorAddress,
 			ValidatorAddress:    val.ValidatorAddress,
 			Height:              val.Height,
-			TxHash:              val.TxHash,
 		}
 
+		// if validator_address + delegator_address
+		// not exists - create
+		// if new height greater than height
+		// in DB - update height
+
 		var (
-			getVal storageModel.UnbondingDelegationMessage
-			db     = v.db.GetGormDB(ctx)
+			updates storageModel.UnbondingDelegation
+			getVal  storageModel.UnbondingDelegation
+			db      = v.db.GetGormDB(ctx)
 		)
 
-		if err := db.Table("unbonding_delegation_message").
-			Where("validator_address = ? AND delegator_address = ? AND height = ?",
+		if err := db.Table("unbonding_delegation").
+			Where("validator_address = ? AND delegator_address = ?",
 				val2.ValidatorAddress,
 				val2.DelegatorAddress,
-				val2.Height,
 			).First(&getVal).Error; err != nil {
 
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err = db.Table("unbonding_delegation_message").Create(val2).Error; err != nil {
+				if err = db.Table("unbonding_delegation").Create(val2).Error; err != nil {
 					v.log.Error().Err(err).Msg("error of create")
 					continue
 				}
@@ -77,15 +82,31 @@ func (v *unbondingDelegationMessage) handle(ctx context.Context) {
 				continue
 			}
 
+		} else if val2.Height > getVal.Height {
+
+			if err = copier.Copy(&val2, &updates); err != nil {
+				v.log.Error().Err(err).Msg("error of prepare update")
+				continue
+			}
+
+			if err = db.Table("unbonding_delegation").
+				Where("validator_address = ? AND delegator_address = ?",
+					val2.ValidatorAddress,
+					val2.DelegatorAddress,
+				).Updates(&updates).Error; err != nil {
+				v.log.Error().Err(err).Msg("error of update")
+				continue
+			}
+
 		}
 
-		// v.db.GetGormDB(ctx).Table("unbonding_delegation_message").Create(val2)
+		// v.db.GetGormDB(ctx).Table("unbonding_delegation").Create(val2)
 
 	}
 }
 
-func (v *unbondingDelegationMessage) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "unbonding_delegation_message").Msg("start consumer")
+func (v *unbondingDelegation) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
+	log.Info().Str("consumer", "unbonding_delegation").Msg("start consumer")
 
 	v.log = log
 	v.ch = make(chan any, 10)
@@ -95,7 +116,7 @@ func (v *unbondingDelegationMessage) subscribe(cfg configs.Config, db *clickhous
 	ctx, cancel := context.WithCancel(context.Background())
 	v.cancel = cancel
 
-	if err := b.Subscribe(ctx, "unbonding_delegation_message"); err != nil {
+	if err := b.Subscribe(ctx, "unbonding_delegation"); err != nil {
 		return err
 	}
 
@@ -104,7 +125,7 @@ func (v *unbondingDelegationMessage) subscribe(cfg configs.Config, db *clickhous
 	return nil
 }
 
-func (v *unbondingDelegationMessage) stop() {
+func (v *unbondingDelegation) stop() {
 	close(v.ch)
 	v.cancel()
 }
