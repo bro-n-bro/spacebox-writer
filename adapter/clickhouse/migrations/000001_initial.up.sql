@@ -1,5 +1,5 @@
 --
-CREATE TABLE my_test.block
+CREATE TABLE spacebox.block
 (
     `height`           Int64,
     `hash`             String,
@@ -12,7 +12,7 @@ CREATE TABLE my_test.block
 
 
 --
-CREATE TABLE my_test.message
+CREATE TABLE spacebox.message
 (
     `transaction_hash` String,
     `index`            Int64,
@@ -22,7 +22,7 @@ CREATE TABLE my_test.message
       PRIMARY KEY (transaction_hash);
 
 --
-CREATE TABLE my_test.transaction
+CREATE TABLE spacebox.transaction
 (
     `hash`         String,
     `height`       Int64,
@@ -41,7 +41,7 @@ CREATE TABLE my_test.transaction
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.account
+CREATE TABLE spacebox.account
 (
     `address` String,
     `height`  Int64
@@ -50,7 +50,7 @@ CREATE TABLE my_test.account
 
 
 --
-CREATE TABLE my_test.supply
+CREATE TABLE spacebox.supply
 (
     `height` Int64,
     `coins`  json
@@ -58,7 +58,7 @@ CREATE TABLE my_test.supply
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.account_balance
+CREATE TABLE spacebox.account_balance
 (
     `address` String,
     `height`  Int64,
@@ -67,7 +67,7 @@ CREATE TABLE my_test.account_balance
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.send_message
+CREATE TABLE spacebox.send_message
 (
     `height`       Int64,
     `address_from` String,
@@ -78,7 +78,7 @@ CREATE TABLE my_test.send_message
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.multisend_message
+CREATE TABLE spacebox.multisend_message
 (
     `height`       Int64,
     `address_from` String,
@@ -89,7 +89,7 @@ CREATE TABLE my_test.multisend_message
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.distribution_params
+CREATE TABLE spacebox.distribution_params
 (
     `height` Int64,
     `params` json
@@ -97,7 +97,7 @@ CREATE TABLE my_test.distribution_params
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.community_pool
+CREATE TABLE spacebox.community_pool
 (
     `height` Int64,
     `coins`  json
@@ -105,7 +105,7 @@ CREATE TABLE my_test.community_pool
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.validator_commission
+CREATE TABLE spacebox.validator_commission
 (
     `operator_address` String,
     `commission`       Float64,
@@ -116,7 +116,7 @@ CREATE TABLE my_test.validator_commission
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.delegation_reward
+CREATE TABLE spacebox.delegation_reward
 (
     operator_address  String,
     delegator_address String,
@@ -127,7 +127,7 @@ CREATE TABLE my_test.delegation_reward
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.delegation_reward_message
+CREATE TABLE spacebox.delegation_reward_message
 (
     validator_address String,
     delegator_address String,
@@ -138,7 +138,7 @@ CREATE TABLE my_test.delegation_reward_message
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.gov_params
+CREATE TABLE spacebox.gov_params
 (
     deposit_params json,
     voting_params  json,
@@ -148,7 +148,7 @@ CREATE TABLE my_test.gov_params
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.proposal
+CREATE TABLE spacebox.proposal
 (
     `id`                Int64,
     `title`             String,
@@ -166,7 +166,7 @@ CREATE TABLE my_test.proposal
       PRIMARY KEY (id);
 
 --
-CREATE TABLE my_test.proposal_deposit
+CREATE TABLE spacebox.proposal_deposit
 (
     proposal_id       Int64,
     depositor_address String,
@@ -177,7 +177,7 @@ CREATE TABLE my_test.proposal_deposit
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.proposal_tally_result
+CREATE TABLE spacebox.proposal_tally_result
 (
     proposal_id  Int64,
     yes          Int64,
@@ -189,7 +189,7 @@ CREATE TABLE my_test.proposal_tally_result
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.proposal_vote_message
+CREATE TABLE spacebox.proposal_vote_message
 (
     proposal_id   Int64,
     voter_address String,
@@ -200,7 +200,7 @@ CREATE TABLE my_test.proposal_vote_message
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.mint_params
+CREATE TABLE spacebox.mint_params
 (
     params json,
     height Int64
@@ -208,7 +208,7 @@ CREATE TABLE my_test.mint_params
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.inflation
+CREATE TABLE spacebox.inflation
 (
     height           Int64,
     inflation        Float64,
@@ -218,7 +218,7 @@ CREATE TABLE my_test.inflation
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.validator
+CREATE TABLE spacebox.validator
 (
     consensus_address String,
     consensus_pubkey  String
@@ -226,7 +226,7 @@ CREATE TABLE my_test.validator
       PRIMARY KEY (consensus_address);
 
 --
-CREATE TABLE my_test.validator_status
+CREATE TABLE spacebox.validator_status
 (
     validator_address String,
     status            Int64,
@@ -236,7 +236,7 @@ CREATE TABLE my_test.validator_status
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.validator_info
+CREATE TABLE spacebox.validator_info
 (
     consensus_address     String,
     operator_address      String,
@@ -247,7 +247,7 @@ CREATE TABLE my_test.validator_info
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.staking_params
+CREATE TABLE spacebox.staking_params
 (
     `height` Int64,
     `params` json
@@ -255,7 +255,7 @@ CREATE TABLE my_test.staking_params
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.staking_pool
+CREATE TABLE spacebox.staking_pool
 (
     `height`            Int64,
     `not_bonded_tokens` Int64,
@@ -264,7 +264,7 @@ CREATE TABLE my_test.staking_pool
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.redelegation
+CREATE TABLE spacebox.redelegation
 (
     `delegator_address`     String,
     `src_validator_address` String,
@@ -276,7 +276,7 @@ CREATE TABLE my_test.redelegation
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.redelegation_message
+CREATE TABLE spacebox.redelegation_message
 (
     `delegator_address`     String,
     `src_validator_address` String,
@@ -289,7 +289,7 @@ CREATE TABLE my_test.redelegation_message
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.unbonding_delegation
+CREATE TABLE spacebox.unbonding_delegation
 (
     `validator_address`    String,
     `delegator_address`    String,
@@ -300,7 +300,7 @@ CREATE TABLE my_test.unbonding_delegation
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.unbonding_delegation_message
+CREATE TABLE spacebox.unbonding_delegation_message
 (
     `validator_address`    String,
     `delegator_address`    String,
@@ -312,7 +312,7 @@ CREATE TABLE my_test.unbonding_delegation_message
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.delegation
+CREATE TABLE spacebox.delegation
 (
     `operator_address`  String,
     `delegator_address` String,
@@ -322,7 +322,7 @@ CREATE TABLE my_test.delegation
       PRIMARY KEY (height);
 
 --
-CREATE TABLE my_test.delegation_message
+CREATE TABLE spacebox.delegation_message
 (
     `operator_address`  String,
     `delegator_address` String,
