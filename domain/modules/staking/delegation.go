@@ -2,83 +2,34 @@ package staking
 
 import (
 	"context"
-	"encoding/json"
 
-	"spacebox-writer/adapter/broker"
-	"spacebox-writer/adapter/clickhouse"
-	storageModel "spacebox-writer/adapter/clickhouse/models"
-	"spacebox-writer/internal/configs"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
 
 	"github.com/hexy-dev/spacebox/broker/model"
-	"github.com/rs/zerolog"
+	"spacebox-writer/adapter/clickhouse"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
 )
 
-type delegation struct {
-	db     *clickhouse.Clickhouse // interface with needed methods
-	cancel context.CancelFunc
-	ch     chan any
-	log    *zerolog.Logger
-}
-
-func (v *delegation) handle(ctx context.Context) {
-	for message := range v.ch {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-
-		bytes, ok := message.([]byte)
-		if !ok {
-			v.log.Error().Bool("converted", ok).Msg("type error")
-			continue
-		}
-
-		val := model.Delegation{}
-		if err := json.Unmarshal(bytes, &val); err != nil {
-			v.log.Error().Err(err).Msg("marshall error")
-			continue
-		}
-
-		bytes, err := json.Marshal(val.Coin)
-		if err != nil {
-			v.log.Error().Err(err).Msg("marshall error")
-			continue
-		}
-
-		val2 := storageModel.Delegation{
-			OperatorAddress:  val.OperatorAddress,
-			DelegatorAddress: val.DelegatorAddress,
-			Coin:             string(bytes),
-			Height:           val.Height,
-		}
-
-		v.db.GetGormDB(ctx).Table("delegation").Create(val2)
-
-	}
-}
-
-func (v *delegation) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "delegation").Msg("start consumer")
-
-	v.log = log
-	v.ch = make(chan any, 10)
-	v.db = db
-
-	b := broker.New(cfg, v.ch)
-	ctx, cancel := context.WithCancel(context.Background())
-	v.cancel = cancel
-
-	if err := b.Subscribe(ctx, "delegation"); err != nil {
-		return err
+func DelegationHandler(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error {
+	val := model.Delegation{}
+	if err := jsoniter.Unmarshal(msg, &val); err != nil {
+		return errors.Wrap(err, "unmarshall error")
 	}
 
-	go v.handle(ctx)
+	coinBytes, err := jsoniter.Marshal(val.Coin)
+	if err != nil {
+		return errors.Wrap(err, "marshall error")
+	}
+
+	val2 := storageModel.Delegation{
+		OperatorAddress:  val.OperatorAddress,
+		DelegatorAddress: val.DelegatorAddress,
+		Coin:             string(coinBytes),
+		Height:           val.Height,
+	}
+
+	db.GetGormDB(ctx).Table("delegation").Create(val2)
 
 	return nil
-}
-
-func (v *delegation) stop() {
-	close(v.ch)
-	v.cancel()
 }

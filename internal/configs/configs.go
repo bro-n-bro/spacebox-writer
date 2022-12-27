@@ -7,7 +7,7 @@ import (
 type Config struct {
 	DSN             string        `env:"CLICKHOUSE_DSN"`
 	MigrationsPath  string        `env:"MIGRATIONS_PATH"`
-	Address         string        `env:"KAFKA_SERVER"`
+	Address         string        `env:"BROKER_SERVER"`
 	GroupID         string        `env:"GROUP_ID"`
 	AutoOffsetReset string        `env:"AUTO_OFFSET_RESET"`
 	Modules         []string      `env:"MODULES"`

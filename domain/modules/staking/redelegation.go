@@ -2,86 +2,37 @@ package staking
 
 import (
 	"context"
-	"encoding/json"
 
-	"spacebox-writer/adapter/broker"
-	"spacebox-writer/adapter/clickhouse"
-	storageModel "spacebox-writer/adapter/clickhouse/models"
-	"spacebox-writer/internal/configs"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
 
 	"github.com/hexy-dev/spacebox/broker/model"
-	"github.com/rs/zerolog"
+	"spacebox-writer/adapter/clickhouse"
+	storageModel "spacebox-writer/adapter/clickhouse/models"
 )
 
-type redelegation struct {
-	db     *clickhouse.Clickhouse // interface with needed methods
-	cancel context.CancelFunc
-	ch     chan any
-	log    *zerolog.Logger
-}
-
-func (v *redelegation) handle(ctx context.Context) {
-	for message := range v.ch {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-
-		bytes, ok := message.([]byte)
-		if !ok {
-			v.log.Error().Bool("converted", ok).Msg("type error")
-			continue
-		}
-
-		val := model.Redelegation{}
-		if err := json.Unmarshal(bytes, &val); err != nil {
-			v.log.Error().Err(err).Msg("unmarshall error")
-			continue
-		}
-
-		bytes, err := json.Marshal(val.Coin)
-		if err != nil {
-			v.log.Error().Err(err).Msg("marshall error")
-			continue
-		}
-
-		val2 := storageModel.Redelegation{
-			CompletionTime:      val.CompletionTime,
-			Coin:                string(bytes),
-			DelegatorAddress:    val.DelegatorAddress,
-			SrcValidatorAddress: val.SrcValidatorAddress,
-			DstValidatorAddress: val.DstValidatorAddress,
-			Height:              val.Height,
-		}
-
-		v.db.GetGormDB(ctx).Table("redelegation").Create(val2)
-
-		// v.db.SaveValidator() // interface implementation in adapter
-	}
-}
-
-func (v *redelegation) subscribe(cfg configs.Config, db *clickhouse.Clickhouse, log *zerolog.Logger) error {
-	log.Info().Str("consumer", "redelegation").Msg("start consumer")
-
-	v.log = log
-	v.ch = make(chan any, 10)
-	v.db = db
-
-	b := broker.New(cfg, v.ch)
-	ctx, cancel := context.WithCancel(context.Background())
-	v.cancel = cancel
-
-	if err := b.Subscribe(ctx, "redelegation"); err != nil {
-		return err
+func RedelegationHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+	val := model.Redelegation{}
+	if err := jsoniter.Unmarshal(msg, &val); err != nil {
+		return errors.Wrap(err, "unmarshall error")
 	}
 
-	go v.handle(ctx)
+	coinBytes, err := jsoniter.Marshal(val.Coin)
+	if err != nil {
+		return errors.Wrap(err, "marshall error")
+	}
 
+	val2 := storageModel.Redelegation{
+		CompletionTime:      val.CompletionTime,
+		Coin:                string(coinBytes),
+		DelegatorAddress:    val.DelegatorAddress,
+		SrcValidatorAddress: val.SrcValidatorAddress,
+		DstValidatorAddress: val.DstValidatorAddress,
+		Height:              val.Height,
+	}
+
+	ch.GetGormDB(ctx).Table("redelegation").Create(val2)
+
+	// v.db.SaveValidator() // interface implementation in adapter
 	return nil
-}
-
-func (v *redelegation) stop() {
-	close(v.ch)
-	v.cancel()
 }

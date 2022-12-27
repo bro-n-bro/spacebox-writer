@@ -38,7 +38,8 @@ func main() {
 		panic(err)
 	}
 
-	application := app.New(cfg)
+	l := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
+	application := app.New(cfg, l)
 
 	startCtx, startCancel := context.WithTimeout(context.Background(), cfg.StartTimeout)
 	defer startCancel()

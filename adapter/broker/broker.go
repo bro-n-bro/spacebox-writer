@@ -2,35 +2,38 @@ package broker
 
 import (
 	"context"
-	"os"
-	"spacebox-writer/internal/configs"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/rs/zerolog"
+	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/internal/configs"
 )
 
 type Broker struct {
-	log *zerolog.Logger
-	con *kafka.Consumer
-	cfg configs.Config
-	ch  chan any
+	log       *zerolog.Logger
+	clh       *clickhouse.Clickhouse
+	cfg       configs.Config
+	consumers []*kafka.Consumer
 }
 
-func New(cfg configs.Config, ch chan any) *Broker {
-	lg := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().
-		Str("cmp", "broker").Logger()
+func New(cfg configs.Config, clickhouse *clickhouse.Clickhouse, l zerolog.Logger) *Broker {
+	l = l.With().Str("cmp", "broker").Logger()
 	return &Broker{
-		log: &lg,
+		log: &l,
 		cfg: cfg,
-		ch:  ch,
+		clh: clickhouse,
 	}
 }
 
-func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
-	brk.con, err = kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":        brk.cfg.Address,
-		"group.id":                 brk.cfg.GroupID,
-		"auto.offset.reset":        brk.cfg.AutoOffsetReset,
+func (b *Broker) Subscribe(
+	ctx context.Context,
+	topic string,
+	handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error,
+) error {
+
+	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers":        b.cfg.Address,
+		"group.id":                 b.cfg.GroupID,
+		"auto.offset.reset":        b.cfg.AutoOffsetReset,
 		"allow.auto.create.topics": true,
 	})
 
@@ -38,41 +41,63 @@ func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
 		return err
 	}
 
-	if err = brk.con.Subscribe(topic, nil); err != nil {
+	if err = consumer.Subscribe(topic, nil); err != nil {
 		return err
 	}
+	b.consumers = append(b.consumers, consumer)
 
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
+				b.log.Info().Str("topic", topic).Msg("stop read messages from topic")
 				return
 			default:
 			}
 
-			msg, err := brk.con.ReadMessage(-1)
-			if err == nil {
-				brk.log.Info().Msgf("[%v]: %s", msg.String(), msg.Value)
-				brk.ch <- msg.Value
-
-			} else {
-				brk.log.
+			msg, err := consumer.ReadMessage(-1)
+			if err != nil {
+				b.log.
 					Error().
 					Err(err).
-					Interface("msg", msg).
-					Msg("consumer error")
+					Str("msg", string(msg.Value)).
+					Msg("read message error")
 
+				continue
+			} else {
+				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
 			}
 
+			if err = handler(ctx, msg.Value, b.clh); err != nil {
+				b.log.
+					Error().
+					Err(err).
+					Str("topic", topic).
+					Str("msg", string(msg.Value)).
+					Msg("handle message error")
+
+				continue
+			}
+
+			_, err = consumer.CommitMessage(msg)
+			if err != nil {
+				b.log.
+					Error().
+					Err(err).
+					Str("topic", topic).
+					Msg("commit message error")
+			}
 		}
 	}()
 
 	return nil
 }
 
-func (brk *Broker) Stop(ctx context.Context) (err error) {
-	if err = brk.con.Close(); err != nil {
-		return err
+func (b *Broker) Stop(ctx context.Context) error {
+	for _, consumer := range b.consumers {
+		if err := consumer.Close(); err != nil {
+			return err
+		}
 	}
 	return nil
 }

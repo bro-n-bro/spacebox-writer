@@ -7,12 +7,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-var (
-	consumers = []Consumer{
-		&account{},
-	}
-)
-
 type (
 	Module struct {
 		cfg     configs.Config
@@ -30,10 +24,10 @@ func New(cfg configs.Config, cl *clickhouse.Clickhouse, log *zerolog.Logger) *Mo
 }
 
 func (m *Module) Subscribe() error {
-	for _, handler := range consumers {
-		if err := handler.subscribe(m.cfg, m.storage, m.log); err != nil {
-			return err
-		}
-	}
+	//for _, handler := range consumers {
+	//	if err := handler.subscribe(m.cfg, m.storage, m.log); err != nil {
+	//		return err
+	//	}
+	//}
 	return nil
 }

@@ -32,7 +32,7 @@ const (
 
 func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
 
-func New(cfg configs.Config, log *zerolog.Logger) *Clickhouse {
+func New(cfg configs.Config, log zerolog.Logger) *Clickhouse {
 	//lg := zerolog.New(os.Stderr).
 	//	Output(zerolog.ConsoleWriter{Out: os.Stderr}).
 	//	With().
@@ -40,7 +40,7 @@ func New(cfg configs.Config, log *zerolog.Logger) *Clickhouse {
 	//	Str(keyCMP, driverName).Logger()
 
 	return &Clickhouse{
-		log:  log,
+		log:  &log,
 		cfg:  cfg,
 		gorm: &gorm.DB{},
 	}
