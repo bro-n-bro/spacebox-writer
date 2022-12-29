@@ -10,7 +10,6 @@ import (
 )
 
 func DelegationRewardHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
-
 	val := model.DelegationReward{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")
@@ -29,7 +28,9 @@ func DelegationRewardHandler(ctx context.Context, msg []byte, ch *clickhouse.Cli
 		Height:           val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("delegation_reward").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("delegation_reward").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 

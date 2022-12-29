@@ -29,7 +29,8 @@ func MultiSendMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Cli
 		Height:      val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("multisend_message").Create(val2)
-
+	if err = ch.GetGormDB(ctx).Table("multisend_message").Create(val2).Error; err != nil {
+		return err
+	}
 	return nil
 }

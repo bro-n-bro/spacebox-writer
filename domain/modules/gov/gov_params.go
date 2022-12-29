@@ -38,7 +38,9 @@ func GovParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse
 		Height:        val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("gov_params").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("gov_params").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

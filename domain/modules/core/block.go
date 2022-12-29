@@ -11,23 +11,23 @@ import (
 
 func BlockHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
 
-	val := model.AccountBalance{}
+	val := model.Block{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	coinsBytes, err := jsoniter.Marshal(val.Coins)
-	if err != nil {
+	val2 := storageModel.Block{
+		Height:          val.Height,
+		Hash:            val.Hash,
+		NumTXS:          int64(val.TxNum),
+		TotalGas:        int64(val.TotalGas),
+		ProposerAddress: val.ProposerAddress,
+		Timestamp:       val.Timestamp,
+	}
+
+	if err := ch.GetGormDB(ctx).Table("block").Create(val2).Error; err != nil {
 		return err
 	}
-
-	val2 := storageModel.AccountBalance{
-		Address: val.Address,
-		Coins:   string(coinsBytes),
-		Height:  val.Height,
-	}
-
-	ch.GetGormDB(ctx).Table("account_balance").Create(val2)
 
 	return nil
 }

@@ -29,7 +29,9 @@ func DelegationRewardMessageHandler(ctx context.Context, msg []byte, ch *clickho
 		TxHash:           val.TxHash,
 	}
 
-	ch.GetGormDB(ctx).Table("delegation_reward_message").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("delegation_reward_message").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 

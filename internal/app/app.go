@@ -28,7 +28,12 @@ type App struct {
 }
 
 func New(cfg configs.Config, l zerolog.Logger) *App {
-	l = l.Level(zerolog.InfoLevel).With().Str("cmp", "app").Logger()
+	level, err := zerolog.ParseLevel(cfg.LogLevel)
+	if err != nil {
+		level = 0
+	}
+
+	l = l.Level(level).With().Str("cmp", "app").Logger()
 	return &App{
 		log:  &l,
 		cfg:  cfg,
@@ -38,10 +43,14 @@ func New(cfg configs.Config, l zerolog.Logger) *App {
 
 func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
+	a.log.Info().
+		Uint8("log_level", uint8(a.log.GetLevel())).
+		Str("log_level_text", a.cfg.LogLevel).
+		Msg("logger")
 
 	clickhouse := clhs.New(a.cfg, *a.log)
-	broker := broker.New(a.cfg, clickhouse, *a.log)
-	mods := modules.New(a.cfg, clickhouse, *a.log, broker)
+	brk := broker.New(a.cfg, clickhouse, *a.log)
+	mods := modules.New(a.cfg, clickhouse, *a.log, brk)
 
 	a.cmps = append(
 		a.cmps,

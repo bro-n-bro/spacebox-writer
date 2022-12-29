@@ -35,6 +35,7 @@ func (b *Broker) Subscribe(
 		"group.id":                 b.cfg.GroupID,
 		"auto.offset.reset":        b.cfg.AutoOffsetReset,
 		"allow.auto.create.topics": true,
+		"enable.auto.offset.store": false,
 	})
 
 	if err != nil {
@@ -44,6 +45,7 @@ func (b *Broker) Subscribe(
 	if err = consumer.Subscribe(topic, nil); err != nil {
 		return err
 	}
+
 	b.consumers = append(b.consumers, consumer)
 
 	go func() {
@@ -56,26 +58,28 @@ func (b *Broker) Subscribe(
 			}
 
 			msg, err := consumer.ReadMessage(-1)
+			if msg == nil {
+				continue
+			}
+
 			if err != nil {
 				b.log.
 					Error().
 					Err(err).
 					Str("msg", string(msg.Value)).
 					Msg("read message error")
-
 				continue
 			} else {
 				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
 			}
 
-			if err = handler(ctx, msg.Value, b.clh); err != nil {
+			if err := handler(ctx, msg.Value, b.clh); err != nil {
 				b.log.
 					Error().
 					Err(err).
 					Str("topic", topic).
 					Str("msg", string(msg.Value)).
 					Msg("handle message error")
-
 				continue
 			}
 
@@ -89,6 +93,45 @@ func (b *Broker) Subscribe(
 			}
 		}
 	}()
+
+	//go func() {
+	//	for {
+	//		select {
+	//		case <-ctx.Done():
+	//			b.log.Info().Str("topic", topic).Msg("stop read messages from topic")
+	//			return
+	//		default:
+	//		}
+	//
+	//		ev := consumer.Poll(100)
+	//
+	//		if ev == nil {
+	//			continue
+	//		}
+	//
+	//		switch e := ev.(type) {
+	//		case *kafka.Message:
+	//			if err := handler(ctx, e.Value, b.clh); err != nil {
+	//				b.log.
+	//					Error().
+	//					Err(err).
+	//					Str("topic", topic).
+	//					Str("msg", string(e.Value)).
+	//					Msg("handle message error")
+	//				continue
+	//			}
+	//			if _, err := consumer.StoreMessage(e); err != nil {
+	//				b.log.
+	//					Error().
+	//					Err(err).
+	//					Str("topic", topic).
+	//					Str("msg", string(e.Value)).
+	//					Msg("store message error")
+	//				continue
+	//			}
+	//		}
+	//	}
+	//}()
 
 	return nil
 }

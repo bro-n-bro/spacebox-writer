@@ -26,7 +26,9 @@ func MintParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhous
 		Params: string(paramsBytes),
 	}
 
-	ch.GetGormDB(ctx).Table("mint_params").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("mint_params").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

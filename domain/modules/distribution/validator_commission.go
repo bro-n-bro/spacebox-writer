@@ -15,7 +15,9 @@ func ValidatorCommissionHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	ch.GetGormDB(ctx).Table("validator_commission").Create(val)
+	if err := ch.GetGormDB(ctx).Table("validator_commission").Create(val).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

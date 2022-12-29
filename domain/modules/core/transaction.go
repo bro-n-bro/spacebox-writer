@@ -47,7 +47,9 @@ func TransactionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhou
 		RawLog:      val.RawLog,
 	}
 
-	ch.GetGormDB(ctx).Table("transaction").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("transaction").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -22,12 +22,14 @@ func AccountBalanceHandler(ctx context.Context, msg []byte, ch *clickhouse.Click
 	}
 
 	val2 := storageModel.AccountBalance{
-		Address: val.Address,
 		Coins:   string(coinsBytes),
+		Address: val.Address,
 		Height:  val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("account_balance").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("account_balance").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -26,7 +26,9 @@ func ProposalDepositHandler(ctx context.Context, msg []byte, ch *clickhouse.Clic
 		Height: val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("proposal_deposit").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("proposal_deposit").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -216,6 +216,14 @@ CREATE TABLE spacebox.inflation
       PRIMARY KEY (height);
 
 --
+CREATE TABLE spacebox.annual_provision
+(
+    height           Int64,
+    annual_provision Float64
+)ENGINE = MergeTree()
+     PRIMARY KEY (height);
+
+--
 CREATE TABLE spacebox.validator
 (
     consensus_address String,
@@ -267,7 +275,7 @@ CREATE TABLE spacebox.redelegation
     `delegator_address`     String,
     `src_validator_address` String,
     `dst_validator_address` String,
-    `coin`                 json,
+    `coin`                  json,
     `height`                Int64,
     `completion_time`       TIMESTAMP
 ) ENGINE = MergeTree()
@@ -279,7 +287,7 @@ CREATE TABLE spacebox.redelegation_message
     `delegator_address`     String,
     `src_validator_address` String,
     `dst_validator_address` String,
-    `coin`                 json,
+    `coin`                  json,
     `height`                Int64,
     `completion_time`       TIMESTAMP,
     `tx_hash`               String
@@ -291,7 +299,7 @@ CREATE TABLE spacebox.unbonding_delegation
 (
     `validator_address`    String,
     `delegator_address`    String,
-    `coin`                json,
+    `coin`                 json,
     `completion_timestamp` TIMESTAMP,
     `height`               Int64
 ) ENGINE = MergeTree()

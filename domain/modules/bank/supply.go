@@ -26,7 +26,9 @@ func SupplyHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) e
 		Height: val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("supply").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("supply").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

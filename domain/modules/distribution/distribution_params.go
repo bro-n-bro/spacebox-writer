@@ -26,7 +26,9 @@ func DistributionParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.C
 		Height: val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("distribution_params").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("distribution_params").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

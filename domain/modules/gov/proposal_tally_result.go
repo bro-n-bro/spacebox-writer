@@ -25,7 +25,9 @@ func ProposalTallyResultHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		Height:     val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("proposal_tally_result").Create(val2)
+	if err := ch.GetGormDB(ctx).Table("proposal_tally_result").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

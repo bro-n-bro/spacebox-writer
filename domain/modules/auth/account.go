@@ -13,7 +13,6 @@ import (
 )
 
 func AccountHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
-
 	val := model.Account{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")

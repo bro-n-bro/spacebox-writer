@@ -61,4 +61,5 @@ func main() {
 	}
 
 	log.Info().Msg("service is down")
+	// os.Exit()
 }

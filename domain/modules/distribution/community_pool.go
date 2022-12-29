@@ -26,7 +26,9 @@ func CommunityPoolHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickh
 		Height: val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("community_pool").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("community_pool").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -29,7 +29,9 @@ func SendMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhou
 		Height:      val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("send_message").Create(val2)
+	if err = ch.GetGormDB(ctx).Table("send_message").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

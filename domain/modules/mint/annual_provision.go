@@ -9,13 +9,14 @@ import (
 )
 
 func AnnualProvisionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
-
 	val := model.AnnualProvision{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	ch.GetGormDB(ctx).Table("mint_params").Create(val)
+	if err := ch.GetGormDB(ctx).Table("mint_params").Create(val).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
