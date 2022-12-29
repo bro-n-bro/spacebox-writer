@@ -2,6 +2,11 @@ package modules
 
 import (
 	"context"
+	"spacebox-writer/domain/modules/bank"
+	"spacebox-writer/domain/modules/core"
+	"spacebox-writer/domain/modules/distribution"
+	"spacebox-writer/domain/modules/gov"
+	"spacebox-writer/domain/modules/mint"
 
 	"github.com/rs/zerolog"
 
@@ -28,7 +33,39 @@ type topicHandler struct {
 
 var (
 	moduleHandlers = map[string][]topicHandler{
-		"auth": {{"account", auth.AccountHandler}},
+		"core": {
+			{"block", core.BlockHandler},
+			{"message", core.MessageHandler},
+			{"transaction", core.TransactionHandler},
+		},
+		"auth": {
+			{"account", auth.AccountHandler},
+		},
+		"bank": {
+			{"account_balance", bank.AccountBalanceHandler},
+			{"multisend_message", bank.MultiSendMessageHandler},
+			{"send_message", bank.SendMessageHandler},
+			{"supply", bank.SupplyHandler},
+		},
+		"distribution": {
+			{"distribution_params", distribution.DistributionParamsHandler},
+			{"community_pool", distribution.CommunityPoolHandler},
+			{"validator_commission", distribution.ValidatorCommissionHandler},
+			{"delegation_reward", distribution.DelegationRewardHandler},
+			{"delegation_reward_message", distribution.DelegationRewardMessageHandler},
+		},
+		"gov": {
+			{"gov_params", gov.GovParamsHandler},
+			{"proposal", gov.ProposalHandler},
+			{"proposal_deposit", gov.ProposalDepositHandler},
+			{"proposal_tally_result", gov.ProposalTallyResultHandler},
+			{"proposal_vote_message", gov.ProposalVoteMessageHandler},
+		},
+		"mint": {
+			{"mint_params", mint.MintParamsHandler},
+			{"inflation", mint.InflationHandler},
+			{"annual_provision", mint.AnnualProvisionHandler},
+		},
 		"staking": {
 			{"validator", staking.ValidatorHandler},
 			{"delegation", staking.DelegationHandler},

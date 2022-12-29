@@ -28,7 +28,7 @@ CREATE TABLE spacebox.transaction
     `success`      BOOL,
     `messages`     json,
     `memo`         String,
-    `signatures`   String, -- TODO: // @malekvictor
+    `signatures`   json,
     `signer_infos` json,
     `fee`          json,
     `signer`       String,
