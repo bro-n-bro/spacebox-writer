@@ -2,6 +2,8 @@ package staking
 
 import (
 	"context"
+	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
@@ -28,20 +30,26 @@ func StakingParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickh
 	}
 
 	var (
-		count int64
-		db    = ch.GetGormDB(ctx)
+		stVal   storageModel.StakingParams
+		updates storageModel.StakingParams
+		db      = ch.GetGormDB(ctx)
 	)
 
-	if db.Table("staking_params").
+	err = db.Table("staking_params").
 		Where("height = ?", val.Height).
-		Count(&count); count != 0 {
+		First(&stVal).Error
 
-		return nil
-
-	}
-
-	if err = db.Table("staking_params").Create(val2).Error; err != nil {
-		return errors.Wrap(err, "create staking_params error")
+	if !errors.Is(gorm.ErrRecordNotFound, err) {
+		return err
+	} else if val2.Params != stVal.Params {
+		if err = copier.Copy(&val2, &updates); err != nil {
+			return err
+		}
+		if err = db.Table("staking_params").
+			Where("height = ?", val2.Height).
+			Updates(&updates).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil

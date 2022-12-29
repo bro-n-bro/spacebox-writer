@@ -31,8 +31,13 @@ func RedelegationHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickho
 		Height:              val.Height,
 	}
 
-	ch.GetGormDB(ctx).Table("redelegation").Create(val2)
+	var (
+		db = ch.GetGormDB(ctx)
+	)
 
-	// v.db.SaveValidator() // interface implementation in adapter
+	if err = db.Table("redelegation").Create(val2).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

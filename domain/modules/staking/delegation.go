@@ -29,7 +29,9 @@ func DelegationHandler(ctx context.Context, msg []byte, db *clickhouse.Clickhous
 		Height:           val.Height,
 	}
 
-	db.GetGormDB(ctx).Table("delegation").Create(val2)
+	if err = db.GetGormDB(ctx).Table("delegation").Create(val2).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
