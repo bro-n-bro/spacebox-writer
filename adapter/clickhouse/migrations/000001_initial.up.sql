@@ -191,7 +191,7 @@ CREATE TABLE spacebox.proposal_vote_message
 (
     proposal_id   Int64,
     voter_address String,
-    option        Int64,
+    option        String,
     height        Int64,
     tx_hash       String
 ) ENGINE = MergeTree()
