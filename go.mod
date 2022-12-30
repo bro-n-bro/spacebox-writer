@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/golang-migrate/migrate/v4 v4.15.2
-	github.com/hexy-dev/spacebox v0.0.0-20221228185130-793c39015436
+	github.com/hexy-dev/spacebox v0.0.0-20221229195849-a987129b3cde
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
 	github.com/json-iterator/go v1.1.12

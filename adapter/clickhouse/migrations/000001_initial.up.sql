@@ -175,6 +175,17 @@ CREATE TABLE spacebox.proposal_deposit
       PRIMARY KEY (height);
 
 --
+CREATE TABLE spacebox.proposal_deposit_message
+(
+    proposal_id       Int64,
+    depositor_address String,
+    coins             json,
+    height            Int64,
+    tx_hash           String
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
+
+--
 CREATE TABLE spacebox.proposal_tally_result
 (
     proposal_id  Int64,
@@ -220,8 +231,8 @@ CREATE TABLE spacebox.annual_provision
 (
     height           Int64,
     annual_provision Float64
-)ENGINE = MergeTree()
-     PRIMARY KEY (height);
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
 
 --
 CREATE TABLE spacebox.validator

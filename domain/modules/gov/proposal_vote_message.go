@@ -17,7 +17,7 @@ func ProposalVoteMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.
 
 	val2 := storageModel.ProposalVoteMessage{
 		ProposalID:   int64(val.ProposalID),
-		VoterAddress: val.Voter,
+		VoterAddress: val.VoterAddress,
 		Option:       val.Option,
 		Height:       val.Height,
 	}

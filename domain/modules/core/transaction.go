@@ -31,8 +31,22 @@ func TransactionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhou
 		return err
 	}
 
+	var msgs = make([]interface{}, 0)
+	for _, m := range val.Messages {
+		var intefs interface{}
+		if err = jsoniter.Unmarshal(m, &intefs); err != nil {
+			return err
+		}
+		msgs = append(msgs, intefs)
+	}
+
+	messages, err := jsoniter.Marshal(msgs)
+	if err != nil {
+		return err
+	}
+
 	val2 := storageModel.Transaction{
-		Messages:    string(val.Messages),
+		Messages:    string(messages),
 		Logs:        string(val.Logs),
 		SignerInfos: string(signerInfosBytes),
 		Signatures:  string(signaturesBytes),

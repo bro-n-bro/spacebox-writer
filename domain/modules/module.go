@@ -58,6 +58,7 @@ var (
 			{"gov_params", gov.GovParamsHandler},
 			{"proposal", gov.ProposalHandler},
 			{"proposal_deposit", gov.ProposalDepositHandler},
+			{"proposal_deposit_message", gov.ProposalDepositMessageHandler},
 			{"proposal_tally_result", gov.ProposalTallyResultHandler},
 			{"proposal_vote_message", gov.ProposalVoteMessageHandler},
 		},

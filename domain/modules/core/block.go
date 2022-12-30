@@ -19,7 +19,7 @@ func BlockHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) er
 	val2 := storageModel.Block{
 		Height:          val.Height,
 		Hash:            val.Hash,
-		NumTXS:          int64(val.TxNum),
+		NumTXS:          int64(val.NumTxs),
 		TotalGas:        int64(val.TotalGas),
 		ProposerAddress: val.ProposerAddress,
 		Timestamp:       val.Timestamp,

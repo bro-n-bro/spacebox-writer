@@ -698,6 +698,8 @@ github.com/hashicorp/serf v0.8.2/go.mod h1:6hOLApaqBFA1NXqRQAsxw9QxuDEvNxSQRwA/J
 github.com/heetch/avro v0.3.1/go.mod h1:4xn38Oz/+hiEUTpbVfGVLfvOg0yKLlRP7Q9+gJJILgA=
 github.com/hexy-dev/spacebox v0.0.0-20221228185130-793c39015436 h1:9aRzHwpj7SVkx3/VFEp9n37UR4pEqQf6GWBK/jrB6Fw=
 github.com/hexy-dev/spacebox v0.0.0-20221228185130-793c39015436/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
+github.com/hexy-dev/spacebox v0.0.0-20221229195849-a987129b3cde h1:VUS4/7UZw0c59gf9KPTLxfk2igFLvF5CO+i3nv5R0AM=
+github.com/hexy-dev/spacebox v0.0.0-20221229195849-a987129b3cde/go.mod h1:YvEDQl9OiDSeYTjpyjrDAezvOyvtKJCan0U5qUMf7QM=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/iancoleman/orderedmap v0.0.0-20190318233801-ac98e3ecb4b0/go.mod h1:N0Wam8K1arqPXNWjMo21EXnBPOPp36vB07FNRdD2geA=
 github.com/iancoleman/strcase v0.2.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
