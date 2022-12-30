@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.18.2-alpine as builder
+FROM golang:1.18.2-alpine as builder
 
 ENV CGO_ENABLED=1
 
@@ -17,11 +17,11 @@ COPY . ./
 
 RUN echo "machine ${CI_SERVER_HOST} login ${CI_REGISTRY_USER} password ${CI_JOB_TOKEN}" > ~/.netrc
 
-RUN echo "build binary on os: $TARGETOS for platform: $TARGETARCH" && \
+RUN echo "build binary" && \
     export PATH=$PATH:/usr/local/go/bin && \
     export GOPRIVATE=github.com/hexy-dev/space-box/ && \
     go mod download && \
-    GOOS=$TARGETOS GOARCH=$TARGETARCH go build -tags musl /go/src/github.com/space-box-writer/cmd/main.go && \
+    go build -tags musl /go/src/github.com/space-box-writer/cmd/main.go && \
     mv main /space-box-writer/main && \
     rm -Rf /usr/local/go/src
 
