@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	ch "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
 	migrator "github.com/golang-migrate/migrate/v4/database/clickhouse"
@@ -47,16 +48,21 @@ func New(cfg Config, log zerolog.Logger) *Clickhouse {
 }
 
 func (clhs *Clickhouse) Start(context.Context) error {
-	sqlDB, err := sql.Open(driverName, clhs.cfg.DSN)
-	if err != nil {
-		clhs.log.Error().Err(err).
-			Str("dsn", clhs.cfg.DSN).
-			Msg("db connection failed")
-		return err
-	}
+	sqlDB := ch.OpenDB(&ch.Options{
+		Addr: []string{clhs.cfg.Addr},
+		Auth: ch.Auth{
+			Database: clhs.cfg.Database,
+			Username: clhs.cfg.User,
+			Password: clhs.cfg.Password,
+		},
+		Settings: ch.Settings{
+			"max_execution_time": clhs.cfg.MaxExecutionTime,
+		},
+		DialTimeout: clhs.cfg.DialTimeout,
+	})
 
-	sqlDB.SetMaxIdleConns(50)
-	sqlDB.SetMaxOpenConns(50)
+	sqlDB.SetMaxIdleConns(clhs.cfg.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(clhs.cfg.MaxOpenConns)
 
 	gormConfig := &gorm.Config{}
 
@@ -113,7 +119,7 @@ func (clhs *Clickhouse) Start(context.Context) error {
 		}
 	}
 
-	clhs.log.Info().Str("dsn", clhs.cfg.DSN).Msg("db connected")
+	clhs.log.Info().Str("dsn", clhs.cfg.Addr).Msg("db connected")
 	return nil
 
 }

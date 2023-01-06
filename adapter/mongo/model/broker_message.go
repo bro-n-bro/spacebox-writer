@@ -3,9 +3,10 @@ package model
 import "time"
 
 type BrokerMessage struct {
+	Created          time.Time
 	ID               string `bson:"_id"`
 	LastErrorMessage string `bson:"last_error_message"`
 	Topic            string
-	Created          time.Time
-	Data             []byte
+	Data             string
+	Attempts         int
 }
