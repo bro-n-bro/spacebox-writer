@@ -2,16 +2,17 @@ package modules
 
 import (
 	"context"
-	"spacebox-writer/domain/modules/bank"
-	"spacebox-writer/domain/modules/core"
-	"spacebox-writer/domain/modules/distribution"
-	"spacebox-writer/domain/modules/gov"
-	"spacebox-writer/domain/modules/mint"
+	"sync"
 
 	"github.com/rs/zerolog"
 
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/domain/modules/auth"
+	"spacebox-writer/domain/modules/bank"
+	"spacebox-writer/domain/modules/core"
+	"spacebox-writer/domain/modules/distribution"
+	"spacebox-writer/domain/modules/gov"
+	"spacebox-writer/domain/modules/mint"
 	"spacebox-writer/domain/modules/staking"
 	"spacebox-writer/internal/configs"
 	"spacebox-writer/internal/rep"
@@ -23,6 +24,7 @@ type Modules struct {
 	log *zerolog.Logger
 	b   rep.Broker
 
+	consumersWg   *sync.WaitGroup
 	stopConsumers context.CancelFunc
 }
 
@@ -85,10 +87,11 @@ var (
 
 func New(cfg configs.Config, s *clickhouse.Clickhouse, log zerolog.Logger, b rep.Broker) *Modules {
 	return &Modules{
-		cfg: cfg,
-		st:  s, // TODO: use interface
-		log: &log,
-		b:   b,
+		cfg:         cfg,
+		st:          s, // TODO: use interface
+		log:         &log,
+		b:           b,
+		consumersWg: &sync.WaitGroup{},
 	}
 }
 
@@ -99,7 +102,8 @@ func (m *Modules) Start(_ context.Context) error {
 	for _, moduleName := range m.cfg.Modules {
 		if topicHandlers, ok := moduleHandlers[moduleName]; ok {
 			for _, th := range topicHandlers {
-				if err := m.b.Subscribe(ctx, th.topicName, th.handler); err != nil {
+				m.consumersWg.Add(1)
+				if err := m.b.Subscribe(ctx, m.consumersWg, th.topicName, th.handler); err != nil {
 					return err
 				}
 				m.log.Info().Str("module", moduleName).Msgf("topic: %v subscribed", th.topicName)
@@ -112,5 +116,6 @@ func (m *Modules) Start(_ context.Context) error {
 
 func (m *Modules) Stop(ctx context.Context) error {
 	m.stopConsumers()
+	m.consumersWg.Wait()
 	return nil
 }

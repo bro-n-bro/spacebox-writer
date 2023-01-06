@@ -11,6 +11,7 @@ import (
 type Broker struct {
 	log       *zerolog.Logger
 	clh       *clickhouse.Clickhouse
+	p         *kafka.Producer
 	cfg       configs.Config
 	consumers []*kafka.Consumer
 }
@@ -24,123 +25,59 @@ func New(cfg configs.Config, clickhouse *clickhouse.Clickhouse, l zerolog.Logger
 	}
 }
 
-func (b *Broker) Subscribe(
-	ctx context.Context,
-	topic string,
-	handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error,
-) error {
-
-	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":        b.cfg.Address,
-		"group.id":                 b.cfg.GroupID,
-		"auto.offset.reset":        b.cfg.AutoOffsetReset,
-		"allow.auto.create.topics": true,
-		"enable.auto.offset.store": false,
+func (b *Broker) Start(_ context.Context) error {
+	var err error
+	b.p, err = kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": b.cfg.Address,
 	})
 
-	if err != nil {
-		return err
-	}
-
-	if err = consumer.Subscribe(topic, nil); err != nil {
-		return err
-	}
-
-	b.consumers = append(b.consumers, consumer)
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				b.log.Info().Str("topic", topic).Msg("stop read messages from topic")
-				return
-			default:
-			}
-
-			msg, err := consumer.ReadMessage(-1)
-			if msg == nil {
+	go func(drs chan kafka.Event) {
+		for ev := range drs {
+			m, ok := ev.(*kafka.Message)
+			if !ok {
 				continue
 			}
-
-			if err != nil {
-				b.log.
-					Error().
-					Err(err).
-					Str("msg", string(msg.Value)).
-					Msg("read message error")
-				continue
-			} else {
-				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
-			}
-
-			if err := handler(ctx, msg.Value, b.clh); err != nil {
-				b.log.
-					Error().
-					Err(err).
-					Str("topic", topic).
-					Str("msg", string(msg.Value)).
-					Msg("handle message error")
-				continue
-			}
-
-			_, err = consumer.CommitMessage(msg)
-			if err != nil {
-				b.log.
-					Error().
-					Err(err).
-					Str("topic", topic).
-					Msg("commit message error")
+			if err := m.TopicPartition.Error; err != nil {
+				b.log.Error().Err(err).Msgf("Delivery error: %v", m.TopicPartition)
 			}
 		}
-	}()
+	}(b.p.Events())
 
-	//go func() {
-	//	for {
-	//		select {
-	//		case <-ctx.Done():
-	//			b.log.Info().Str("topic", topic).Msg("stop read messages from topic")
-	//			return
-	//		default:
-	//		}
-	//
-	//		ev := consumer.Poll(100)
-	//
-	//		if ev == nil {
-	//			continue
-	//		}
-	//
-	//		switch e := ev.(type) {
-	//		case *kafka.Message:
-	//			if err := handler(ctx, e.Value, b.clh); err != nil {
-	//				b.log.
-	//					Error().
-	//					Err(err).
-	//					Str("topic", topic).
-	//					Str("msg", string(e.Value)).
-	//					Msg("handle message error")
-	//				continue
-	//			}
-	//			if _, err := consumer.StoreMessage(e); err != nil {
-	//				b.log.
-	//					Error().
-	//					Err(err).
-	//					Str("topic", topic).
-	//					Str("msg", string(e.Value)).
-	//					Msg("store message error")
-	//				continue
-	//			}
-	//		}
-	//	}
-	//}()
-
-	return nil
+	return err
 }
 
 func (b *Broker) Stop(ctx context.Context) error {
+	b.p.Close()
 	for _, consumer := range b.consumers {
 		if err := consumer.Close(); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (b *Broker) produce(topic string, data []byte, headers []kafka.Header) error {
+	err := b.p.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          data,
+		Headers:        headers,
+	}, nil)
+
+	if kafkaError, ok := err.(kafka.Error); ok && kafkaError.Code() == kafka.ErrQueueFull {
+		b.log.Info().Str("topic", topic).Msg("Kafka local queue full error - Going to Flush then retry...")
+		flushedMessages := b.p.Flush(30 * 1000)
+		b.log.Info().Str("topic", topic).
+			Msgf("Flushed kafka messages. Outstanding events still un-flushed: %d", flushedMessages)
+		return b.produce(topic, data, headers)
+	}
+
+	return nil
+}
+
+func bytesToInt(bytes []byte) int {
+	var value int
+	for _, bt := range bytes {
+		value = value*10 + int(bt-48)
+	}
+	return value
 }

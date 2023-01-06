@@ -13,7 +13,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"golang.org/x/sync/errgroup"
 )
 
 type cmp struct {
@@ -56,6 +55,7 @@ func (a *App) Start(ctx context.Context) error {
 		a.cmps,
 		cmp{clickhouse, "clickhouse"},
 		cmp{mods, "modules"},
+		cmp{brk, "broker"},
 	)
 
 	okCh, errCh := make(chan struct{}), make(chan error)
@@ -83,27 +83,24 @@ func (a *App) Start(ctx context.Context) error {
 func (a *App) Stop(ctx context.Context) error {
 	a.log.Info().Msg("shutting down service...")
 
-	errCh := make(chan error)
+	okCh, errCh := make(chan struct{}), make(chan error)
 	go func() {
-		gr, ctx := errgroup.WithContext(ctx)
-		var c cmp
-		for i := len(a.cmps) - 1; i >= 0; i-- {
-			c = a.cmps[i]
+		for _, c := range a.cmps {
 			a.log.Info().Msgf("stopping %q...", c.Name)
 			if err := c.Service.Stop(ctx); err != nil {
 				a.log.Error().Err(err).Msgf("cannot stop %q", c.Name)
+				errCh <- err
 			}
 		}
-		errCh <- gr.Wait()
+		okCh <- struct{}{}
 	}()
 
 	select {
 	case <-ctx.Done():
 		return models.ErrShutdownTimeout
 	case err := <-errCh:
-		if err != nil {
-			return err
-		}
+		return err
+	case <-okCh:
 		return nil
 	}
 }

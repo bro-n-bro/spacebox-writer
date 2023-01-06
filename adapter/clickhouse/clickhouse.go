@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"spacebox-writer/internal/configs"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -16,6 +15,8 @@ import (
 	"gorm.io/driver/clickhouse"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"spacebox-writer/internal/configs"
 )
 
 type Clickhouse struct {
@@ -109,8 +110,8 @@ func (clhs *Clickhouse) Start(context.Context) error {
 	}
 
 	clhs.log.Info().Str("dsn", clhs.cfg.DSN).Msg("db connected")
-
 	return nil
+
 }
 
 func (clhs *Clickhouse) Stop(ctx context.Context) error {
