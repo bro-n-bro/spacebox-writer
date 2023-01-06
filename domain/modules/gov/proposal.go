@@ -2,6 +2,7 @@ package gov
 
 import (
 	"context"
+
 	"spacebox-writer/adapter/clickhouse"
 )
 

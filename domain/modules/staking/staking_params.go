@@ -2,15 +2,16 @@ package staking
 
 import (
 	"context"
-	"github.com/jinzhu/copier"
-	"gorm.io/gorm"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
-
-	"github.com/hexy-dev/spacebox/broker/model"
 	"spacebox-writer/adapter/clickhouse"
 	storageModel "spacebox-writer/adapter/clickhouse/models"
+
+	"github.com/hexy-dev/spacebox/broker/model"
+
+	"github.com/jinzhu/copier"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 )
 
 func StakingParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {

@@ -1,15 +1,18 @@
 package staking
 
+//nolint:dupl
+
 import (
 	"context"
+
+	"spacebox-writer/adapter/clickhouse"
+
+	"github.com/hexy-dev/spacebox/broker/model"
 
 	"github.com/jinzhu/copier"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-
-	"github.com/hexy-dev/spacebox/broker/model"
-	"spacebox-writer/adapter/clickhouse"
 )
 
 func ValidatorStatusHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {

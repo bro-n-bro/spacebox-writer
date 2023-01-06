@@ -3,10 +3,12 @@ package staking
 import (
 	"context"
 
-	"github.com/hexy-dev/spacebox/broker/model"
-	jsoniter "github.com/json-iterator/go"
 	"spacebox-writer/adapter/clickhouse"
 	storageModel "spacebox-writer/adapter/clickhouse/models"
+
+	"github.com/hexy-dev/spacebox/broker/model"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 func UnbondingDelegationMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {

@@ -73,8 +73,10 @@ func (b *Broker) Subscribe(
 				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
 			}
 
+			hndl := handler(ctx, msg.Value, b.clh)
+
 			// call handler and process error if needed
-			if err := b.handleError(ctx, handler(ctx, msg.Value, b.clh), msg); err != nil {
+			if err = b.handleError(ctx, hndl, msg); err != nil {
 				b.log.Error().Err(err).Msg("smth went wrong with handle error")
 			}
 
@@ -230,6 +232,8 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 				Created:          time.Now(),
 			})
 		}
+
+		_ = err
 
 		return nil
 	} else { // retry limit exceeded

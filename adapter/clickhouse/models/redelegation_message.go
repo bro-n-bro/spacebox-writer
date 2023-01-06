@@ -8,6 +8,6 @@ type RedelegationMessage struct {
 	DelegatorAddress    string    `json:"delegator_address"`
 	SrcValidatorAddress string    `json:"src_validator"`
 	DstValidatorAddress string    `json:"dst_validator"`
-	Height              int64     `json:"height"`
 	TxHash              string    `json:"tx_hash"`
+	Height              int64     `json:"height"`
 }

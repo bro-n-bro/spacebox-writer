@@ -2,10 +2,13 @@ package staking
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/hexy-dev/spacebox/broker/model"
+
 	"spacebox-writer/adapter/clickhouse"
 	storageModel "spacebox-writer/adapter/clickhouse/models"
+
+	"github.com/hexy-dev/spacebox/broker/model"
+
+	"encoding/json"
 )
 
 func RedelegationMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {

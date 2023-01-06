@@ -3,9 +3,11 @@ package staking
 import (
 	"context"
 
-	"github.com/hexy-dev/spacebox/broker/model"
-	jsoniter "github.com/json-iterator/go"
 	"spacebox-writer/adapter/clickhouse"
+
+	"github.com/hexy-dev/spacebox/broker/model"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 func StakingPoolHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {

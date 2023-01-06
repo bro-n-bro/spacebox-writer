@@ -2,10 +2,13 @@ package distribution
 
 import (
 	"context"
+
+	"spacebox-writer/adapter/clickhouse"
+
 	"github.com/hexy-dev/spacebox/broker/model"
+
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	"spacebox-writer/adapter/clickhouse"
 )
 
 func ValidatorCommissionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {

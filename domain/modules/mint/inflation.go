@@ -2,6 +2,7 @@ package mint
 
 import (
 	"context"
+
 	"spacebox-writer/adapter/clickhouse"
 )
 

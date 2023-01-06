@@ -18,16 +18,15 @@ import (
 )
 
 type Modules struct {
-	cfg Config
-	st  *clickhouse.Clickhouse
-	log *zerolog.Logger
-	b   rep.Broker
-
+	b             rep.Broker
+	st            *clickhouse.Clickhouse
+	log           *zerolog.Logger
 	consumersWg   *sync.WaitGroup
 	stopConsumers context.CancelFunc
+	cfg           Config
 }
 
-type topicHandler struct {
+type topicHandler struct { // nolint:govet
 	topicName string
 	handler   func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error
 }

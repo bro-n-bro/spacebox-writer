@@ -3,11 +3,12 @@ package staking
 import (
 	"context"
 
+	"github.com/hexy-dev/spacebox/broker/model"
+
+	"spacebox-writer/adapter/clickhouse"
+
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-
-	"github.com/hexy-dev/spacebox/broker/model"
-	"spacebox-writer/adapter/clickhouse"
 )
 
 func ValidatorHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {

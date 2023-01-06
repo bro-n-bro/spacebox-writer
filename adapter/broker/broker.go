@@ -41,7 +41,7 @@ func (b *Broker) Start(_ context.Context) error {
 			if !ok {
 				continue
 			}
-			if err := m.TopicPartition.Error; err != nil {
+			if err = m.TopicPartition.Error; err != nil {
 				b.log.Error().Err(err).Msgf("Delivery error: %v", m.TopicPartition)
 			}
 		}

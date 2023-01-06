@@ -10,11 +10,11 @@ import (
 )
 
 type Config struct {
-	Clickhouse   clickhouse.Config
+	LogLevel     string `env:"LOG_LEVEL"`
 	Broker       broker.Config
-	Mongo        mongo.Config
+	Clickhouse   clickhouse.Config
 	Modules      modules.Config
+	Mongo        mongo.Config
 	StartTimeout time.Duration `env:"START_TIMEOUT"`
 	StopTimeout  time.Duration `env:"STOP_TIMEOUT"`
-	LogLevel     string        `env:"LOG_LEVEL"`
 }

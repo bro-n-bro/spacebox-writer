@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database"
 	migrator "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/rs/zerolog"
@@ -26,13 +27,13 @@ type Clickhouse struct {
 
 const (
 	driverName = "clickhouse"
-	keyCMP     = "cmp"
+	// keyCMP     = "cmp"
 )
 
 func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
 
 func New(cfg Config, log zerolog.Logger) *Clickhouse {
-	//lg := zerolog.New(os.Stderr).
+	// lg := zerolog.New(os.Stderr).
 	//	Output(zerolog.ConsoleWriter{Out: os.Stderr}).
 	//	With().
 	//	Timestamp().
@@ -54,6 +55,9 @@ func (clhs *Clickhouse) Start(context.Context) error {
 		return err
 	}
 
+	sqlDB.SetMaxIdleConns(50)
+	sqlDB.SetMaxOpenConns(50)
+
 	gormConfig := &gorm.Config{}
 
 	gormConfig.Logger = logger.New(
@@ -62,7 +66,7 @@ func (clhs *Clickhouse) Start(context.Context) error {
 			SlowThreshold:             time.Second,
 			LogLevel:                  logger.Silent,
 			IgnoreRecordNotFoundError: true,
-			Colorful:                  true,
+			Colorful:                  true, // nolint:misspell
 		},
 	)
 
@@ -77,15 +81,17 @@ func (clhs *Clickhouse) Start(context.Context) error {
 
 	if clhs.cfg.AutoMigrate {
 		err = func() error {
-			driver, err := migrator.WithInstance(sqlDB, &migrator.Config{
+			var driver database.Driver
+			driver, err = migrator.WithInstance(sqlDB, &migrator.Config{
 				MultiStatementEnabled: true,
 			})
 			if err != nil {
 				return err
 			}
-			m, err := migrate.NewWithDatabaseInstance(
+			var m *migrate.Migrate
+			m, err = migrate.NewWithDatabaseInstance(
 				fmt.Sprintf("file://%v", clhs.cfg.MigrationsPath),
-				fmt.Sprintf(driverName),
+				fmt.Sprint(driverName),
 				driver,
 			)
 			if err != nil {
