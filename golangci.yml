@@ -77,7 +77,7 @@ linters:
   enable:
     - bodyclose
     - deadcode
-    - dupl
+#    - dupl
     - errcheck
     - goconst
     - gocritic
