@@ -15,15 +15,13 @@ import (
 	"gorm.io/driver/clickhouse"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-
-	"spacebox-writer/internal/configs"
 )
 
 type Clickhouse struct {
 	log  *zerolog.Logger
 	sql  *sql.DB
 	gorm *gorm.DB
-	cfg  configs.Config
+	cfg  Config
 }
 
 const (
@@ -33,7 +31,7 @@ const (
 
 func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
 
-func New(cfg configs.Config, log zerolog.Logger) *Clickhouse {
+func New(cfg Config, log zerolog.Logger) *Clickhouse {
 	//lg := zerolog.New(os.Stderr).
 	//	Output(zerolog.ConsoleWriter{Out: os.Stderr}).
 	//	With().

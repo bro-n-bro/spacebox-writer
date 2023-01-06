@@ -14,12 +14,11 @@ import (
 	"spacebox-writer/domain/modules/gov"
 	"spacebox-writer/domain/modules/mint"
 	"spacebox-writer/domain/modules/staking"
-	"spacebox-writer/internal/configs"
 	"spacebox-writer/internal/rep"
 )
 
 type Modules struct {
-	cfg configs.Config
+	cfg Config
 	st  *clickhouse.Clickhouse
 	log *zerolog.Logger
 	b   rep.Broker
@@ -85,7 +84,7 @@ var (
 	}
 )
 
-func New(cfg configs.Config, s *clickhouse.Clickhouse, log zerolog.Logger, b rep.Broker) *Modules {
+func New(cfg Config, s *clickhouse.Clickhouse, log zerolog.Logger, b rep.Broker) *Modules {
 	return &Modules{
 		cfg:         cfg,
 		st:          s, // TODO: use interface

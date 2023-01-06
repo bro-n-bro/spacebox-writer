@@ -2,12 +2,21 @@ package broker
 
 import (
 	"context"
+	"spacebox-writer/adapter/mongo/model"
 	"strconv"
 	"sync"
+	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 
 	"spacebox-writer/adapter/clickhouse"
+)
+
+const (
+	keyRetry     = "retry"
+	keyMessageID = "message_id"
 )
 
 func (b *Broker) Subscribe(
@@ -64,45 +73,9 @@ func (b *Broker) Subscribe(
 				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
 			}
 
-			if err := handler(ctx, msg.Value, b.clh); err != nil {
-				headers := msg.Headers
-				var retry int
-				for _, header := range headers {
-					if header.Key == "retry" {
-						retry = bytesToInt(header.Value)
-						break
-					}
-				}
-				retry++
-
-				b.log.
-					Error().
-					Err(err).
-					Str("topic", topic).
-					Int64("offset", int64(msg.TopicPartition.Offset)).
-					Int64("partition", int64(msg.TopicPartition.Partition)).
-					Int("retry", retry).
-					Str("msg", string(msg.Value)).
-					Msg("handle message error")
-
-				// TODO: check max retries
-
-				msg.Headers = append(msg.Headers, kafka.Header{
-					Key:   "retry",
-					Value: []byte(strconv.Itoa(retry)),
-				})
-
-				if err = b.produce(topic, msg.Value, msg.Headers); err != nil {
-					b.log.
-						Error().
-						Err(err).
-						Str("topic", topic).
-						Int64("offset", int64(msg.TopicPartition.Offset)).
-						Int64("partition", int64(msg.TopicPartition.Partition)).
-						Str("msg", string(msg.Value)).
-						Int("retry", retry).
-						Msg("produce message error")
-				}
+			// call handler and process error if needed
+			if err := b.handleError(ctx, handler(ctx, msg.Value, b.clh), msg); err != nil {
+				b.log.Error().Err(err).Msg("smth went wrong with handle error")
 			}
 
 			_, err = consumer.CommitMessage(msg)
@@ -155,6 +128,120 @@ func (b *Broker) Subscribe(
 	//		}
 	//	}
 	// }()
+
+	return nil
+}
+
+// handleError processes an error of handle function for a consumer if needed.
+// Writes to storage any info about the error if message retries from broker <= .env MAX_RETRIES
+//
+// Do nothing if the message handling func does not return an error and this is the first message from the broker
+// with the unique message_id
+func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg *kafka.Message) error {
+	headers := msg.Headers
+	topic := *msg.TopicPartition.Topic
+
+	// find unique message_id from kafka header
+	messageID := string(findValueFromHeaders(keyMessageID, headers))
+
+	if messageID == "" {
+		b.log.Debug().Str("topic", topic).Msg("empty message id. generate new")
+		messageID = uuid.New().String()
+	}
+
+	exists, err := b.m.HasBrokerMessage(ctx, messageID)
+	if err != nil {
+		return err
+	}
+
+	if messageHandlerError == nil {
+		if exists {
+			b.log.Debug().
+				Str("topic", topic).
+				Str(keyMessageID, messageID).
+				Msg("handle message successful. delete errors in storage")
+
+			if err = b.m.DeleteBrokerMessage(ctx, messageID); err != nil {
+				b.log.Warn().
+					Str(keyMessageID, messageID).
+					Err(err).
+					Msg("DeleteBrokerMessage error. But handle message successful")
+			}
+		}
+
+		return nil // handle message successful
+	}
+
+	// find how much we already tried to handle this message
+	retry := bytesToInt(findValueFromHeaders(keyRetry, headers))
+	retry++
+
+	b.log.
+		Error().
+		Err(messageHandlerError).
+		Str("topic", topic).
+		Int64("offset", int64(msg.TopicPartition.Offset)).
+		Int64("partition", int64(msg.TopicPartition.Partition)).
+		Int(keyRetry, retry).
+		Str("msg", string(msg.Value)).
+		Msg("handle message error")
+
+	if retry <= b.cfg.MaxRetries { // add to the end of the queue again with new retry value
+		// FIXME: what about another headers?
+		msg.Headers = []kafka.Header{
+			{
+				Key:   keyRetry,
+				Value: []byte(strconv.Itoa(retry)),
+			},
+			{
+				Key:   keyMessageID,
+				Value: []byte(messageID),
+			},
+		}
+
+		// produce the message at the end of the broker`s queue
+		if err = b.produce(topic, msg.Value, msg.Headers); err != nil {
+			// FIXME: what need to do?
+			b.log.
+				Error().
+				Err(err).
+				Str("topic", topic).
+				Str(keyMessageID, messageID).
+				Int64("offset", int64(msg.TopicPartition.Offset)).
+				Int64("partition", int64(msg.TopicPartition.Partition)).
+				Str("msg", string(msg.Value)).
+				Int("retry", retry).
+				Msg("produce message error")
+		}
+
+		if exists {
+			err = b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
+				ID:               messageID,
+				LastErrorMessage: messageHandlerError.Error(),
+				Topic:            topic,
+				Data:             msg.Value,
+			})
+		} else {
+			err = b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
+				ID:               messageID,
+				LastErrorMessage: messageHandlerError.Error(),
+				Topic:            topic,
+				Data:             msg.Value,
+				Created:          time.Now(),
+			})
+		}
+
+		return nil
+	} else { // retry limit exceeded
+		// TODO: any notifications?
+		b.log.
+			Error().
+			Str("topic", topic).
+			Str(keyMessageID, messageID).
+			Str("msg", string(msg.Value)).
+			Int("retry", retry).
+			Msg("retry limit exceeded!!!")
+	}
 
 	return nil
 }

@@ -2,17 +2,17 @@ package app
 
 import (
 	"context"
-	"spacebox-writer/adapter/broker"
-	"spacebox-writer/internal/configs"
 
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
+
+	"spacebox-writer/adapter/broker"
 	clhs "spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/adapter/mongo"
 	"spacebox-writer/consts"
 	"spacebox-writer/domain/modules"
 	"spacebox-writer/internal/rep"
 	"spacebox-writer/models"
-
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
 )
 
 type cmp struct {
@@ -23,10 +23,10 @@ type cmp struct {
 type App struct {
 	log  *zerolog.Logger
 	cmps []cmp
-	cfg  configs.Config
+	cfg  Config
 }
 
-func New(cfg configs.Config, l zerolog.Logger) *App {
+func New(cfg Config, l zerolog.Logger) *App {
 	level, err := zerolog.ParseLevel(cfg.LogLevel)
 	if err != nil {
 		level = 0
@@ -47,14 +47,16 @@ func (a *App) Start(ctx context.Context) error {
 		Str("log_level_text", a.cfg.LogLevel).
 		Msg("logger")
 
-	clickhouse := clhs.New(a.cfg, *a.log)
-	brk := broker.New(a.cfg, clickhouse, *a.log)
-	mods := modules.New(a.cfg, clickhouse, *a.log, brk)
+	clickhouse := clhs.New(a.cfg.Clickhouse, *a.log)
+	m := mongo.New(a.cfg.Mongo, *a.log)
+	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
+	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
 
 	a.cmps = append(
 		a.cmps,
 		cmp{clickhouse, "clickhouse"},
 		cmp{mods, "modules"},
+		cmp{m, "mongo"},
 		cmp{brk, "broker"},
 	)
 

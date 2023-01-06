@@ -4,14 +4,14 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"spacebox-writer/internal/configs"
 	"syscall"
+
+	"spacebox-writer/internal/app"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"spacebox-writer/internal/app"
 )
 
 func init() {
@@ -33,7 +33,7 @@ func main() {
 		panic(err)
 	}
 
-	var cfg configs.Config
+	var cfg app.Config
 	if err := env.Parse(&cfg); err != nil {
 		panic(err)
 	}
