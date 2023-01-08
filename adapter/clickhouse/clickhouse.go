@@ -28,17 +28,11 @@ type Clickhouse struct {
 
 const (
 	driverName = "clickhouse"
-	// keyCMP     = "cmp"
 )
 
 func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
 
 func New(cfg Config, log zerolog.Logger) *Clickhouse {
-	// lg := zerolog.New(os.Stderr).
-	//	Output(zerolog.ConsoleWriter{Out: os.Stderr}).
-	//	With().
-	//	Timestamp().
-	//	Str(keyCMP, driverName).Logger()
 
 	return &Clickhouse{
 		log:  &log,
@@ -97,7 +91,7 @@ func (clhs *Clickhouse) Start(context.Context) error {
 			var m *migrate.Migrate
 			m, err = migrate.NewWithDatabaseInstance(
 				fmt.Sprintf("file://%v", clhs.cfg.MigrationsPath),
-				fmt.Sprint(driverName),
+				driverName,
 				driver,
 			)
 			if err != nil {

@@ -29,12 +29,8 @@ func (s *Storage) Start(ctx context.Context) error {
 		options.Client().SetMaxPoolSize(s.cfg.MaxPoolSize),
 		options.Client().SetMaxConnecting(s.cfg.MaxConnecting),
 		options.Client().SetAuth(options.Credential{
-			AuthMechanism:           "",
-			AuthMechanismProperties: nil,
-			AuthSource:              "",
-			Username:                s.cfg.User,
-			Password:                s.cfg.Password,
-			PasswordSet:             false,
+			Username: s.cfg.User,
+			Password: s.cfg.Password,
 		}),
 	}
 
