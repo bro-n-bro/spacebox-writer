@@ -72,7 +72,7 @@ func (b *Broker) Subscribe(
 				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
 			}
 
-			hndlErr := handler(ctx, msg.Value, b.clh)
+			hndlErr := handler(ctx, msg.Value, b.st)
 
 			// call handler and process error if needed
 			if err = b.handleError(ctx, hndlErr, msg); err != nil {

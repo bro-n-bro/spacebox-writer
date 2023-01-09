@@ -12,26 +12,26 @@ import (
 
 type Broker struct {
 	log       *zerolog.Logger
-	clh       *clickhouse.Clickhouse
-	p         *kafka.Producer
+	pr        *kafka.Producer
+	st        *clickhouse.Clickhouse
 	m         rep.Mongo
 	cfg       Config
 	consumers []*kafka.Consumer
 }
 
-func New(cfg Config, clickhouse *clickhouse.Clickhouse, m rep.Mongo, l zerolog.Logger) *Broker {
-	l = l.With().Str("cmp", "broker").Logger()
+func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger) *Broker {
+	log = log.With().Str("cmp", "broker").Logger()
 	return &Broker{
-		log: &l,
+		log: &log,
 		cfg: cfg,
-		clh: clickhouse,
+		st:  st,
 		m:   m,
 	}
 }
 
 func (b *Broker) Start(_ context.Context) error {
 	var err error
-	b.p, err = kafka.NewProducer(&kafka.ConfigMap{
+	b.pr, err = kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": b.cfg.Address,
 	})
 
@@ -45,13 +45,13 @@ func (b *Broker) Start(_ context.Context) error {
 				b.log.Error().Err(err).Msgf("Delivery error: %v", m.TopicPartition)
 			}
 		}
-	}(b.p.Events())
+	}(b.pr.Events())
 
 	return err
 }
 
 func (b *Broker) Stop(ctx context.Context) error {
-	b.p.Close()
+	b.pr.Close()
 	for _, consumer := range b.consumers {
 		if err := consumer.Close(); err != nil {
 			return err

@@ -18,10 +18,10 @@ import (
 )
 
 type Modules struct {
-	b             rep.Broker
-	st            *clickhouse.Clickhouse
+	brk           rep.Broker
+	st            rep.Storage
 	log           *zerolog.Logger
-	consumersWg   *sync.WaitGroup
+	consumersWG   *sync.WaitGroup
 	stopConsumers context.CancelFunc
 	cfg           Config
 }
@@ -83,13 +83,13 @@ var (
 	}
 )
 
-func New(cfg Config, s *clickhouse.Clickhouse, log zerolog.Logger, b rep.Broker) *Modules {
+func New(cfg Config, st rep.Storage, log zerolog.Logger, brk rep.Broker) *Modules {
 	return &Modules{
-		cfg:         cfg,
-		st:          s, // TODO: use interface
 		log:         &log,
-		b:           b,
-		consumersWg: &sync.WaitGroup{},
+		cfg:         cfg,
+		brk:         brk,
+		st:          st,
+		consumersWG: &sync.WaitGroup{},
 	}
 }
 
@@ -100,8 +100,8 @@ func (m *Modules) Start(_ context.Context) error {
 	for _, moduleName := range m.cfg.Modules {
 		if topicHandlers, ok := moduleHandlers[moduleName]; ok {
 			for _, th := range topicHandlers {
-				m.consumersWg.Add(1)
-				if err := m.b.Subscribe(ctx, m.consumersWg, th.topicName, th.handler); err != nil {
+				m.consumersWG.Add(1)
+				if err := m.brk.Subscribe(ctx, m.consumersWG, th.topicName, th.handler); err != nil {
 					return err
 				}
 				m.log.Info().Str("module", moduleName).Msgf("topic: %v subscribed", th.topicName)
@@ -114,6 +114,6 @@ func (m *Modules) Start(_ context.Context) error {
 
 func (m *Modules) Stop(ctx context.Context) error {
 	m.stopConsumers()
-	m.consumersWg.Wait()
+	m.consumersWG.Wait()
 	return nil
 }

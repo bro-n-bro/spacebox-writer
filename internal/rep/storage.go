@@ -6,6 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Clickhouse interface {
+type Storage interface {
 	GetGormDB(ctx context.Context) *gorm.DB
 }
