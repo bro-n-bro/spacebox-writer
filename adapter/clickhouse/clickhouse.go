@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	ch "github.com/ClickHouse/clickhouse-go/v2"
+	clickhouseV2 "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
 	migrator "github.com/golang-migrate/migrate/v4/database/clickhouse"
@@ -30,7 +30,7 @@ const (
 	driverName = "clickhouse"
 )
 
-func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
+func (ch *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return ch.gorm }
 
 func New(cfg Config, log zerolog.Logger) *Clickhouse {
 
@@ -41,22 +41,22 @@ func New(cfg Config, log zerolog.Logger) *Clickhouse {
 	}
 }
 
-func (clhs *Clickhouse) Start(context.Context) error {
-	sqlDB := ch.OpenDB(&ch.Options{
-		Addr: []string{clhs.cfg.Addr},
-		Auth: ch.Auth{
-			Database: clhs.cfg.Database,
-			Username: clhs.cfg.User,
-			Password: clhs.cfg.Password,
+func (ch *Clickhouse) Start(context.Context) error {
+	sqlDB := clickhouseV2.OpenDB(&clickhouseV2.Options{
+		Addr: []string{ch.cfg.Addr},
+		Auth: clickhouseV2.Auth{
+			Database: ch.cfg.Database,
+			Username: ch.cfg.User,
+			Password: ch.cfg.Password,
 		},
-		Settings: ch.Settings{
-			"max_execution_time": clhs.cfg.MaxExecutionTime,
+		Settings: clickhouseV2.Settings{
+			"max_execution_time": ch.cfg.MaxExecutionTime,
 		},
-		DialTimeout: clhs.cfg.DialTimeout,
+		DialTimeout: ch.cfg.DialTimeout,
 	})
 
-	sqlDB.SetMaxIdleConns(clhs.cfg.MaxIdleConns)
-	sqlDB.SetMaxOpenConns(clhs.cfg.MaxOpenConns)
+	sqlDB.SetMaxIdleConns(ch.cfg.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(ch.cfg.MaxOpenConns)
 
 	gormConfig := &gorm.Config{}
 
@@ -72,14 +72,14 @@ func (clhs *Clickhouse) Start(context.Context) error {
 
 	gormDB, err := gorm.Open(clickhouse.New(clickhouse.Config{Conn: sqlDB}), gormConfig)
 	if err != nil {
-		clhs.log.Error().Err(err).Msg("failed to open GORM")
+		ch.log.Error().Err(err).Msg("failed to open GORM")
 		return err
 	}
 
-	clhs.sql = sqlDB
-	*clhs.gorm = *gormDB
+	ch.sql = sqlDB
+	*ch.gorm = *gormDB
 
-	if clhs.cfg.AutoMigrate {
+	if ch.cfg.AutoMigrate {
 		err = func() error {
 			var driver database.Driver
 			driver, err = migrator.WithInstance(sqlDB, &migrator.Config{
@@ -90,7 +90,7 @@ func (clhs *Clickhouse) Start(context.Context) error {
 			}
 			var m *migrate.Migrate
 			m, err = migrate.NewWithDatabaseInstance(
-				fmt.Sprintf("file://%v", clhs.cfg.MigrationsPath),
+				fmt.Sprintf("file://%v", ch.cfg.MigrationsPath),
 				driverName,
 				driver,
 			)
@@ -106,21 +106,22 @@ func (clhs *Clickhouse) Start(context.Context) error {
 
 		if err != nil {
 			if err.Error() == "no change" {
-				clhs.log.Info().Err(err).Msg("failed to automigrate")
+				ch.log.Info().Err(err).Msg("failed to automigrate")
 			} else {
-				clhs.log.Error().Err(err).Msg("failed to automigrate")
+				ch.log.Error().Err(err).Msg("failed to automigrate")
 			}
 		}
 	}
 
-	clhs.log.Info().Str("dsn", clhs.cfg.Addr).Msg("db connected")
+	ch.log.Info().Str("dsn", ch.cfg.Addr).Msg("db connected")
 	return nil
 
 }
 
-func (clhs *Clickhouse) Stop(ctx context.Context) error {
-	if err := clhs.sql.Close(); err != nil {
-		clhs.log.Error().Err(err).Msg("failed to close db")
+func (ch *Clickhouse) Stop(ctx context.Context) error {
+	if err := ch.sql.Close(); err != nil {
+		ch.log.Error().Err(err).Msg("failed to close db")
 	}
+
 	return nil
 }

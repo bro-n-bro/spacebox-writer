@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog"
 
 	"spacebox-writer/adapter/broker"
-	clhs "spacebox-writer/adapter/clickhouse"
+	ch "spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/adapter/mongo"
 	"spacebox-writer/consts"
 	"spacebox-writer/domain/modules"
@@ -47,7 +47,7 @@ func (a *App) Start(ctx context.Context) error {
 		Str("log_level_text", a.cfg.LogLevel).
 		Msg("logger")
 
-	clickhouse := clhs.New(a.cfg.Clickhouse, *a.log)
+	clickhouse := ch.New(a.cfg.Clickhouse, *a.log)
 	m := mongo.New(a.cfg.Mongo, *a.log)
 	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
 	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
