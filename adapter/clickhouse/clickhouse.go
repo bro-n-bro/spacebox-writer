@@ -19,6 +19,10 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+const (
+	driverName = "clickhouse"
+)
+
 type Clickhouse struct {
 	log  *zerolog.Logger
 	sql  *sql.DB
@@ -26,14 +30,9 @@ type Clickhouse struct {
 	cfg  Config
 }
 
-const (
-	driverName = "clickhouse"
-)
-
 func (ch *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return ch.gorm }
 
 func New(cfg Config, log zerolog.Logger) *Clickhouse {
-
 	return &Clickhouse{
 		log:  &log,
 		cfg:  cfg,
@@ -115,7 +114,6 @@ func (ch *Clickhouse) Start(context.Context) error {
 
 	ch.log.Info().Str("dsn", ch.cfg.Addr).Msg("db connected")
 	return nil
-
 }
 
 func (ch *Clickhouse) Stop(ctx context.Context) error {

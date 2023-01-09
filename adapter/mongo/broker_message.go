@@ -3,11 +3,11 @@ package mongo
 import (
 	"context"
 
+	"spacebox-writer/adapter/mongo/model"
+
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-
-	"spacebox-writer/adapter/mongo/model"
 )
 
 const (
@@ -15,7 +15,6 @@ const (
 )
 
 func (s *Storage) HasBrokerMessage(ctx context.Context, id string) (r bool, err error) {
-
 	msg := model.BrokerMessage{}
 
 	if err = s.collection.FindOne(ctx, bson.D{{Key: keyID, Value: id}}).Decode(&msg); err == nil {

@@ -2,7 +2,7 @@ package app
 
 import (
 	"spacebox-writer/adapter/mongo"
-	"spacebox-writer/domain/modules"
+	"spacebox-writer/modules"
 	"time"
 
 	"spacebox-writer/adapter/broker"

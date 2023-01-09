@@ -24,6 +24,7 @@ func (b *Broker) Subscribe(
 	topic string,
 	handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error,
 ) error {
+
 	defer wg.Done()
 
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
@@ -192,7 +193,6 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	}
 
 	if exists { // error message exists in mongo. just increase an attempts
-
 		if err = b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
 			ID:               messageID,
 			LastErrorMessage: messageHandlerError.Error(),
@@ -210,7 +210,6 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 				Msg("UpdateBrokerMessage error")
 		}
 	} else {
-
 		if err = b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
 			ID:               messageID,
 			LastErrorMessage: messageHandlerError.Error(),

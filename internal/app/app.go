@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"spacebox-writer/modules"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -10,21 +11,22 @@ import (
 	ch "spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/adapter/mongo"
 	"spacebox-writer/consts"
-	"spacebox-writer/domain/modules"
 	"spacebox-writer/internal/rep"
 	"spacebox-writer/models"
 )
 
-type cmp struct {
-	Service rep.Lifecycle
-	Name    string
-}
+type (
+	App struct {
+		log  *zerolog.Logger
+		cmps []cmp
+		cfg  Config
+	}
 
-type App struct {
-	log  *zerolog.Logger
-	cmps []cmp
-	cfg  Config
-}
+	cmp struct {
+		Service rep.Lifecycle
+		Name    string
+	}
+)
 
 func New(cfg Config, l zerolog.Logger) *App {
 	level, err := zerolog.ParseLevel(cfg.LogLevel)

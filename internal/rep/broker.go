@@ -7,9 +7,11 @@ import (
 	"spacebox-writer/adapter/clickhouse"
 )
 
-type Handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error
+type (
+	Handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error
 
-type Broker interface {
-	Subscribe(ctx context.Context, wg *sync.WaitGroup, topic string,
-		handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error) error
-}
+	Broker interface {
+		Subscribe(ctx context.Context, wg *sync.WaitGroup, topic string,
+			handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error) error
+	}
+)

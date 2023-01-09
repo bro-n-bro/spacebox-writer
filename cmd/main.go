@@ -14,14 +14,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-}
-
 const (
 	DefaultEnvFile = ".env"
 	EnvFile        = "ENV_FILE"
 )
+
+func init() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+}
 
 func main() {
 	fileName, ok := os.LookupEnv(EnvFile)

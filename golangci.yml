@@ -12,60 +12,87 @@ output:
 linters-settings:
   gofmt:
     simplify: true
-
   gocyclo:
-    min-complexity: 10
-
-  maligned:
-    suggest-new: true
-
+    min-complexity: 20
   dupl:
     threshold: 100
-
+  goimports:
+    local-prefixes: github.com/org/project
   depguard:
     list-type: blacklist
     include-go-root: false
     packages:
       - github.com/davecgh/go-spew/spew
-
   misspell:
     locale: UK
     ignore-words:
       - colorful
-
   lll:
-    line-length: 120
+    line-length: 126
     tab-width: 8
-
   govet:
     check-shadowing: false
     enable-all: true
+  decorder:
+    dec-order:
+      - const
+      - var
+      - type
+      - func
+    disable-dec-order-check: false
+    disable-init-func-first-check: false
+    disable-dec-num-check: false
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/hexy-dev)
+    skip-generated: false
+    custom-order: true
+  prealloc:
+    simple: false
+    range-loops: true
+    for-loops: true
+  whitespace:
+    multi-if: true
+    multi-func: true
 
 linters:
   enable:
     - bodyclose
-    - deadcode
-    #    - dupl
+#    - dupl
     - errcheck
     - goconst
     - gocritic
-    #    - gocyclo
+    - gocyclo
     - goimports
     - gosimple
     - gosec
     - govet
     - ineffassign
-    #    - interfacer
-    #    - lll
+    - lll
     - misspell
     - nakedret
     - staticcheck
-    - structcheck
     - stylecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
+    - sqlclosecheck
+    - decorder
+    - durationcheck
+    - errchkjson
+    - errname
+    - exportloopref
+    - forcetypeassert
+    - gci
+    - gocognit
+    - goerr113
+    - prealloc
+    - promlinter
+    - tenv
+    - usestdlibvars
+    - whitespace
   fast: false
 
 issues:
@@ -79,7 +106,8 @@ issues:
         - gocritic
         - goconst
         - govet
-        - errcheck
+        - gocyclo
+        - misspell
     - path: proto.go
       linters:
         - misspell
