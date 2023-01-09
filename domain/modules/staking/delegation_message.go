@@ -23,19 +23,13 @@ func DelegationMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Cl
 		return errors.Wrap(err, "marshall error")
 	}
 
-	val2 := storageModel.DelegationMessage{
+	if err = ch.GetGormDB(ctx).Table("delegation_message").Create(storageModel.DelegationMessage{
 		OperatorAddress:  val.OperatorAddress,
 		DelegatorAddress: val.DelegatorAddress,
 		Coin:             string(coinBytes),
 		Height:           val.Height,
 		TxHash:           val.TxHash,
-	}
-
-	var (
-		db = ch.GetGormDB(ctx)
-	)
-
-	if err = db.Table("delegation_message").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

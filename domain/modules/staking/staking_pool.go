@@ -17,11 +17,7 @@ func StakingPoolHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhou
 		return err
 	}
 
-	var (
-		db = ch.GetGormDB(ctx)
-	)
-
-	if err := db.Table("staking_pool").Create(val).Error; err != nil {
+	if err := ch.GetGormDB(ctx).Table("staking_pool").Create(val).Error; err != nil {
 		return err
 	}
 

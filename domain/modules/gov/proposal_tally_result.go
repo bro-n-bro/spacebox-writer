@@ -19,16 +19,14 @@ func ProposalTallyResultHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	val2 := storageModel.ProposalTallyResult{
+	if err := ch.GetGormDB(ctx).Table("proposal_tally_result").Create(storageModel.ProposalTallyResult{
 		ProposalID: int64(val.ProposalID),
 		Yes:        val.Yes,
 		No:         val.No,
 		Abstain:    val.Abstain,
 		NoWithVeto: val.NoWithVeto,
 		Height:     val.Height,
-	}
-
-	if err := ch.GetGormDB(ctx).Table("proposal_tally_result").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

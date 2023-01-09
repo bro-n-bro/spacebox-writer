@@ -24,12 +24,10 @@ func DistributionParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.C
 		return err
 	}
 
-	val2 := storageModel.DistributionParams{
+	if err = ch.GetGormDB(ctx).Table("distribution_params").Create(storageModel.DistributionParams{
 		Params: string(paramsBytes),
 		Height: val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("distribution_params").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

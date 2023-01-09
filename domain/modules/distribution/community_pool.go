@@ -24,12 +24,10 @@ func CommunityPoolHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickh
 		return err
 	}
 
-	val2 := storageModel.CommunityPool{
+	if err = ch.GetGormDB(ctx).Table("community_pool").Create(storageModel.CommunityPool{
 		Coins:  string(coinsBytes),
 		Height: val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("community_pool").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

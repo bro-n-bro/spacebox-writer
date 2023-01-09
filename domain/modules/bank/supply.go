@@ -24,12 +24,10 @@ func SupplyHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) e
 		return err
 	}
 
-	val2 := storageModel.Supply{
+	if err = ch.GetGormDB(ctx).Table("supply").Create(storageModel.Supply{
 		Coins:  string(coinsBytes),
 		Height: val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("supply").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

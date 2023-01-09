@@ -15,6 +15,7 @@ const (
 )
 
 func (s *Storage) HasBrokerMessage(ctx context.Context, id string) (r bool, err error) {
+
 	msg := model.BrokerMessage{}
 
 	if err = s.collection.FindOne(ctx, bson.D{{Key: keyID, Value: id}}).Decode(&msg); err == nil {

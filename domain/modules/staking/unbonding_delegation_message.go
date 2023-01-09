@@ -23,20 +23,15 @@ func UnbondingDelegationMessageHandler(ctx context.Context, msg []byte, ch *clic
 		return err
 	}
 
-	val2 := storageModel.UnbondingDelegationMessage{
-		CompletionTimestamp: val.CompletionTimestamp,
-		Coin:                string(coinBytes),
-		DelegatorAddress:    val.DelegatorAddress,
-		ValidatorAddress:    val.ValidatorAddress,
-		Height:              val.Height,
-		TxHash:              val.TxHash,
-	}
-
-	var (
-		db = ch.GetGormDB(ctx)
-	)
-
-	if err = db.Table("unbonding_delegation_message").Create(val2).Error; err != nil {
+	if err = ch.GetGormDB(ctx).Table("unbonding_delegation_message").
+		Create(storageModel.UnbondingDelegationMessage{
+			CompletionTimestamp: val.CompletionTimestamp,
+			Coin:                string(coinBytes),
+			DelegatorAddress:    val.DelegatorAddress,
+			ValidatorAddress:    val.ValidatorAddress,
+			Height:              val.Height,
+			TxHash:              val.TxHash,
+		}).Error; err != nil {
 		return err
 	}
 

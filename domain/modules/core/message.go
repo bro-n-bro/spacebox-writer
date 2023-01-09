@@ -24,15 +24,13 @@ func MessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) 
 		return err
 	}
 
-	val2 := storageModel.MultiSendMessage{
+	if err = ch.GetGormDB(ctx).Table("multisend_message").Create(storageModel.MultiSendMessage{
 		Coins:       string(coinsBytes),
 		AddressFrom: val.AddressFrom,
 		AddressTo:   val.AddressTo,
 		TxHash:      val.TxHash,
 		Height:      val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("multisend_message").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

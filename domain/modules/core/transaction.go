@@ -48,7 +48,7 @@ func TransactionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhou
 		return err
 	}
 
-	val2 := storageModel.Transaction{
+	if err = ch.GetGormDB(ctx).Table("transaction").Create(storageModel.Transaction{
 		Messages:    string(messages),
 		Logs:        string(val.Logs),
 		SignerInfos: string(signerInfosBytes),
@@ -62,9 +62,7 @@ func TransactionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhou
 		GasWanted:   val.GasWanted,
 		GasUsed:     val.GasUsed,
 		RawLog:      val.RawLog,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("transaction").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

@@ -23,15 +23,13 @@ func DelegationRewardHandler(ctx context.Context, msg []byte, ch *clickhouse.Cli
 		return err
 	}
 
-	val2 := storageModel.DelegationReward{
+	if err = ch.GetGormDB(ctx).Table("delegation_reward").Create(storageModel.DelegationReward{
 		Coins:            string(paramsBytes),
 		DelegatorAddress: val.DelegatorAddress,
 		WithdrawAddress:  val.WithdrawAddress,
 		OperatorAddress:  val.OperatorAddress,
 		Height:           val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("delegation_reward").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

@@ -23,7 +23,7 @@ func RedelegationMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		return err
 	}
 
-	val2 := storageModel.RedelegationMessage{
+	if err = ch.GetGormDB(ctx).Table("redelegation_message").Create(storageModel.RedelegationMessage{
 		CompletionTime:      val.CompletionTime,
 		Coin:                string(coinBytes),
 		DelegatorAddress:    val.DelegatorAddress,
@@ -31,13 +31,7 @@ func RedelegationMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		DstValidatorAddress: val.DstValidatorAddress,
 		Height:              val.Height,
 		TxHash:              val.TxHash,
-	}
-
-	var (
-		db = ch.GetGormDB(ctx)
-	)
-
-	if err = db.Table("redelegation_message").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

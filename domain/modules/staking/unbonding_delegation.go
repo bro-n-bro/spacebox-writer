@@ -23,19 +23,13 @@ func UnbondingDelegationHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		return err
 	}
 
-	val2 := storageModel.UnbondingDelegation{
+	if err = ch.GetGormDB(ctx).Table("unbonding_delegation").Create(storageModel.UnbondingDelegation{
 		CompletionTimestamp: val.CompletionTimestamp,
 		Coin:                string(coinBytes),
 		DelegatorAddress:    val.DelegatorAddress,
 		ValidatorAddress:    val.ValidatorAddress,
 		Height:              val.Height,
-	}
-
-	var (
-		db = ch.GetGormDB(ctx)
-	)
-
-	if err = db.Table("unbonding_delegation").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

@@ -24,20 +24,14 @@ func RedelegationHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickho
 		return errors.Wrap(err, "marshall error")
 	}
 
-	val2 := storageModel.Redelegation{
+	if err = ch.GetGormDB(ctx).Table("redelegation").Create(storageModel.Redelegation{
 		CompletionTime:      val.CompletionTime,
 		Coin:                string(coinBytes),
 		DelegatorAddress:    val.DelegatorAddress,
 		SrcValidatorAddress: val.SrcValidatorAddress,
 		DstValidatorAddress: val.DstValidatorAddress,
 		Height:              val.Height,
-	}
-
-	var (
-		db = ch.GetGormDB(ctx)
-	)
-
-	if err = db.Table("redelegation").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

@@ -34,14 +34,12 @@ func GovParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse
 		return err
 	}
 
-	val2 := storageModel.GovParams{
+	if err = ch.GetGormDB(ctx).Table("gov_params").Create(storageModel.GovParams{
 		DepositParams: string(depositParamsBytes),
 		VotingParams:  string(votingParamsBytes),
 		TallyParams:   string(tallyParamsBytes),
 		Height:        val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("gov_params").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

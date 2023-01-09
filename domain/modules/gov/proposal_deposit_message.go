@@ -24,15 +24,13 @@ func ProposalDepositMessageHandler(ctx context.Context, msg []byte, ch *clickhou
 		return err
 	}
 
-	val2 := storageModel.ProposalDepositMessage{
+	if err = ch.GetGormDB(ctx).Table("proposal_deposit_message").Create(storageModel.ProposalDepositMessage{
 		DepositorAddress: val.DepositorAddress,
 		Coins:            string(coinsBytes),
 		TxHash:           val.TxHash,
 		ProposalID:       int64(val.ProposalID),
 		Height:           val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("proposal_deposit_message").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

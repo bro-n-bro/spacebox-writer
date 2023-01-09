@@ -24,15 +24,13 @@ func SendMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhou
 		return err
 	}
 
-	val2 := storageModel.SendMessage{
+	if err = ch.GetGormDB(ctx).Table("send_message").Create(storageModel.SendMessage{
 		Coins:       string(coinsBytes),
 		AddressFrom: val.AddressFrom,
 		AddressTo:   val.AddressTo,
 		TxHash:      val.TxHash,
 		Height:      val.Height,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("send_message").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

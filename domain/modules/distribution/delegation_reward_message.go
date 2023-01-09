@@ -24,15 +24,13 @@ func DelegationRewardMessageHandler(ctx context.Context, msg []byte, ch *clickho
 		return err
 	}
 
-	val2 := storageModel.DelegationRewardMessage{
+	if err = ch.GetGormDB(ctx).Table("delegation_reward_message").Create(storageModel.DelegationRewardMessage{
 		Coins:            string(paramsBytes),
 		Height:           val.Height,
 		DelegatorAddress: val.DelegatorAddress,
 		ValidatorAddress: val.ValidatorAddress,
 		TxHash:           val.TxHash,
-	}
-
-	if err = ch.GetGormDB(ctx).Table("delegation_reward_message").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

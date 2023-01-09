@@ -19,16 +19,14 @@ func BlockHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) er
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	val2 := storageModel.Block{
+	if err := ch.GetGormDB(ctx).Table("block").Create(storageModel.Block{
 		Height:          val.Height,
 		Hash:            val.Hash,
 		NumTXS:          int64(val.NumTxs),
 		TotalGas:        int64(val.TotalGas),
 		ProposerAddress: val.ProposerAddress,
 		Timestamp:       val.Timestamp,
-	}
-
-	if err := ch.GetGormDB(ctx).Table("block").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 

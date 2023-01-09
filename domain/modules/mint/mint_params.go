@@ -24,12 +24,10 @@ func MintParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhous
 		return err
 	}
 
-	val2 := storageModel.MintParams{
+	if err = ch.GetGormDB(ctx).Table("mint_params").Create(storageModel.MintParams{
 		Height: val.Height,
 		Params: string(paramsBytes),
-	}
-
-	if err = ch.GetGormDB(ctx).Table("mint_params").Create(val2).Error; err != nil {
+	}).Error; err != nil {
 		return err
 	}
 
