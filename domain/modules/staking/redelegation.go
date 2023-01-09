@@ -13,6 +13,7 @@ import (
 )
 
 func RedelegationHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+
 	val := model.Redelegation{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")

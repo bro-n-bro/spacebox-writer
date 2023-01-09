@@ -14,13 +14,13 @@ const (
 	keyID = "_id"
 )
 
-func (s *Storage) HasBrokerMessage(ctx context.Context, id string) (bool, error) {
+func (s *Storage) HasBrokerMessage(ctx context.Context, id string) (r bool, err error) {
 	msg := model.BrokerMessage{}
-	err := s.collection.FindOne(ctx, bson.D{{Key: keyID, Value: id}}).Decode(&msg)
-	if err == nil {
-		return true, nil
 
+	if err = s.collection.FindOne(ctx, bson.D{{Key: keyID, Value: id}}).Decode(&msg); err == nil {
+		return true, nil
 	}
+
 	if errors.Is(err, mongo.ErrNoDocuments) {
 		return false, nil
 	}
@@ -29,10 +29,10 @@ func (s *Storage) HasBrokerMessage(ctx context.Context, id string) (bool, error)
 }
 
 func (s *Storage) CreateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error {
-	_, err := s.collection.InsertOne(ctx, msg)
-	if err != nil {
+	if _, err := s.collection.InsertOne(ctx, msg); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -44,18 +44,19 @@ func (s *Storage) UpdateBrokerMessage(ctx context.Context, msg *model.BrokerMess
 			{Key: "topic", Value: msg.Topic},
 			{Key: "data", Value: msg.Data},
 		}}}
-	_, err := s.collection.UpdateOne(ctx, filter, update)
-	if err != nil {
+
+	if _, err := s.collection.UpdateOne(ctx, filter, update); err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func (s *Storage) DeleteBrokerMessage(ctx context.Context, id string) error {
 	filter := bson.D{{Key: keyID, Value: id}}
-	_, err := s.collection.DeleteOne(ctx, filter)
-	if err != nil {
+	if _, err := s.collection.DeleteOne(ctx, filter); err != nil {
 		return err
 	}
+
 	return nil
 }

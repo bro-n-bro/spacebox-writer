@@ -2,16 +2,15 @@ package broker
 
 import (
 	"context"
-	"spacebox-writer/adapter/mongo/model"
 	"strconv"
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
+	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/adapter/mongo/model"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-
-	"spacebox-writer/adapter/clickhouse"
+	"github.com/google/uuid"
 )
 
 const (
@@ -80,8 +79,7 @@ func (b *Broker) Subscribe(
 				b.log.Error().Err(err).Msg("smth went wrong with handle error")
 			}
 
-			_, err = consumer.CommitMessage(msg)
-			if err != nil {
+			if _, err = consumer.CommitMessage(msg); err != nil {
 				b.log.
 					Error().
 					Err(err).
@@ -194,14 +192,14 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	}
 
 	if exists { // error message exists in mongo. just increase an attempts
-		err = b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
+
+		if err = b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
 			ID:               messageID,
 			LastErrorMessage: messageHandlerError.Error(),
 			Topic:            topic,
 			Attempts:         retry,
 			Data:             string(msg.Value),
-		})
-		if err != nil {
+		}); err != nil {
 			b.log.
 				Error().
 				Err(err).
@@ -211,16 +209,16 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 				Int("retry", retry).
 				Msg("UpdateBrokerMessage error")
 		}
-	} else { // create new error message in mongo
-		err = b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
+	} else {
+
+		if err = b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
 			ID:               messageID,
 			LastErrorMessage: messageHandlerError.Error(),
 			Topic:            topic,
 			Data:             string(msg.Value),
 			Attempts:         retry,
 			Created:          time.Now(),
-		})
-		if err != nil {
+		}); err != nil {
 			b.log.
 				Error().
 				Err(err).

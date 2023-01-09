@@ -13,6 +13,7 @@ import (
 )
 
 func DelegationHandler(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error {
+
 	val := model.Delegation{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")

@@ -13,6 +13,7 @@ import (
 )
 
 func ProposalVoteMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+
 	val := model.ProposalVoteMessage{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")

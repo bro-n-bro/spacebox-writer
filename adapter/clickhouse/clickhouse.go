@@ -66,7 +66,7 @@ func (clhs *Clickhouse) Start(context.Context) error {
 			SlowThreshold:             time.Second,
 			LogLevel:                  logger.Silent,
 			IgnoreRecordNotFoundError: true,
-			Colorful:                  true, // nolint:misspell
+			Colorful:                  true,
 		},
 	)
 

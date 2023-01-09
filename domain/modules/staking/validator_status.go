@@ -1,7 +1,5 @@
 package staking
 
-//nolint:dupl
-
 import (
 	"context"
 
@@ -16,6 +14,7 @@ import (
 )
 
 func ValidatorStatusHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+
 	val := model.ValidatorStatus{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err

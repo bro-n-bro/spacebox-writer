@@ -7,5 +7,5 @@ import (
 )
 
 func ProposalHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
-	return nil // TODO: make it
+	return nil // TODO: clarify logic and do this
 }

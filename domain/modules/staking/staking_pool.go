@@ -11,6 +11,7 @@ import (
 )
 
 func StakingPoolHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+
 	val := model.StakingPool{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err

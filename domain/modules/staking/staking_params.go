@@ -15,6 +15,7 @@ import (
 )
 
 func StakingParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+
 	val := model.StakingParams{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err

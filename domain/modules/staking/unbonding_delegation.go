@@ -12,6 +12,7 @@ import (
 )
 
 func UnbondingDelegationHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+
 	val := model.UnbondingDelegation{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err

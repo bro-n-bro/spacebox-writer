@@ -14,6 +14,7 @@ import (
 )
 
 func ValidatorInfoHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+
 	val := model.ValidatorInfo{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err
