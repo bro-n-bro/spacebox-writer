@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+
+	"spacebox-writer/adapter/metrics"
 	"spacebox-writer/modules"
 
 	"github.com/pkg/errors"
@@ -53,9 +55,11 @@ func (a *App) Start(ctx context.Context) error {
 	m := mongo.New(a.cfg.Mongo, *a.log)
 	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
 	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
+	metrics := metrics.New(a.cfg.Metrics, *a.log)
 
 	a.cmps = append(
 		a.cmps,
+		cmp{metrics, "metrics"},
 		cmp{clickhouse, "clickhouse"},
 		cmp{mods, "modules"},
 		cmp{m, "mongo"},

@@ -6,14 +6,16 @@ import (
 	"sync"
 	"time"
 
-	"spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/adapter/mongo/model"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus"
+
+	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/adapter/mongo/model"
 )
 
 const (
+	keyTopic     = "topic"
 	keyRetry     = "retry"
 	keyMessageID = "message_id"
 )
@@ -33,6 +35,8 @@ func (b *Broker) Subscribe(
 		"auto.offset.reset":        b.cfg.AutoOffsetReset,
 		"allow.auto.create.topics": true,
 		"enable.auto.offset.store": false,
+		// "max.poll.interval.ms":     600000, // default 300000
+		// "session.timeout.ms":       90000,  // default 45000
 	})
 
 	if err != nil {
@@ -49,10 +53,12 @@ func (b *Broker) Subscribe(
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 
+		var start time.Time
+
 		for {
 			select {
 			case <-ctx.Done():
-				b.log.Info().Str("topic", topic).Msg("stop read messages from topic")
+				b.log.Info().Str(keyTopic, topic).Msg("stop read messages from topic")
 				return
 			default:
 			}
@@ -73,7 +79,12 @@ func (b *Broker) Subscribe(
 				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
 			}
 
+			start = time.Now()
 			hndlErr := handler(ctx, msg.Value, b.st)
+			if b.cfg.MetricsEnabled {
+				b.metrics.durMetric.
+					With(prometheus.Labels{keyTopic: topic}).Observe(time.Since(start).Seconds())
+			}
 
 			// call handler and process error if needed
 			if err = b.handleError(ctx, hndlErr, msg); err != nil {
@@ -84,7 +95,7 @@ func (b *Broker) Subscribe(
 				b.log.
 					Error().
 					Err(err).
-					Str("topic", topic).
+					Str(keyTopic, topic).
 					Msg("commit message error")
 			}
 		}
@@ -106,7 +117,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	messageID := string(findValueFromHeaders(keyMessageID, headers))
 
 	if messageID == "" {
-		b.log.Debug().Str("topic", topic).Msg("empty message id. generate new")
+		b.log.Debug().Str(keyTopic, topic).Msg("empty message id. generate new")
 		messageID = uuid.New().String()
 	}
 
@@ -119,7 +130,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	if messageHandlerError == nil {
 		if exists {
 			b.log.Debug().
-				Str("topic", topic).
+				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
 				Msg("handle message successful. delete errors in storage")
 
@@ -134,6 +145,10 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 		return nil // handle message successful
 	}
 
+	if b.cfg.MetricsEnabled {
+		b.metrics.failMetric.With(prometheus.Labels{keyTopic: topic}).Inc()
+	}
+
 	// find how much we already tried to handle this message
 	retry := bytesToInt(findValueFromHeaders(keyRetry, headers))
 	retry++
@@ -142,7 +157,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	b.log.
 		Error().
 		Err(messageHandlerError).
-		Str("topic", topic).
+		Str(keyTopic, topic).
 		Int64("offset", int64(msg.TopicPartition.Offset)).
 		Int64("partition", int64(msg.TopicPartition.Partition)).
 		Int(keyRetry, retry).
@@ -153,7 +168,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 		// TODO: any notifications?
 		b.log.
 			Error().
-			Str("topic", topic).
+			Str(keyTopic, topic).
 			Str(keyMessageID, messageID).
 			Str("msg", string(msg.Value)).
 			Int("retry", retry).
@@ -181,7 +196,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 		b.log.
 			Error().
 			Err(err).
-			Str("topic", topic).
+			Str(keyTopic, topic).
 			Str(keyMessageID, messageID).
 			Int64("offset", int64(msg.TopicPartition.Offset)).
 			Int64("partition", int64(msg.TopicPartition.Partition)).
@@ -203,7 +218,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			b.log.
 				Error().
 				Err(err).
-				Str("topic", topic).
+				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
 				Str("msg", string(msg.Value)).
 				Int("retry", retry).
@@ -221,7 +236,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			b.log.
 				Error().
 				Err(err).
-				Str("topic", topic).
+				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
 				Str("msg", string(msg.Value)).
 				Int("retry", retry).

@@ -5,4 +5,5 @@ type Config struct {
 	GroupID         string `env:"GROUP_ID"`
 	AutoOffsetReset string `env:"AUTO_OFFSET_RESET"`
 	MaxRetries      int    `env:"MAX_RETRIES" envDefault:"5"`
+	MetricsEnabled  bool   `env:"METRICS_ENABLED" envDefault:"false"`
 }

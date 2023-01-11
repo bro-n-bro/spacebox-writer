@@ -1,9 +1,11 @@
 package app
 
 import (
+	"time"
+
+	"spacebox-writer/adapter/metrics"
 	"spacebox-writer/adapter/mongo"
 	"spacebox-writer/modules"
-	"time"
 
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
@@ -11,6 +13,7 @@ import (
 
 type Config struct {
 	LogLevel     string `env:"LOG_LEVEL"`
+	Metrics      metrics.Config
 	Broker       broker.Config
 	Modules      modules.Config
 	Mongo        mongo.Config

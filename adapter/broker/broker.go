@@ -4,32 +4,61 @@ import (
 	"context"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog"
 
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/internal/rep"
 )
 
-type Broker struct {
-	log       *zerolog.Logger
-	pr        *kafka.Producer
-	st        *clickhouse.Clickhouse
-	m         rep.Mongo
-	cfg       Config
-	consumers []*kafka.Consumer
-}
+type (
+	Broker struct {
+		m         rep.Mongo
+		metrics   *metrics
+		log       *zerolog.Logger
+		pr        *kafka.Producer
+		st        *clickhouse.Clickhouse
+		consumers []*kafka.Consumer
+		cfg       Config
+	}
+
+	metrics struct {
+		durMetric  *prometheus.HistogramVec
+		failMetric *prometheus.CounterVec
+	}
+)
 
 func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger) *Broker {
 	log = log.With().Str("cmp", "broker").Logger()
-	return &Broker{
+
+	b := &Broker{
 		log: &log,
 		cfg: cfg,
 		st:  st,
 		m:   m,
 	}
+
+	if b.cfg.MetricsEnabled {
+		b.metrics = &metrics{
+			durMetric: promauto.NewHistogramVec(prometheus.HistogramOpts{
+				Namespace: "spacebox_writer",
+				Name:      "process_duration",
+				Help:      "Duration of parsed blockchain objects",
+			}, []string{keyTopic}),
+			failMetric: promauto.NewCounterVec(prometheus.CounterOpts{
+				Namespace: "spacebox_writer",
+				Name:      "fails_count",
+				Help:      "Count of handling errors",
+			}, []string{keyTopic}),
+		}
+	}
+
+	return b
 }
 
 func (b *Broker) Start(_ context.Context) error {
+
 	var err error
 	b.pr, err = kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": b.cfg.Address,

@@ -6,12 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"spacebox-writer/internal/app"
-
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"spacebox-writer/internal/app"
 )
 
 const (
