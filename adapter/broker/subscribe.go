@@ -82,7 +82,7 @@ func (b *Broker) Subscribe(
 			start = time.Now()
 			hndlErr := handler(ctx, msg.Value, b.st)
 			if b.cfg.MetricsEnabled {
-				b.metrics.durMetric.
+				b.metrics.histogram.
 					With(prometheus.Labels{keyTopic: topic}).Observe(time.Since(start).Seconds())
 			}
 
@@ -146,7 +146,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	}
 
 	if b.cfg.MetricsEnabled {
-		b.metrics.failMetric.With(prometheus.Labels{keyTopic: topic}).Inc()
+		b.metrics.counter.With(prometheus.Labels{keyTopic: topic}).Inc()
 	}
 
 	// find how much we already tried to handle this message

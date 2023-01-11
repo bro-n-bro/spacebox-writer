@@ -24,8 +24,8 @@ type (
 	}
 
 	metrics struct {
-		durMetric  *prometheus.HistogramVec
-		failMetric *prometheus.CounterVec
+		histogram *prometheus.HistogramVec
+		counter   *prometheus.CounterVec
 	}
 )
 
@@ -41,15 +41,15 @@ func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger)
 
 	if b.cfg.MetricsEnabled {
 		b.metrics = &metrics{
-			durMetric: promauto.NewHistogramVec(prometheus.HistogramOpts{
+			histogram: promauto.NewHistogramVec(prometheus.HistogramOpts{
 				Namespace: "spacebox_writer",
 				Name:      "process_duration",
-				Help:      "Duration of parsed blockchain objects",
+				Help:      "Duration of handling kafka messages.",
 			}, []string{keyTopic}),
-			failMetric: promauto.NewCounterVec(prometheus.CounterOpts{
+			counter: promauto.NewCounterVec(prometheus.CounterOpts{
 				Namespace: "spacebox_writer",
 				Name:      "fails_count",
-				Help:      "Count of handling errors",
+				Help:      "Count of handling errors.",
 			}, []string{keyTopic}),
 		}
 	}
