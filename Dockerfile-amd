@@ -7,10 +7,6 @@ ARG CI_SERVER_HOST=github.com
 ARG CI_REGISTRY_USER=malekvictor
 ARG CI_JOB_TOKEN=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
 
-
-ARG TARGETOS
-ARG TARGETARCH
-
 RUN apk update && apk add --no-cache make git build-base musl-dev librdkafka librdkafka-dev
 WORKDIR /go/src/github.com/space-box-writer
 COPY . ./
@@ -22,6 +18,7 @@ RUN echo "build binary" && \
     export GOPRIVATE=github.com/hexy-dev/space-box/ && \
     go mod download && \
     go build -tags musl /go/src/github.com/space-box-writer/cmd/main.go && \
+    mkdir -p /space-box-writer && \
     mv main /space-box-writer/main && \
     rm -Rf /usr/local/go/src
 
