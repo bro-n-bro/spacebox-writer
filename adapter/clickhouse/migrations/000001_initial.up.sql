@@ -71,7 +71,8 @@ CREATE TABLE spacebox.send_message
     `address_from` String,
     `address_to`   String,
     `tx_hash`      String,
-    `coins`        json
+    `coins`        json,
+    `msg_index`    Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
@@ -80,9 +81,10 @@ CREATE TABLE spacebox.multisend_message
 (
     `height`       Int64,
     `address_from` String,
-    `address_to`   String,
+    `addresses_to`   json,
     `tx_hash`      String,
-    `coins`        json
+    `coins`        json,
+    `msg_index`    Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
@@ -131,7 +133,8 @@ CREATE TABLE spacebox.delegation_reward_message
     delegator_address String,
     coins             json,
     height            Int64,
-    tx_hash           String
+    tx_hash           String,
+    `msg_index`       Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
@@ -181,7 +184,8 @@ CREATE TABLE spacebox.proposal_deposit_message
     depositor_address String,
     coins             json,
     height            Int64,
-    tx_hash           String
+    tx_hash           String,
+    `msg_index`       Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
@@ -204,7 +208,8 @@ CREATE TABLE spacebox.proposal_vote_message
     voter_address String,
     option        String,
     height        Int64,
-    tx_hash       String
+    tx_hash       String,
+    `msg_index`   Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
@@ -238,6 +243,7 @@ CREATE TABLE spacebox.annual_provision
 CREATE TABLE spacebox.validator
 (
     consensus_address String,
+    operator_address  String,
     consensus_pubkey  String
 ) ENGINE = MergeTree()
       PRIMARY KEY (consensus_address);
@@ -301,7 +307,8 @@ CREATE TABLE spacebox.redelegation_message
     `coin`                  json,
     `height`                Int64,
     `completion_time`       TIMESTAMP,
-    `tx_hash`               String
+    `tx_hash`               String,
+    `msg_index`             Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
@@ -324,7 +331,8 @@ CREATE TABLE spacebox.unbonding_delegation_message
     `coin`                 json,
     `completion_timestamp` TIMESTAMP,
     `height`               Int64,
-    `tx_hash`              String
+    `tx_hash`              String,
+    `msg_index`            Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
@@ -345,6 +353,22 @@ CREATE TABLE spacebox.delegation_message
     `delegator_address` String,
     `coin`              json,
     `height`            Int64,
-    `tx_hash`           String
+    `tx_hash`           String,
+    `msg_index`         Int64
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
+
+--
+CREATE TABLE spacebox.validator_description
+(
+    `validator_address` String,
+    `moniker`           String,
+    `identity`          String,
+    `avatar_url`        String,
+    `website`           String,
+    `security_contact`  String,
+    `details`           String,
+    `height`            Int64
+
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
