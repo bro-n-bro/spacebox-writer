@@ -29,3 +29,4 @@ DROP TABLE IF EXISTS spacebox.validator;
 DROP TABLE IF EXISTS spacebox.validator_commission;
 DROP TABLE IF EXISTS spacebox.validator_info;
 DROP TABLE IF EXISTS spacebox.validator_status;
+DROP TABLE IF EXISTS spacebox.validator_description;
