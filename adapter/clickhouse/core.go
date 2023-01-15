@@ -1,8 +1,9 @@
 package clickhouse
 
 import (
-	jsoniter "github.com/json-iterator/go"
 	storageModel "spacebox-writer/adapter/clickhouse/models"
+
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/hexy-dev/spacebox/broker/model"
 )
@@ -98,4 +99,15 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	}
 
 	return nil
+}
+
+func (ch *Clickhouse) LatestBlockHeight() (int64, error) {
+	var lastHeight int64
+
+	if err := ch.gorm.Select("height").Table("block").Order("height DESK").
+		Limit(1).Scan(&lastHeight).Error; err != nil {
+		return 0, err
+	}
+
+	return lastHeight, nil
 }

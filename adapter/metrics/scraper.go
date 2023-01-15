@@ -1,7 +1,6 @@
 package metrics
 
 import (
-	"context"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -25,7 +24,6 @@ func (m *Metrics) startScraping() {
 
 		lastHeight int64
 		err        error
-		ctx        = context.Background()
 		ticker     = time.NewTicker(1 * time.Minute)
 	)
 
@@ -37,9 +35,9 @@ func (m *Metrics) startScraping() {
 		case <-ticker.C:
 			// FIXME: it does not check handle errors
 
-			if err = m.ch.GetGormDB(ctx).Select("height").Table("block").Order("height DESK").
-				Limit(1).Scan(&lastHeight).Error; err != nil {
-				m.log.Error().Err(err).Msg("get last block height from clickhouse error")
+			lastHeight, err = m.ch.LatestBlockHeight()
+			if err != nil {
+				m.log.Error().Err(err).Msg("get LatestBlockHeight from clickhouse error")
 				continue
 			}
 
