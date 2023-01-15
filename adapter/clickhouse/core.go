@@ -2,8 +2,8 @@ package clickhouse
 
 import (
 	jsoniter "github.com/json-iterator/go"
-	storageModel "spacebox-writer/adapter/clickhouse/models"
 
+	storageModel "github.com/hexy-dev/spacebox-writer/adapter/clickhouse/models"
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 

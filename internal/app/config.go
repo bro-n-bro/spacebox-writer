@@ -1,12 +1,12 @@
 package app
 
 import (
-	"spacebox-writer/adapter/mongo"
-	"spacebox-writer/modules"
 	"time"
 
-	"spacebox-writer/adapter/broker"
-	"spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/broker"
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
+	"github.com/hexy-dev/spacebox-writer/modules"
 )
 
 type Config struct {

@@ -2,17 +2,17 @@ package app
 
 import (
 	"context"
-	"spacebox-writer/modules"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
-	"spacebox-writer/adapter/broker"
-	ch "spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/adapter/mongo"
-	"spacebox-writer/consts"
-	"spacebox-writer/internal/rep"
-	"spacebox-writer/models"
+	"github.com/hexy-dev/spacebox-writer/adapter/broker"
+	ch "github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
+	"github.com/hexy-dev/spacebox-writer/consts"
+	"github.com/hexy-dev/spacebox-writer/internal/rep"
+	"github.com/hexy-dev/spacebox-writer/models"
+	"github.com/hexy-dev/spacebox-writer/modules"
 )
 
 type (

@@ -1,4 +1,4 @@
-module spacebox-writer
+module github.com/hexy-dev/spacebox-writer
 
 go 1.18
 

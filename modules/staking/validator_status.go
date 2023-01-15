@@ -4,8 +4,8 @@ import (
 	"context"
 
 	jsoniter "github.com/json-iterator/go"
-	"spacebox-writer/adapter/clickhouse"
 
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 

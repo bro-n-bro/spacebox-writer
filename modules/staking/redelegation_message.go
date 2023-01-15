@@ -4,8 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"spacebox-writer/adapter/clickhouse"
-
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 

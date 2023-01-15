@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/adapter/mongo/model"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/google/uuid"
+
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/mongo/model"
 )
 
 const (

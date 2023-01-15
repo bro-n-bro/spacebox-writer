@@ -6,8 +6,8 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/rs/zerolog"
 
-	"spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/internal/rep"
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/internal/rep"
 )
 
 type Broker struct {
