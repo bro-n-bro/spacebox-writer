@@ -99,7 +99,7 @@ func (ch *Clickhouse) ProposalTallyResult(val model.ProposalTallyResult) (err er
 
 func (ch *Clickhouse) ProposalVoteMessage(val model.ProposalVoteMessage) (err error) {
 	if err = ch.gorm.Table("proposal_vote_message").Create(storageModel.ProposalVoteMessage{
-		ProposalID:   int64(val.ProposalID),
+		ProposalID:   val.ProposalID,
 		VoterAddress: val.VoterAddress,
 		Option:       val.Option,
 		Height:       val.Height,
