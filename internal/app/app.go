@@ -59,11 +59,11 @@ func (a *App) Start(ctx context.Context) error {
 
 	a.cmps = append(
 		a.cmps,
-		cmp{metrics, "metrics"},
 		cmp{clickhouse, "clickhouse"},
 		cmp{mods, "modules"},
 		cmp{m, "mongo"},
 		cmp{brk, "broker"},
+		cmp{metrics, "metrics"},
 	)
 
 	okCh, errCh := make(chan struct{}), make(chan error)

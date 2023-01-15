@@ -8,22 +8,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Storage struct {
+type Mongo struct {
 	log        *zerolog.Logger
 	cli        *mongo.Client
 	collection *mongo.Collection
 	cfg        Config
 }
 
-func New(cfg Config, l zerolog.Logger) *Storage {
+func New(cfg Config, l zerolog.Logger) *Mongo {
 	l = l.With().Str("cmp", "mongo").Logger()
-	return &Storage{
+	return &Mongo{
 		cfg: cfg,
 		log: &l,
 	}
 }
 
-func (s *Storage) Start(ctx context.Context) error {
+func (s *Mongo) Start(ctx context.Context) error {
 	opts := []*options.ClientOptions{
 		options.Client().ApplyURI(s.cfg.URI),
 		options.Client().SetMaxPoolSize(s.cfg.MaxPoolSize),
@@ -52,10 +52,10 @@ func (s *Storage) Start(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) Stop(ctx context.Context) error {
+func (s *Mongo) Stop(ctx context.Context) error {
 	return s.cli.Disconnect(ctx)
 }
 
-func (s *Storage) Ping(ctx context.Context) error {
+func (s *Mongo) Ping(ctx context.Context) error {
 	return s.cli.Ping(ctx, nil)
 }

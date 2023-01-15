@@ -3,6 +3,8 @@ package metrics
 import (
 	"context"
 	"net/http"
+	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/adapter/mongo"
 	"time"
 
 	"github.com/pkg/errors"
@@ -11,8 +13,12 @@ import (
 )
 
 type Metrics struct {
-	log *zerolog.Logger
-	srv *http.Server
+	log   *zerolog.Logger
+	srv   *http.Server
+	ch    *clickhouse.Clickhouse
+	mongo *mongo.Mongo
+
+	stopScraping chan struct{}
 
 	cfg Config
 }
@@ -21,8 +27,9 @@ func New(cfg Config, l zerolog.Logger) *Metrics {
 	l = l.With().Str("cmp", "metrics").Logger()
 
 	return &Metrics{
-		log: &l,
-		cfg: cfg,
+		log:          &l,
+		cfg:          cfg,
+		stopScraping: make(chan struct{}),
 	}
 }
 
@@ -44,6 +51,8 @@ func (m *Metrics) Start(ctx context.Context) error {
 		}
 	}()
 
+	go m.startScraping()
+
 	return nil
 }
 
@@ -51,6 +60,8 @@ func (m *Metrics) Stop(ctx context.Context) error {
 	if !m.cfg.MetricsEnabled {
 		return nil
 	}
+
+	m.stopScraping <- struct{}{}
 
 	return m.srv.Shutdown(ctx)
 }

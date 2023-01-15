@@ -14,7 +14,7 @@ const (
 	keyID = "_id"
 )
 
-func (s *Storage) HasBrokerMessage(ctx context.Context, id string) (r bool, err error) {
+func (s *Mongo) HasBrokerMessage(ctx context.Context, id string) (r bool, err error) {
 	msg := model.BrokerMessage{}
 
 	if err = s.collection.FindOne(ctx, bson.D{{Key: keyID, Value: id}}).Decode(&msg); err == nil {
@@ -28,7 +28,7 @@ func (s *Storage) HasBrokerMessage(ctx context.Context, id string) (r bool, err 
 	return false, err
 }
 
-func (s *Storage) CreateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error {
+func (s *Mongo) CreateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error {
 	if _, err := s.collection.InsertOne(ctx, msg); err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (s *Storage) CreateBrokerMessage(ctx context.Context, msg *model.BrokerMess
 	return nil
 }
 
-func (s *Storage) UpdateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error {
+func (s *Mongo) UpdateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error {
 	filter := bson.D{{Key: keyID, Value: msg.ID}}
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
@@ -52,7 +52,22 @@ func (s *Storage) UpdateBrokerMessage(ctx context.Context, msg *model.BrokerMess
 	return nil
 }
 
-func (s *Storage) DeleteBrokerMessage(ctx context.Context, id string) error {
+func (s *Mongo) GetMessagesByTopic(ctx context.Context, topic string) ([]*model.BrokerMessage, error) {
+	filter := bson.D{{Key: "topic", Value: topic}}
+	cursor, err := s.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	messages := make([]*model.BrokerMessage, 0)
+	if err = cursor.All(ctx, &messages); err != nil {
+		return nil, err
+	}
+
+	return messages, nil
+}
+
+func (s *Mongo) DeleteBrokerMessage(ctx context.Context, id string) error {
 	filter := bson.D{{Key: keyID, Value: id}}
 	if _, err := s.collection.DeleteOne(ctx, filter); err != nil {
 		return err
