@@ -5,15 +5,16 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog"
-	"spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/internal/rep"
-	"spacebox-writer/modules/auth"
-	bank2 "spacebox-writer/modules/bank"
-	core2 "spacebox-writer/modules/core"
-	distribution2 "spacebox-writer/modules/distribution"
-	gov2 "spacebox-writer/modules/gov"
-	mint2 "spacebox-writer/modules/mint"
-	staking2 "spacebox-writer/modules/staking"
+
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/internal/rep"
+	"github.com/hexy-dev/spacebox-writer/modules/auth"
+	bank2 "github.com/hexy-dev/spacebox-writer/modules/bank"
+	core2 "github.com/hexy-dev/spacebox-writer/modules/core"
+	distribution2 "github.com/hexy-dev/spacebox-writer/modules/distribution"
+	gov2 "github.com/hexy-dev/spacebox-writer/modules/gov"
+	mint2 "github.com/hexy-dev/spacebox-writer/modules/mint"
+	staking2 "github.com/hexy-dev/spacebox-writer/modules/staking"
 )
 
 var (

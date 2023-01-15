@@ -8,8 +8,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog"
 
-	"spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/internal/rep"
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/internal/rep"
 )
 
 type (

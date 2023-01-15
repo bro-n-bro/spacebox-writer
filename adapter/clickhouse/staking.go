@@ -7,8 +7,8 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	storageModel "spacebox-writer/adapter/clickhouse/models"
 
+	storageModel "github.com/hexy-dev/spacebox-writer/adapter/clickhouse/models"
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 
