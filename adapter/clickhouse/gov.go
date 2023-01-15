@@ -39,7 +39,24 @@ func (ch *Clickhouse) GovParams(val model.GovParams) (err error) {
 }
 
 func (ch *Clickhouse) Proposal(val model.Proposal) (err error) {
-	return nil // TODO
+	if err = ch.gorm.Table("proposal").Create(storageModel.Proposal{
+		ID:              val.ID,
+		Title:           val.Title,
+		Description:     val.Description,
+		ProposalRoute:   val.ProposalRoute,
+		ProposalType:    val.ProposalType,
+		ProposerAddress: val.ProposerAddress,
+		Status:          val.Status,
+		Content:         string(val.Content),
+		SubmitTime:      val.SubmitTime,
+		DepositEndTime:  val.DepositEndTime,
+		VotingStartTime: val.VotingStartTime,
+		VotingEndTime:   val.VotingEndTime,
+	}).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (ch *Clickhouse) ProposalDepositMessage(val model.ProposalDepositMessage) (err error) {
@@ -57,6 +74,7 @@ func (ch *Clickhouse) ProposalDepositMessage(val model.ProposalDepositMessage) (
 		TxHash:           val.TxHash,
 		ProposalID:       int64(val.ProposalID),
 		Height:           val.Height,
+		MsgIndex:         val.MsgIndex,
 	}).Error; err != nil {
 		return err
 	}

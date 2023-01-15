@@ -10,4 +10,5 @@ type RedelegationMessage struct {
 	DstValidatorAddress string    `json:"dst_validator"`
 	TxHash              string    `json:"tx_hash"`
 	Height              int64     `json:"height"`
+	MsgIndex            int64     `json:"msg_index"`
 }
