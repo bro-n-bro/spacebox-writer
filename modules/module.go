@@ -4,6 +4,9 @@ import (
 	"context"
 	"sync"
 
+	"github.com/rs/zerolog"
+	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/internal/rep"
 	"spacebox-writer/modules/auth"
 	bank2 "spacebox-writer/modules/bank"
 	core2 "spacebox-writer/modules/core"
@@ -11,11 +14,6 @@ import (
 	gov2 "spacebox-writer/modules/gov"
 	mint2 "spacebox-writer/modules/mint"
 	staking2 "spacebox-writer/modules/staking"
-
-	"github.com/rs/zerolog"
-
-	"spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/internal/rep"
 )
 
 var (
@@ -29,29 +27,26 @@ var (
 			{"account", auth.AccountHandler},
 		},
 		"bank": {
+			{"supply", bank2.SupplyHandler},
 			{"account_balance", bank2.AccountBalanceHandler},
 			{"multisend_message", bank2.MultiSendMessageHandler},
 			{"send_message", bank2.SendMessageHandler},
-			{"supply", bank2.SupplyHandler},
 		},
 		"distribution": {
 			{"distribution_params", distribution2.DistributionParamsHandler},
 			{"community_pool", distribution2.CommunityPoolHandler},
 			{"validator_commission", distribution2.ValidatorCommissionHandler},
-			{"delegation_reward", distribution2.DelegationRewardHandler},
 			{"delegation_reward_message", distribution2.DelegationRewardMessageHandler},
 		},
 		"gov": {
 			{"gov_params", gov2.GovParamsHandler},
 			{"proposal", gov2.ProposalHandler},
-			{"proposal_deposit", gov2.ProposalDepositHandler},
 			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
 			{"proposal_tally_result", gov2.ProposalTallyResultHandler},
 			{"proposal_vote_message", gov2.ProposalVoteMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint2.MintParamsHandler},
-			{"inflation", mint2.InflationHandler},
 			{"annual_provision", mint2.AnnualProvisionHandler},
 		},
 		"staking": {
@@ -66,6 +61,7 @@ var (
 			{"unbonding_delegation_message", staking2.UnbondingDelegationMessageHandler},
 			{"validator_info", staking2.ValidatorInfoHandler},
 			{"validator_status", staking2.ValidatorStatusHandler},
+			{"validator_description", staking2.ValidatorDescriptionHandler},
 		},
 	}
 )
@@ -80,7 +76,7 @@ type (
 		cfg           Config
 	}
 
-	topicHandler struct { // nolint:govet
+	topicHandler struct { //nolint:govet
 		topicName string
 		handler   func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error
 	}

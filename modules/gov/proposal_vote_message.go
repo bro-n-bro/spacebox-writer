@@ -3,13 +3,11 @@ package gov
 import (
 	"context"
 
-	"spacebox-writer/adapter/clickhouse"
-	storageModel "spacebox-writer/adapter/clickhouse/models"
-
-	"github.com/hexy-dev/spacebox/broker/model"
-
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"spacebox-writer/adapter/clickhouse"
+
+	"github.com/hexy-dev/spacebox/broker/model"
 )
 
 func ProposalVoteMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
@@ -18,14 +16,5 @@ func ProposalVoteMessageHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	if err := ch.GetGormDB(ctx).Table("proposal_vote_message").Create(storageModel.ProposalVoteMessage{
-		ProposalID:   int64(val.ProposalID),
-		VoterAddress: val.VoterAddress,
-		Option:       val.Option,
-		Height:       val.Height,
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return ch.ProposalVoteMessage(val)
 }

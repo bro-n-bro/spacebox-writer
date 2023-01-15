@@ -3,13 +3,11 @@ package mint
 import (
 	"context"
 
-	"spacebox-writer/adapter/clickhouse"
-	storageModel "spacebox-writer/adapter/clickhouse/models"
-
-	"github.com/hexy-dev/spacebox/broker/model"
-
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"spacebox-writer/adapter/clickhouse"
+
+	"github.com/hexy-dev/spacebox/broker/model"
 )
 
 func MintParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
@@ -18,17 +16,5 @@ func MintParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhous
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	paramsBytes, err := jsoniter.Marshal(val.Params)
-	if err != nil {
-		return err
-	}
-
-	if err = ch.GetGormDB(ctx).Table("mint_params").Create(storageModel.MintParams{
-		Height: val.Height,
-		Params: string(paramsBytes),
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return ch.MintParams(val)
 }
