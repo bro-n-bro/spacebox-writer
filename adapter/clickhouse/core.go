@@ -11,7 +11,7 @@ func (ch *Clickhouse) Block(val model.Block) error {
 	if err := ch.gorm.Table("block").Create(storageModel.Block{
 		Height:          val.Height,
 		Hash:            val.Hash,
-		NumTXS:          int64(val.NumTxs),
+		NumTXS:          val.TxNum,
 		TotalGas:        int64(val.TotalGas),
 		ProposerAddress: val.ProposerAddress,
 		Timestamp:       val.Timestamp,
@@ -38,6 +38,7 @@ func (ch *Clickhouse) Message(val model.Message) (err error) {
 		Value:                     string(val.Value),
 		InvolvedAccountsAddresses: string(involvedAccountsAddressesBytes),
 		Signer:                    val.Signer,
+		MsgIndex:                  val.MsgIndex,
 	}).Error; err != nil {
 		return err
 	}

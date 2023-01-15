@@ -41,6 +41,7 @@ func (ch *Clickhouse) DelegationRewardMessage(val model.DelegationRewardMessage)
 		DelegatorAddress: val.DelegatorAddress,
 		ValidatorAddress: val.ValidatorAddress,
 		TxHash:           val.TxHash,
+		MsgIndex:         val.MsgIndex,
 	}).Error; err != nil {
 		return err
 	}

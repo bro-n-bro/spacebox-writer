@@ -29,19 +29,25 @@ func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
 
 func (ch *Clickhouse) MultisendMessage(val model.MultiSendMessage) (err error) {
 	var (
-		coinsBytes []byte
+		coinsBytes       []byte
+		addressesToBytes []byte
 	)
 
 	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
 		return err
 	}
 
+	if addressesToBytes, err = jsoniter.Marshal(val.AddressesTo); err != nil {
+		return err
+	}
+
 	if err = ch.gorm.Table("multisend_message").Create(storageModel.MultiSendMessage{
 		Coins:       string(coinsBytes),
+		AddressesTo: string(addressesToBytes),
 		AddressFrom: val.AddressFrom,
-		AddressTo:   val.AddressTo,
 		TxHash:      val.TxHash,
 		Height:      val.Height,
+		MsgIndex:    val.MsgIndex,
 	}).Error; err != nil {
 		return err
 	}
@@ -64,6 +70,7 @@ func (ch *Clickhouse) SendMessage(val model.SendMessage) (err error) {
 		AddressTo:   val.AddressTo,
 		TxHash:      val.TxHash,
 		Height:      val.Height,
+		MsgIndex:    val.MsgIndex,
 	}).Error; err != nil {
 		return err
 	}

@@ -5,4 +5,5 @@ type ProposalVoteMessage struct {
 	Option       string `json:"option"`
 	ProposalID   int64  `json:"proposal_id"`
 	Height       int64  `json:"height"`
+	MsgIndex     int64  `json:"msg_index"`
 }

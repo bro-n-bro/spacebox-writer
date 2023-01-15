@@ -6,4 +6,5 @@ type DelegationMessage struct {
 	Coin             string `json:"coin"`
 	TxHash           string `json:"tx_hash"`
 	Height           int64  `json:"height"`
+	MsgIndex         int64  `json:"msg_index"`
 }
