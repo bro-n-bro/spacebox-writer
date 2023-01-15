@@ -3,12 +3,11 @@ package distribution
 import (
 	"context"
 
+	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
 	"spacebox-writer/adapter/clickhouse"
 
 	"github.com/hexy-dev/spacebox/broker/model"
-
-	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
 )
 
 func ValidatorCommissionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
@@ -17,9 +16,5 @@ func ValidatorCommissionHandler(ctx context.Context, msg []byte, ch *clickhouse.
 		return errors.Wrap(err, "unmarshall error")
 	}
 
-	if err := ch.GetGormDB(ctx).Table("validator_commission").Create(val).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return ch.ValidatorCommission(val)
 }

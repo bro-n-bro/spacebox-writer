@@ -1,4 +1,72 @@
---
+-- ## Modules
+
+-- ### Auth
+
+-- #### Account
+-- ```sql=
+CREATE TABLE spacebox.account
+(
+    `address` String,
+    `height`  Int64
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
+-- ```
+
+-- ### Bank
+
+-- #### Supply
+-- ```sql=
+CREATE TABLE spacebox.supply
+(
+    `height` Int64,
+    `coins`  json
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
+-- ```
+
+-- #### Account Balance
+-- ```sql=
+CREATE TABLE spacebox.account_balance
+(
+    `address` String,
+    `height`  Int64,
+    `coins`   json
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
+-- ```
+
+-- #### Send Message
+-- ```sql=
+CREATE TABLE spacebox.send_message
+(
+    `height`       Int64,
+    `address_from` String,
+    `address_to`   String,
+    `tx_hash`      String,
+    `coins`        json,
+    `msg_index`    Int64
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
+-- ```
+
+-- #### Multisend Message
+-- ```sql=
+CREATE TABLE spacebox.multisend_message
+(
+    `height`       Int64,
+    `address_from` String,
+    `addresses_to` json,
+    `tx_hash`      String,
+    `coins`        json,
+    `msg_index`    Int64
+) ENGINE = MergeTree()
+      PRIMARY KEY (height);
+-- ```
+
+-- ### Core
+
+-- #### Block
+-- ```sql=
 CREATE TABLE spacebox.block
 (
     `height`           Int64,
@@ -9,8 +77,10 @@ CREATE TABLE spacebox.block
     `timestamp`        TIMESTAMP
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Message
+-- ```sql=
 CREATE TABLE spacebox.message
 (
     `transaction_hash` String,
@@ -19,8 +89,10 @@ CREATE TABLE spacebox.message
     `value`            json
 ) ENGINE = MergeTree()
       PRIMARY KEY (transaction_hash);
+-- ```
 
---
+-- #### Transaction
+-- ```sql=
 CREATE TABLE spacebox.transaction
 (
     `hash`         String,
@@ -35,76 +107,36 @@ CREATE TABLE spacebox.transaction
     `gas_wanted`   Int64,
     `gas_used`     Int64,
     `raw_log`      String,
-    `logs`         json
+    `logs`         json,
+    `code`         UInt32
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
-CREATE TABLE spacebox.account
-(
-    `address` String,
-    `height`  Int64
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
+-- ### Distribution
 
---
-CREATE TABLE spacebox.supply
-(
-    `height` Int64,
-    `coins`  json
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
-
---
-CREATE TABLE spacebox.account_balance
-(
-    `address` String,
-    `height`  Int64,
-    `coins`   json
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
-
---
-CREATE TABLE spacebox.send_message
-(
-    `height`       Int64,
-    `address_from` String,
-    `address_to`   String,
-    `tx_hash`      String,
-    `coins`        json,
-    `msg_index`    Int64
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
-
---
-CREATE TABLE spacebox.multisend_message
-(
-    `height`       Int64,
-    `address_from` String,
-    `addresses_to`   json,
-    `tx_hash`      String,
-    `coins`        json,
-    `msg_index`    Int64
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
-
---
+-- #### Distribution Params
+-- ```sql=
 CREATE TABLE spacebox.distribution_params
 (
     `height` Int64,
     `params` json
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Community Pool
+-- ```sql=
 CREATE TABLE spacebox.community_pool
 (
     `height` Int64,
     `coins`  json
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Validator Commission
+-- ```sql=
 CREATE TABLE spacebox.validator_commission
 (
     `operator_address` String,
@@ -114,41 +146,38 @@ CREATE TABLE spacebox.validator_commission
     `height`           Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
-CREATE TABLE spacebox.delegation_reward
-(
-    operator_address  String,
-    delegator_address String,
-    withdraw_address  String,
-    coins             json,
-    height            Int64
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
-
---
+-- #### Delegation Reward Message
+-- ```sql=
 CREATE TABLE spacebox.delegation_reward_message
 (
-    validator_address String,
-    delegator_address String,
-    coins             json,
-    height            Int64,
-    tx_hash           String,
+    `validator_address` String,
+    `delegator_address` String,
+    `coins`             json,
+    `height`            Int64,
+    `tx_hash`           String,
     `msg_index`       Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- ### Gov
+
+-- #### Gov Params
+-- ```sql=
 CREATE TABLE spacebox.gov_params
 (
-    deposit_params json,
-    voting_params  json,
-    tally_params   json,
-    height         Int64
+    `deposit_params` json,
+    `voting_params`  json,
+    `tally_params`   json,
+    `height`         Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Proposal
+-- ```sql=
 CREATE TABLE spacebox.proposal
 (
     `id`                Int64,
@@ -165,119 +194,123 @@ CREATE TABLE spacebox.proposal
     `status`            String
 ) ENGINE = MergeTree()
       PRIMARY KEY (id);
+-- ```
 
---
-CREATE TABLE spacebox.proposal_deposit
-(
-    proposal_id       Int64,
-    depositor_address String,
-    coins             json,
-    height            Int64,
-    tx_hash           String
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
-
---
+-- #### Proposal Deposit Message
+-- ```sql=
 CREATE TABLE spacebox.proposal_deposit_message
 (
-    proposal_id       Int64,
-    depositor_address String,
-    coins             json,
-    height            Int64,
-    tx_hash           String,
+    `proposal_id`       Int64,
+    `depositor_address` String,
+    `coins`             json,
+    `height`            Int64,
+    `tx_hash`           String,
     `msg_index`       Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+
+-- #### Proposal Tally Result
+-- ```sql=
 CREATE TABLE spacebox.proposal_tally_result
 (
-    proposal_id  Int64,
-    yes          Int64,
-    abstain      Int64,
-    no           Int64,
-    no_with_veto Int64,
-    height       Int64
+    `proposal_id`  Int64,
+    `yes`          Int64,
+    `abstain`      Int64,
+    `no`           Int64,
+    `no_with_veto` Int64,
+    `height`       Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Proposal Vote Message
+-- ```sql=
 CREATE TABLE spacebox.proposal_vote_message
 (
-    proposal_id   Int64,
-    voter_address String,
-    option        String,
-    height        Int64,
-    tx_hash       String,
+    `proposal_id`   Int64,
+    `voter_address` String,
+    `option`        String,
+    `height`        Int64,
+    `tx_hash`       String,
     `msg_index`   Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- ### Mint
+
+-- #### Mint Params
+-- ```sql=
 CREATE TABLE spacebox.mint_params
 (
-    params json,
-    height Int64
+    `params` json,
+    `height` Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
-CREATE TABLE spacebox.inflation
-(
-    height           Int64,
-    inflation        Float64,
-    block_provision  json,
-    annual_provision json
-) ENGINE = MergeTree()
-      PRIMARY KEY (height);
-
---
+-- #### Annual Provision
+-- ```sql=
 CREATE TABLE spacebox.annual_provision
 (
-    height           Int64,
-    annual_provision Float64
+    `height`           Int64,
+    `annual_provision` Float64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- ### Staking
+
+-- #### Validator
+-- ```sql=
 CREATE TABLE spacebox.validator
 (
-    consensus_address String,
-    operator_address  String,
-    consensus_pubkey  String
+    `consensus_address` String,
+    `operator_address`  String,
+    `consensus_pubkey`  String
 ) ENGINE = MergeTree()
       PRIMARY KEY (consensus_address);
+-- ```
 
---
+-- #### Validator Status
+-- ```sql=
 CREATE TABLE spacebox.validator_status
 (
-    validator_address String,
-    status            Int64,
-    jailed            BOOL,
-    height            Int64
+    `validator_address` String,
+    `status`            Int64,
+    `jailed`            BOOL,
+    `height`            Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Validator Info
+-- ```sql=
 CREATE TABLE spacebox.validator_info
 (
-    consensus_address     String,
-    operator_address      String,
-    self_delegate_address String,
-    min_self_delegation   Int64,
-    height                Int64
+    `consensus_address`     String,
+    `operator_address`      String,
+    `self_delegate_address` String,
+    `min_self_delegation`   Int64,
+    `height`                Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Staking Params
+-- ```sql=
 CREATE TABLE spacebox.staking_params
 (
     `height` Int64,
     `params` json
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Staking Pool
+-- ```sql=
 CREATE TABLE spacebox.staking_pool
 (
     `height`            Int64,
@@ -285,8 +318,10 @@ CREATE TABLE spacebox.staking_pool
     `bonded_tokens`     Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Redelegation
+-- ```sql=
 CREATE TABLE spacebox.redelegation
 (
     `delegator_address`     String,
@@ -297,8 +332,10 @@ CREATE TABLE spacebox.redelegation
     `completion_time`       TIMESTAMP
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Redelegation Message
+-- ```sql=
 CREATE TABLE spacebox.redelegation_message
 (
     `delegator_address`     String,
@@ -311,8 +348,10 @@ CREATE TABLE spacebox.redelegation_message
     `msg_index`             Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Unbonding Delegation
+-- ```sql=
 CREATE TABLE spacebox.unbonding_delegation
 (
     `validator_address`    String,
@@ -322,8 +361,10 @@ CREATE TABLE spacebox.unbonding_delegation
     `height`               Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Unbonding Delegation Message
+-- ```sql=
 CREATE TABLE spacebox.unbonding_delegation_message
 (
     `validator_address`    String,
@@ -335,8 +376,10 @@ CREATE TABLE spacebox.unbonding_delegation_message
     `msg_index`            Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Delegation
+-- ```sql=
 CREATE TABLE spacebox.delegation
 (
     `operator_address`  String,
@@ -345,8 +388,10 @@ CREATE TABLE spacebox.delegation
     `height`            Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Delegation Message
+-- ```sql=
 CREATE TABLE spacebox.delegation_message
 (
     `operator_address`  String,
@@ -357,8 +402,10 @@ CREATE TABLE spacebox.delegation_message
     `msg_index`         Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```
 
---
+-- #### Validator Description
+-- ```sql=
 CREATE TABLE spacebox.validator_description
 (
     `validator_address` String,
@@ -369,6 +416,6 @@ CREATE TABLE spacebox.validator_description
     `security_contact`  String,
     `details`           String,
     `height`            Int64
-
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
+-- ```

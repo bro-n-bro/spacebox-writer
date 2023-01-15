@@ -1,5 +1,4 @@
 DROP TABLE IF EXISTS spacebox.account;
-DROP TABLE IF EXISTS spacebox.account;
 DROP TABLE IF EXISTS spacebox.block;
 DROP TABLE IF EXISTS spacebox.community_pool;
 DROP TABLE IF EXISTS spacebox.delegation;
