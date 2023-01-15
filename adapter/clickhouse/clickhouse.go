@@ -30,8 +30,6 @@ type Clickhouse struct {
 	cfg  Config
 }
 
-func (ch *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return ch.gorm }
-
 func New(cfg Config, log zerolog.Logger) *Clickhouse {
 	return &Clickhouse{
 		log:  &log,
