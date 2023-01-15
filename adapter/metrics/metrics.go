@@ -3,13 +3,14 @@ package metrics
 import (
 	"context"
 	"net/http"
-	"spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/adapter/mongo"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
+
+	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
 )
 
 type Metrics struct {
@@ -23,11 +24,12 @@ type Metrics struct {
 	cfg Config
 }
 
-func New(cfg Config, l zerolog.Logger) *Metrics {
+func New(cfg Config, ch *clickhouse.Clickhouse, l zerolog.Logger) *Metrics {
 	l = l.With().Str("cmp", "metrics").Logger()
 
 	return &Metrics{
 		log:          &l,
+		ch:           ch,
 		cfg:          cfg,
 		stopScraping: make(chan struct{}),
 	}

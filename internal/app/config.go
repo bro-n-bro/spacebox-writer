@@ -5,6 +5,7 @@ import (
 
 	"github.com/hexy-dev/spacebox-writer/adapter/broker"
 	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/metrics"
 	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
 	"github.com/hexy-dev/spacebox-writer/modules"
 )
