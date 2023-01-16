@@ -15,5 +15,6 @@ func MessageHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) 
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")
 	}
+
 	return ch.Message(val)
 }
