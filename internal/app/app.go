@@ -8,6 +8,7 @@ import (
 
 	"github.com/hexy-dev/spacebox-writer/adapter/broker"
 	ch "github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/metrics"
 	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
 	"github.com/hexy-dev/spacebox-writer/consts"
 	"github.com/hexy-dev/spacebox-writer/internal/rep"

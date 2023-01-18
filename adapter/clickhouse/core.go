@@ -1,10 +1,17 @@
 package clickhouse
 
 import (
+	"github.com/ClickHouse/clickhouse-go/v2"
 	jsoniter "github.com/json-iterator/go"
 
 	storageModel "github.com/hexy-dev/spacebox-writer/adapter/clickhouse/models"
 	"github.com/hexy-dev/spacebox/broker/model"
+)
+
+var (
+	insertMessageQuery = `INSERT INTO spacebox.message`
+
+	insertTransactionQuery = `INSERT INTO spacebox.transaction  (hash, height, success, messages, memo, signatures, signer_infos, fee, signer, gas_wanted, gas_used, raw_log, logs, code)`
 )
 
 func (ch *Clickhouse) Block(val model.Block) error {
@@ -23,43 +30,48 @@ func (ch *Clickhouse) Block(val model.Block) error {
 }
 
 func (ch *Clickhouse) Message(val model.Message) (err error) {
-	var (
-		involvedAccountsAddressesBytes []byte
-	)
+	addresses := make(clickhouse.ArraySet, len(val.InvolvedAccountsAddresses))
+	for i, addr := range val.InvolvedAccountsAddresses {
+		addresses[i] = addr
+	}
 
-	if involvedAccountsAddressesBytes, err = jsoniter.Marshal(val.InvolvedAccountsAddresses); err != nil {
+	// FIXME: ch error: Data in Object has ambiguous paths
+	// msgValue := strings.Replace(string(val.Value), "amount", "coin", 1)
+
+	tx, err := ch.sql.Begin()
+	if err != nil {
 		return err
 	}
 
-	if err = ch.gorm.Table("message").Create(storageModel.Message{
-		TransactionHash:           val.TransactionHash,
-		Index:                     val.Index,
-		Type:                      val.Type,
-		Value:                     string(val.Value),
-		InvolvedAccountsAddresses: string(involvedAccountsAddressesBytes),
-		Signer:                    val.Signer,
-		MsgIndex:                  val.MsgIndex,
-	}).Error; err != nil {
+	stmt, err := tx.Prepare(insertMessageQuery)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(
+		val.TransactionHash,
+		val.MsgIndex,
+		val.Type,
+		string(val.Value),
+		val.Signer,
+		val.InvolvedAccountsAddresses,
+	); err != nil {
 		return err
 	}
 
-	return nil
+	return tx.Commit()
 }
 
 func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	var (
 		messages         = make([]interface{}, 0)
 		feeBytes         []byte
-		signaturesBytes  []byte
 		signerInfosBytes []byte
 		messagesBytes    []byte
 	)
 
 	if feeBytes, err = jsoniter.Marshal(val.Fee); err != nil {
-		return err
-	}
-
-	if signaturesBytes, err = jsoniter.Marshal(val.Signatures); err != nil {
 		return err
 	}
 
@@ -69,7 +81,7 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 
 	for _, msg := range val.Messages {
 		var tmp interface{}
-		if err = jsoniter.Unmarshal(msg, &tmp); err == nil {
+		if err = jsoniter.Unmarshal(msg, &tmp); err != nil {
 			return err
 		}
 		messages = append(messages, tmp)
@@ -79,21 +91,37 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 		return err
 	}
 
-	if err = ch.gorm.Table("transaction").Create(storageModel.Transaction{
-		Messages:    string(messagesBytes),
-		Logs:        string(val.Logs),
-		SignerInfos: string(signerInfosBytes),
-		Signatures:  string(signaturesBytes),
-		Fee:         string(feeBytes),
-		Hash:        val.Hash,
-		Height:      val.Height,
-		Success:     val.Success,
-		Memo:        val.Memo,
-		Signer:      val.Signer,
-		GasWanted:   val.GasWanted,
-		GasUsed:     val.GasUsed,
-		RawLog:      val.RawLog,
-	}).Error; err != nil {
+	tx, err := ch.sql.Begin()
+	if err != nil {
+		return err
+	}
+	stmt, err := tx.Prepare(insertTransactionQuery)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	//  (hash, height, success, messages, memo, signatures, signer_infos, fee, signer, gas_wanted, gas_used, raw_log, logs, code)
+	if _, err := stmt.Exec(
+		val.Hash,
+		val.Height,
+		val.Success,
+		string(messagesBytes),
+		val.Memo,
+		val.Signatures,
+		string(signerInfosBytes),
+		string(feeBytes),
+		val.Signer,
+		val.GasWanted,
+		val.GasUsed,
+		val.RawLog,
+		string(val.Logs),
+		uint32(0),
+	); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 
@@ -103,7 +131,7 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 func (ch *Clickhouse) LatestBlockHeight() (int64, error) {
 	var lastHeight int64
 
-	if err := ch.gorm.Select("height").Table("block").Order("height DESK").
+	if err := ch.gorm.Select("height").Table("block").Order("height DESC").
 		Limit(1).Scan(&lastHeight).Error; err != nil {
 		return 0, err
 	}
