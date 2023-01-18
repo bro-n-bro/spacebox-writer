@@ -6,6 +6,6 @@ import (
 	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
 )
 
-func ValidatorDescriptionHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+func ValidatorDescriptionHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	return nil
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
 	"github.com/hexy-dev/spacebox-writer/internal/rep"
 	"github.com/hexy-dev/spacebox-writer/modules/auth"
 	bank2 "github.com/hexy-dev/spacebox-writer/modules/bank"
@@ -79,7 +78,7 @@ type (
 
 	topicHandler struct { //nolint:govet
 		topicName string
-		handler   func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error
+		handler   func(ctx context.Context, msg []byte, db rep.Storage) error
 	}
 )
 

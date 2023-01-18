@@ -9,7 +9,7 @@ import (
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 
-func ValidatorStatusHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+func ValidatorStatusHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.ValidatorStatus{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err

@@ -27,7 +27,7 @@ func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
 	return nil
 }
 
-func (ch *Clickhouse) MultisendMessage(val model.MultiSendMessage) (err error) {
+func (ch *Clickhouse) MultiSendMessage(val model.MultiSendMessage) (err error) {
 	var (
 		coinsBytes       []byte
 		addressesToBytes []byte
