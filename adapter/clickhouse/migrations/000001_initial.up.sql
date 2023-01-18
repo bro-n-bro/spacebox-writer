@@ -35,7 +35,7 @@ CREATE TABLE spacebox.multisend_message
 (
     `height`       Int64,
     `address_from` String,
-    `addresses_to` json,
+    `addresses_to` Array(String),
     `tx_hash`      String,
     `coins`        json,
     `msg_index`    Int64
@@ -60,7 +60,7 @@ CREATE TABLE spacebox.message
     `type`                        String,
     `signer`                      String,
     `value`                       json,
-    `involved_accounts_addresses` json,
+    `involved_accounts_addresses` Array(String),
     `index`                       Int64
 ) ENGINE = MergeTree()
       PRIMARY KEY (transaction_hash);

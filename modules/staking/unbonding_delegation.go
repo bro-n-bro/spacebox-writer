@@ -9,7 +9,7 @@ import (
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 
-func UnbondingDelegationHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+func UnbondingDelegationHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.UnbondingDelegation{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err

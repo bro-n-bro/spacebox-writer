@@ -10,7 +10,7 @@ import (
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 
-func GovParamsHandler(ctx context.Context, msg []byte, ch *clickhouse.Clickhouse) error {
+func GovParamsHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.GovParams{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return errors.Wrap(err, "unmarshall error")

@@ -269,6 +269,6 @@ func (ch *Clickhouse) ValidatorStatus(val model.ValidatorStatus) (err error) {
 	return nil
 }
 
-// func (ch *Clickhouse) ValidatorDescription(val model.ValidatorDescription) (err error) {
-//	return nil
-// }
+func (ch *Clickhouse) ValidatorDescription(val model.ValidatorDescription) error {
+	return errors.New("not implemented")
+}
