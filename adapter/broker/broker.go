@@ -48,7 +48,7 @@ func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger)
 			}, []string{keyTopic}),
 			counter: promauto.NewCounterVec(prometheus.CounterOpts{
 				Namespace: "spacebox_writer",
-				Name:      "fails_count",
+				Name:      "fails_total",
 				Help:      "Count of handling errors.",
 			}, []string{keyTopic}),
 		}
@@ -58,7 +58,6 @@ func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger)
 }
 
 func (b *Broker) Start(_ context.Context) error {
-
 	var err error
 	b.pr, err = kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": b.cfg.Address,

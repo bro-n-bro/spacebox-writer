@@ -6,7 +6,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/internal/rep"
 	"github.com/hexy-dev/spacebox/broker/model"
 )
 

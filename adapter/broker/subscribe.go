@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
 	"github.com/hexy-dev/spacebox-writer/adapter/mongo/model"
+	"github.com/hexy-dev/spacebox-writer/internal/rep"
 )
 
 const (
@@ -24,7 +24,7 @@ func (b *Broker) Subscribe(
 	ctx context.Context,
 	wg *sync.WaitGroup,
 	topic string,
-	handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error,
+	handler func(ctx context.Context, msg []byte, db rep.Storage) error,
 ) error {
 
 	defer wg.Done()

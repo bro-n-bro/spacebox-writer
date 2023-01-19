@@ -1,7 +1,6 @@
 package clickhouse
 
 import (
-	"github.com/ClickHouse/clickhouse-go/v2"
 	jsoniter "github.com/json-iterator/go"
 
 	storageModel "github.com/hexy-dev/spacebox-writer/adapter/clickhouse/models"
@@ -9,9 +8,11 @@ import (
 )
 
 var (
-	insertMessageQuery = `INSERT INTO spacebox.message`
+	insertMessageQuery = `INSERT INTO spacebox.message (transaction_hash, msg_index, type, signer, value, 
+                              involved_accounts_addresses)`
 
-	insertTransactionQuery = `INSERT INTO spacebox.transaction  (hash, height, success, messages, memo, signatures, signer_infos, fee, signer, gas_wanted, gas_used, raw_log, logs, code)`
+	insertTransactionQuery = `INSERT INTO spacebox.transaction (hash, height, success, messages, memo, signatures, 
+                                   signer_infos, fee, signer, gas_wanted, gas_used, raw_log, logs, code)`
 )
 
 func (ch *Clickhouse) Block(val model.Block) error {
@@ -30,14 +31,6 @@ func (ch *Clickhouse) Block(val model.Block) error {
 }
 
 func (ch *Clickhouse) Message(val model.Message) (err error) {
-	addresses := make(clickhouse.ArraySet, len(val.InvolvedAccountsAddresses))
-	for i, addr := range val.InvolvedAccountsAddresses {
-		addresses[i] = addr
-	}
-
-	// FIXME: ch error: Data in Object has ambiguous paths
-	// msgValue := strings.Replace(string(val.Value), "amount", "coin", 1)
-
 	tx, err := ch.sql.Begin()
 	if err != nil {
 		return err
@@ -101,7 +94,6 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	}
 	defer stmt.Close()
 
-	//  (hash, height, success, messages, memo, signatures, signer_infos, fee, signer, gas_wanted, gas_used, raw_log, logs, code)
 	if _, err := stmt.Exec(
 		val.Hash,
 		val.Height,

@@ -10,14 +10,12 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
-	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
 )
 
 type Metrics struct {
-	log   *zerolog.Logger
-	srv   *http.Server
-	ch    *clickhouse.Clickhouse
-	mongo *mongo.Mongo
+	log *zerolog.Logger
+	srv *http.Server
+	ch  *clickhouse.Clickhouse
 
 	stopScraping chan struct{}
 

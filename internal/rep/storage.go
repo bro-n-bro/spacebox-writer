@@ -30,6 +30,7 @@ type Storage interface {
 	Proposal(model.Proposal) error
 	ProposalTallyResult(model.ProposalTallyResult) error
 	ProposalVoteMessage(model.ProposalVoteMessage) error
+	ProposalDepositMessage(val model.ProposalDepositMessage) error
 
 	CommunityPool(model.CommunityPool) error
 	DistributionParams(model.DistributionParams) error
