@@ -1,4 +1,4 @@
 #!/bin/bash
 set -ex
 cd `dirname $0`
-docker buildx build --platform linux/amd64 -t malekvictor/space-box-writer:latest -f ../Dockerfile-amd --target=app ../
+docker buildx build --platform linux/amd64 -t hexydev/spacebox-writer:0.0.3 --load -f ../Dockerfile-amd --target=app ../

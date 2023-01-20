@@ -14,6 +14,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database"
 	migrator "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"gorm.io/driver/clickhouse"
 	"gorm.io/gorm"
@@ -31,6 +32,10 @@ const (
 	keyDSN = "dsn"
 
 	sourceURLTemplate = "file://%v"
+)
+
+var (
+	ErrEmptyMigrationsPath = errors.New("migration path should be provided")
 )
 
 type (
@@ -63,6 +68,7 @@ func (ch *Clickhouse) Start(context.Context) (err error) {
 			Username: ch.cfg.User,
 			Password: ch.cfg.Password,
 		},
+		// Debug: true,
 		Settings: clickhouseV2.Settings{
 			"max_execution_time": ch.cfg.MaxExecutionTime,
 		},
@@ -92,6 +98,9 @@ func (ch *Clickhouse) Start(context.Context) (err error) {
 	*ch.gorm = *gormDB
 
 	if ch.cfg.AutoMigrate {
+		if ch.cfg.MigrationsPath == "" {
+			return ErrEmptyMigrationsPath
+		}
 		err = func() error {
 			var (
 				driver database.Driver
@@ -129,6 +138,7 @@ func (ch *Clickhouse) Start(context.Context) (err error) {
 	}
 
 	ch.log.Info().Str(keyDSN, ch.cfg.Addr).Msg(msgDBConnected)
+
 	return nil
 }
 

@@ -72,7 +72,7 @@ func (ch *Clickhouse) ProposalDepositMessage(val model.ProposalDepositMessage) (
 		DepositorAddress: val.DepositorAddress,
 		Coins:            string(coinsBytes),
 		TxHash:           val.TxHash,
-		ProposalID:       uint64(val.ProposalID),
+		ProposalID:       val.ProposalID,
 		Height:           val.Height,
 		MsgIndex:         val.MsgIndex,
 	}).Error; err != nil {
@@ -84,7 +84,7 @@ func (ch *Clickhouse) ProposalDepositMessage(val model.ProposalDepositMessage) (
 
 func (ch *Clickhouse) ProposalTallyResult(val model.ProposalTallyResult) (err error) {
 	if err = ch.gorm.Table("proposal_tally_result").Create(storageModel.ProposalTallyResult{
-		ProposalID: uint64(val.ProposalID),
+		ProposalID: val.ProposalID,
 		Yes:        val.Yes,
 		No:         val.No,
 		Abstain:    val.Abstain,
@@ -99,7 +99,7 @@ func (ch *Clickhouse) ProposalTallyResult(val model.ProposalTallyResult) (err er
 
 func (ch *Clickhouse) ProposalVoteMessage(val model.ProposalVoteMessage) (err error) {
 	if err = ch.gorm.Table("proposal_vote_message").Create(storageModel.ProposalVoteMessage{
-		ProposalID:   uint64(val.ProposalID),
+		ProposalID:   val.ProposalID,
 		VoterAddress: val.VoterAddress,
 		Option:       val.Option,
 		Height:       val.Height,

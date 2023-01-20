@@ -8,9 +8,16 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/hexy-dev/spacebox-writer/adapter/mongo/model"
 	"github.com/hexy-dev/spacebox-writer/internal/rep"
+)
+
+const (
+	keyTopic     = "topic"
+	keyRetry     = "retry"
+	keyMessageID = "message_id"
 )
 
 func (b *Broker) Subscribe(
@@ -27,6 +34,8 @@ func (b *Broker) Subscribe(
 		"auto.offset.reset":        b.cfg.AutoOffsetReset,
 		"allow.auto.create.topics": true,
 		"enable.auto.offset.store": false,
+		// "max.poll.interval.ms":     600000, // default 300000
+		// "session.timeout.ms":       90000,  // default 45000
 	})
 
 	if err != nil {
@@ -42,6 +51,8 @@ func (b *Broker) Subscribe(
 	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
+
+		var start time.Time
 
 		for {
 			select {
@@ -65,7 +76,12 @@ func (b *Broker) Subscribe(
 				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
 			}
 
+			start = time.Now()
 			hndlErr := handler(ctx, msg.Value, b.st)
+			if b.cfg.MetricsEnabled {
+				b.metrics.histogram.
+					With(prometheus.Labels{keyTopic: topic}).Observe(time.Since(start).Seconds())
+			}
 
 			// call handler and process error if needed
 			if err = b.handleError(ctx, hndlErr, msg); err != nil {
@@ -123,6 +139,11 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 		return nil // handle message successful
 	}
 
+	// handle occurred error
+	if b.cfg.MetricsEnabled {
+		b.metrics.errorsCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
+	}
+
 	// find how much we already tried to handle this message
 	retry := bytesToInt(findValueFromHeaders(keyRetry, headers))
 	retry++
@@ -144,6 +165,10 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			Str(keyMsg, string(msg.Value)).
 			Int(keyRetry, retry).
 			Msg("retry limit exceeded!!!")
+
+		if b.cfg.MetricsEnabled {
+			b.metrics.limitExceededCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
+		}
 
 		return nil
 	}

@@ -60,8 +60,7 @@ CREATE TABLE spacebox.message
     `type`                        String,
     `signer`                      String,
     `value`                       json,
-    `involved_accounts_addresses` Array(String),
-    `index`                       Int64
+    `involved_accounts_addresses` Array(String)
 ) ENGINE = MergeTree()
       PRIMARY KEY (transaction_hash);
 
@@ -72,7 +71,7 @@ CREATE TABLE spacebox.transaction
     `success`      BOOL,
     `messages`     json,
     `memo`         String,
-    `signatures`   json,
+    `signatures`   Array(String),
     `signer_infos` json,
     `fee`          json,
     `signer`       String,

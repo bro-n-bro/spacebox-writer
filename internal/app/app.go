@@ -8,6 +8,7 @@ import (
 
 	"github.com/hexy-dev/spacebox-writer/adapter/broker"
 	ch "github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
+	"github.com/hexy-dev/spacebox-writer/adapter/metrics"
 	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
 	"github.com/hexy-dev/spacebox-writer/consts"
 	"github.com/hexy-dev/spacebox-writer/internal/rep"
@@ -53,6 +54,7 @@ func (a *App) Start(ctx context.Context) error {
 	m := mongo.New(a.cfg.Mongo, *a.log)
 	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
 	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
+	metrics := metrics.New(a.cfg.Metrics, clickhouse, *a.log)
 
 	a.cmps = append(
 		a.cmps,
@@ -60,6 +62,7 @@ func (a *App) Start(ctx context.Context) error {
 		cmp{mods, "modules"},
 		cmp{m, "mongo"},
 		cmp{brk, "broker"},
+		cmp{metrics, "metrics"},
 	)
 
 	okCh, errCh := make(chan struct{}), make(chan error)
