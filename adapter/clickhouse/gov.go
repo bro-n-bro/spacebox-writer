@@ -1,9 +1,10 @@
 package clickhouse
 
 import (
+	jsoniter "github.com/json-iterator/go"
+
 	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
 	"github.com/bro-n-bro/spacebox/broker/model"
-	jsoniter "github.com/json-iterator/go"
 )
 
 func (ch *Clickhouse) GovParams(val model.GovParams) (err error) {

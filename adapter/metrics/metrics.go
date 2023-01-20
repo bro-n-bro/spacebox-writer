@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
+
+	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
 )
 
 type Metrics struct {
