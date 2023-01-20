@@ -145,8 +145,9 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 		return nil // handle message successful
 	}
 
+	// handle occurred error
 	if b.cfg.MetricsEnabled {
-		b.metrics.counter.With(prometheus.Labels{keyTopic: topic}).Inc()
+		b.metrics.errorsCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
 	}
 
 	// find how much we already tried to handle this message
@@ -173,6 +174,10 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			Str("msg", string(msg.Value)).
 			Int("retry", retry).
 			Msg("retry limit exceeded!!!")
+
+		if b.cfg.MetricsEnabled {
+			b.metrics.limitExceededCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
+		}
 
 		return nil
 	}
