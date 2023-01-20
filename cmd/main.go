@@ -4,15 +4,14 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"spacebox-writer/internal/configs"
 	"syscall"
 
 	"github.com/caarlos0/env/v6"
-	"spacebox-writer/internal/app"
-
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"spacebox-writer/internal/app"
+	"spacebox-writer/internal/configs"
 )
 
 func init() {

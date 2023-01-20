@@ -3,10 +3,10 @@ package broker
 import (
 	"context"
 	"os"
-	"spacebox-writer/internal/configs"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/rs/zerolog"
+	"spacebox-writer/internal/configs"
 )
 
 type Broker struct {

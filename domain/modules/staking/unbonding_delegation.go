@@ -3,15 +3,18 @@ package staking
 import (
 	"context"
 	"encoding/json"
-	"github.com/hexy-dev/spacebox/broker/model"
-	"github.com/jinzhu/copier"
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
-	"gorm.io/gorm"
+
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
 	storageModel "spacebox-writer/adapter/clickhouse/models"
 	"spacebox-writer/internal/configs"
+
+	"github.com/jinzhu/copier"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
+	"gorm.io/gorm"
+
+	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 type unbondingDelegation struct {

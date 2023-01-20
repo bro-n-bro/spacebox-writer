@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"spacebox-writer/internal/configs"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -16,6 +15,7 @@ import (
 	"gorm.io/driver/clickhouse"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"spacebox-writer/internal/configs"
 )
 
 type Clickhouse struct {
@@ -33,7 +33,7 @@ const (
 func (clhs *Clickhouse) GetGormDB(ctx context.Context) *gorm.DB { return clhs.gorm }
 
 func New(cfg configs.Config, log *zerolog.Logger) *Clickhouse {
-	//lg := zerolog.New(os.Stderr).
+	// lg := zerolog.New(os.Stderr).
 	//	Output(zerolog.ConsoleWriter{Out: os.Stderr}).
 	//	With().
 	//	Timestamp().

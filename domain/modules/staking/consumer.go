@@ -3,10 +3,9 @@ package staking
 import (
 	"context"
 
+	"github.com/rs/zerolog"
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/internal/configs"
-
-	"github.com/rs/zerolog"
 )
 
 type Consumer interface {

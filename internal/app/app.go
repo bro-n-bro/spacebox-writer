@@ -3,17 +3,16 @@ package app
 import (
 	"context"
 	"os"
-	"spacebox-writer/internal/configs"
-
-	clhs "spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/consts"
-	"spacebox-writer/domain/modules"
-	"spacebox-writer/internal/rep"
-	"spacebox-writer/models"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/errgroup"
+	clhs "spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/consts"
+	"spacebox-writer/domain/modules"
+	"spacebox-writer/internal/configs"
+	"spacebox-writer/internal/rep"
+	"spacebox-writer/models"
 )
 
 type cmp struct {

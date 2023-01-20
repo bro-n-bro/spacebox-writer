@@ -2,6 +2,7 @@ package modules
 
 import (
 	"context"
+
 	"github.com/rs/zerolog"
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/domain/modules/auth"

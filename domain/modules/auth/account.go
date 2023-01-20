@@ -3,15 +3,17 @@ package auth
 import (
 	"context"
 	"encoding/json"
+
+	"spacebox-writer/adapter/broker"
+	"spacebox-writer/adapter/clickhouse"
+	"spacebox-writer/internal/configs"
+
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
-	"spacebox-writer/internal/configs"
 
-	"github.com/hexy-dev/spacebox/broker/model"
-	"spacebox-writer/adapter/broker"
-	"spacebox-writer/adapter/clickhouse"
+	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 type account struct {

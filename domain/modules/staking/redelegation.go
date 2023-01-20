@@ -9,8 +9,9 @@ import (
 	storageModel "spacebox-writer/adapter/clickhouse/models"
 	"spacebox-writer/internal/configs"
 
-	"github.com/hexy-dev/spacebox/broker/model"
 	"github.com/rs/zerolog"
+
+	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 type redelegation struct {
