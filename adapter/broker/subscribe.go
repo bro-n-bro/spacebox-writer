@@ -9,22 +9,16 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/google/uuid"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
 	"github.com/hexy-dev/spacebox-writer/adapter/mongo/model"
-)
-
-const (
-	keyRetry     = "retry"
-	keyMessageID = "message_id"
+	"github.com/hexy-dev/spacebox-writer/internal/rep"
 )
 
 func (b *Broker) Subscribe(
 	ctx context.Context,
 	wg *sync.WaitGroup,
 	topic string,
-	handler func(ctx context.Context, msg []byte, db *clickhouse.Clickhouse) error,
+	handler func(ctx context.Context, msg []byte, db rep.Storage) error,
 ) error {
-
 	defer wg.Done()
 
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
@@ -52,7 +46,7 @@ func (b *Broker) Subscribe(
 		for {
 			select {
 			case <-ctx.Done():
-				b.log.Info().Str("topic", topic).Msg("stop read messages from topic")
+				b.log.Info().Str(keyTopic, topic).Msg("stop read messages from topic")
 				return
 			default:
 			}
@@ -63,10 +57,8 @@ func (b *Broker) Subscribe(
 			}
 
 			if err != nil {
-				b.log.
-					Fatal().
-					Err(err).
-					Str("msg", string(msg.Value)).
+				b.log.Fatal().Err(err).
+					Str(keyMsg, string(msg.Value)).
 					Msg("read message error")
 				return
 			} else {
@@ -81,10 +73,8 @@ func (b *Broker) Subscribe(
 			}
 
 			if _, err = consumer.CommitMessage(msg); err != nil {
-				b.log.
-					Error().
-					Err(err).
-					Str("topic", topic).
+				b.log.Error().Err(err).
+					Str(keyTopic, topic).
 					Msg("commit message error")
 			}
 		}
@@ -106,7 +96,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	messageID := string(findValueFromHeaders(keyMessageID, headers))
 
 	if messageID == "" {
-		b.log.Debug().Str("topic", topic).Msg("empty message id. generate new")
+		b.log.Debug().Str(keyTopic, topic).Msg("empty message id. generate new")
 		messageID = uuid.New().String()
 	}
 
@@ -119,14 +109,13 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	if messageHandlerError == nil {
 		if exists {
 			b.log.Debug().
-				Str("topic", topic).
+				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
 				Msg("handle message successful. delete errors in storage")
 
 			if err = b.m.DeleteBrokerMessage(ctx, messageID); err != nil {
-				b.log.Warn().
+				b.log.Warn().Err(err).
 					Str(keyMessageID, messageID).
-					Err(err).
 					Msg("DeleteBrokerMessage error. But handle message successful")
 			}
 		}
@@ -139,24 +128,21 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	retry++
 
 	// got error of handling message from the broker
-	b.log.
-		Error().
-		Err(messageHandlerError).
-		Str("topic", topic).
-		Int64("offset", int64(msg.TopicPartition.Offset)).
-		Int64("partition", int64(msg.TopicPartition.Partition)).
+	b.log.Error().Err(messageHandlerError).
+		Str(keyTopic, topic).
+		Int64(keyOffset, int64(msg.TopicPartition.Offset)).
+		Int64(keyPartition, int64(msg.TopicPartition.Partition)).
 		Int(keyRetry, retry).
-		Str("msg", string(msg.Value)).
+		Str(keyMsg, string(msg.Value)).
 		Msg("handle message error")
 
 	if retry > b.cfg.MaxRetries { // retry limit exceeded
 		// TODO: any notifications?
-		b.log.
-			Error().
-			Str("topic", topic).
+		b.log.Error().
+			Str(keyTopic, topic).
 			Str(keyMessageID, messageID).
-			Str("msg", string(msg.Value)).
-			Int("retry", retry).
+			Str(keyMsg, string(msg.Value)).
+			Int(keyRetry, retry).
 			Msg("retry limit exceeded!!!")
 
 		return nil
@@ -178,15 +164,13 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	// produce the message at the end of the broker`s queue
 	if err = b.produce(topic, msg.Value, msg.Headers); err != nil {
 		// FIXME: what need to do?
-		b.log.
-			Error().
-			Err(err).
-			Str("topic", topic).
+		b.log.Error().Err(err).
+			Str(keyTopic, topic).
 			Str(keyMessageID, messageID).
-			Int64("offset", int64(msg.TopicPartition.Offset)).
-			Int64("partition", int64(msg.TopicPartition.Partition)).
-			Str("msg", string(msg.Value)).
-			Int("retry", retry).
+			Int64(keyOffset, int64(msg.TopicPartition.Offset)).
+			Int64(keyPartition, int64(msg.TopicPartition.Partition)).
+			Str(keyMsg, string(msg.Value)).
+			Int(keyRetry, retry).
 			Msg("produce message error")
 
 		return nil // log above we dont need an error here
@@ -200,13 +184,11 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			Attempts:         retry,
 			Data:             string(msg.Value),
 		}); err != nil {
-			b.log.
-				Error().
-				Err(err).
-				Str("topic", topic).
+			b.log.Error().Err(err).
+				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
-				Str("msg", string(msg.Value)).
-				Int("retry", retry).
+				Str(keyMsg, string(msg.Value)).
+				Int(keyRetry, retry).
 				Msg("UpdateBrokerMessage error")
 		}
 	} else {
@@ -218,13 +200,11 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			Attempts:         retry,
 			Created:          time.Now(),
 		}); err != nil {
-			b.log.
-				Error().
-				Err(err).
-				Str("topic", topic).
+			b.log.Error().Err(err).
+				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
-				Str("msg", string(msg.Value)).
-				Int("retry", retry).
+				Str(keyMsg, string(msg.Value)).
+				Int(keyMsg, retry).
 				Msg("CreateBrokerMessage error")
 		}
 	}

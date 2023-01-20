@@ -7,13 +7,19 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/hexy-dev/spacebox-writer/internal/rep"
-	"github.com/hexy-dev/spacebox-writer/modules/auth"
+	auth2 "github.com/hexy-dev/spacebox-writer/modules/auth"
 	bank2 "github.com/hexy-dev/spacebox-writer/modules/bank"
 	core2 "github.com/hexy-dev/spacebox-writer/modules/core"
 	distribution2 "github.com/hexy-dev/spacebox-writer/modules/distribution"
 	gov2 "github.com/hexy-dev/spacebox-writer/modules/gov"
 	mint2 "github.com/hexy-dev/spacebox-writer/modules/mint"
 	staking2 "github.com/hexy-dev/spacebox-writer/modules/staking"
+)
+
+const (
+	msgSubscribed = "topic: %v subscribed"
+
+	keyModule = "module"
 )
 
 var (
@@ -24,7 +30,7 @@ var (
 			{"transaction", core2.TransactionHandler},
 		},
 		"auth": {
-			{"account", auth.AccountHandler},
+			{"account", auth2.AccountHandler},
 		},
 		"bank": {
 			{"supply", bank2.SupplyHandler},
@@ -103,7 +109,7 @@ func (m *Modules) Start(_ context.Context) error {
 				if err := m.brk.Subscribe(ctx, m.consumersWG, th.topicName, th.handler); err != nil {
 					return err
 				}
-				m.log.Info().Str("module", moduleName).Msgf("topic: %v subscribed", th.topicName)
+				m.log.Info().Str(keyModule, moduleName).Msgf(msgSubscribed, th.topicName)
 			}
 		}
 	}
