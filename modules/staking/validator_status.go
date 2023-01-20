@@ -13,5 +13,6 @@ func ValidatorStatusHandler(ctx context.Context, msg []byte, ch rep.Storage) err
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {
 		return err
 	}
+
 	return ch.ValidatorStatus(val)
 }
