@@ -3,12 +3,13 @@ package clickhouse
 import (
 	"encoding/json"
 
-	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
-	"github.com/bro-n-bro/spacebox/broker/model"
 	"github.com/jinzhu/copier"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+
+	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
+	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 func (ch *Clickhouse) Delegation(val model.Delegation) (err error) {

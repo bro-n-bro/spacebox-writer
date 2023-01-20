@@ -6,14 +6,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bro-n-bro/spacebox-writer/adapter/mongo/model"
-	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/bro-n-bro/spacebox-writer/adapter/mongo/model"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 )
 
 const (
+	keyMsg       = "msg"
+	keyPartition = "partition"
+	keyOffset    = "offset"
 	keyTopic     = "topic"
 	keyRetry     = "retry"
 	keyMessageID = "message_id"
@@ -25,6 +29,7 @@ func (b *Broker) Subscribe(
 	topic string,
 	handler func(ctx context.Context, msg []byte, db rep.Storage) error,
 ) error {
+
 	defer wg.Done()
 
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{

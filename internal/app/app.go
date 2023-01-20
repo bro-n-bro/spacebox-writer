@@ -3,6 +3,9 @@ package app
 import (
 	"context"
 
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
+
 	"github.com/bro-n-bro/spacebox-writer/adapter/broker"
 	ch "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
 	"github.com/bro-n-bro/spacebox-writer/adapter/metrics"
@@ -11,8 +14,6 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 	"github.com/bro-n-bro/spacebox-writer/models"
 	"github.com/bro-n-bro/spacebox-writer/modules"
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
 )
 
 type (
