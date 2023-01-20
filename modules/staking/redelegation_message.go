@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/hexy-dev/spacebox-writer/internal/rep"
-	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 func RedelegationMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {

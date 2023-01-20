@@ -3,10 +3,9 @@ package staking
 import (
 	"context"
 
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox/broker/model"
 	jsoniter "github.com/json-iterator/go"
-
-	"github.com/hexy-dev/spacebox-writer/internal/rep"
-	"github.com/hexy-dev/spacebox/broker/model"
 )
 
 func UnbondingDelegationMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {

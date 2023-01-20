@@ -4,16 +4,15 @@ import (
 	"context"
 	"sync"
 
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/modules/auth"
+	bank2 "github.com/bro-n-bro/spacebox-writer/modules/bank"
+	core2 "github.com/bro-n-bro/spacebox-writer/modules/core"
+	distribution2 "github.com/bro-n-bro/spacebox-writer/modules/distribution"
+	gov2 "github.com/bro-n-bro/spacebox-writer/modules/gov"
+	mint2 "github.com/bro-n-bro/spacebox-writer/modules/mint"
+	staking2 "github.com/bro-n-bro/spacebox-writer/modules/staking"
 	"github.com/rs/zerolog"
-
-	"github.com/hexy-dev/spacebox-writer/internal/rep"
-	"github.com/hexy-dev/spacebox-writer/modules/auth"
-	bank2 "github.com/hexy-dev/spacebox-writer/modules/bank"
-	core2 "github.com/hexy-dev/spacebox-writer/modules/core"
-	distribution2 "github.com/hexy-dev/spacebox-writer/modules/distribution"
-	gov2 "github.com/hexy-dev/spacebox-writer/modules/gov"
-	mint2 "github.com/hexy-dev/spacebox-writer/modules/mint"
-	staking2 "github.com/hexy-dev/spacebox-writer/modules/staking"
 )
 
 var (

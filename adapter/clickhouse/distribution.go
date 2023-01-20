@@ -1,10 +1,9 @@
 package clickhouse
 
 import (
+	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
+	"github.com/bro-n-bro/spacebox/broker/model"
 	jsoniter "github.com/json-iterator/go"
-
-	storageModel "github.com/hexy-dev/spacebox-writer/adapter/clickhouse/models"
-	"github.com/hexy-dev/spacebox/broker/model"
 )
 
 func (ch *Clickhouse) CommunityPool(val model.CommunityPool) (err error) {

@@ -3,7 +3,7 @@ package staking
 import (
 	"context"
 
-	"github.com/hexy-dev/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 )
 
 func ValidatorDescriptionHandler(ctx context.Context, msg []byte, ch rep.Storage) error {

@@ -3,17 +3,16 @@ package app
 import (
 	"context"
 
+	"github.com/bro-n-bro/spacebox-writer/adapter/broker"
+	ch "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
+	"github.com/bro-n-bro/spacebox-writer/adapter/metrics"
+	"github.com/bro-n-bro/spacebox-writer/adapter/mongo"
+	"github.com/bro-n-bro/spacebox-writer/consts"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/models"
+	"github.com/bro-n-bro/spacebox-writer/modules"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-
-	"github.com/hexy-dev/spacebox-writer/adapter/broker"
-	ch "github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
-	"github.com/hexy-dev/spacebox-writer/adapter/metrics"
-	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
-	"github.com/hexy-dev/spacebox-writer/consts"
-	"github.com/hexy-dev/spacebox-writer/internal/rep"
-	"github.com/hexy-dev/spacebox-writer/models"
-	"github.com/hexy-dev/spacebox-writer/modules"
 )
 
 type (
