@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/mongo/model"
+	"github.com/bro-n-bro/spacebox-writer/adapter/mongo/model"
 )
 
 const (

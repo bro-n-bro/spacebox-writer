@@ -5,7 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
-	"github.com/hexy-dev/spacebox/broker/model"
+	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 func (ch *Clickhouse) Account(val model.Account) (err error) {

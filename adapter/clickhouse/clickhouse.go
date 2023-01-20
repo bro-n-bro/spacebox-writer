@@ -3,7 +3,6 @@ package clickhouse
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"os"

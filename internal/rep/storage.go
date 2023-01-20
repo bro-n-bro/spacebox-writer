@@ -1,6 +1,6 @@
 package rep
 
-import "github.com/hexy-dev/spacebox/broker/model"
+import "github.com/bro-n-bro/spacebox/broker/model"
 
 type Storage interface {
 	Account(model.Account) error

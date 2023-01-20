@@ -3,11 +3,11 @@ package app
 import (
 	"time"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/broker"
-	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
-	"github.com/hexy-dev/spacebox-writer/adapter/metrics"
-	"github.com/hexy-dev/spacebox-writer/adapter/mongo"
-	"github.com/hexy-dev/spacebox-writer/modules"
+	"github.com/bro-n-bro/spacebox-writer/adapter/broker"
+	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
+	"github.com/bro-n-bro/spacebox-writer/adapter/metrics"
+	"github.com/bro-n-bro/spacebox-writer/adapter/mongo"
+	"github.com/bro-n-bro/spacebox-writer/modules"
 )
 
 type Config struct {

@@ -8,8 +8,8 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
-	storageModel "github.com/hexy-dev/spacebox-writer/adapter/clickhouse/models"
-	"github.com/hexy-dev/spacebox/broker/model"
+	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
+	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 func (ch *Clickhouse) Delegation(val model.Delegation) (err error) {

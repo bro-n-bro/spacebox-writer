@@ -8,22 +8,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/clickhouse"
-	"github.com/hexy-dev/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 )
-
 
 const (
 	msgDeliveryError        = "delivery error: %v"
 	msgFlushedKafkaMessages = "flushed kafka messages. Outstanding events still un-flushed: %d"
 	msgKafkaLocalQueueFull  = "kafka local queue full error - Going to Flush then retry"
-
-	keyMsg       = "msg"
-	keyTopic     = "topic"
-	keyRetry     = "retry"
-	keyMessageID = "message_id"
-	keyPartition = "partition"
-	keyOffset    = "offset"
 )
 
 type (

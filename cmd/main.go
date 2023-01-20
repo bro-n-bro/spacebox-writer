@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/hexy-dev/spacebox-writer/internal/app"
+	"github.com/bro-n-bro/spacebox-writer/internal/app"
 )
 
 const (

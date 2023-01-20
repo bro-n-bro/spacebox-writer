@@ -1,15 +1,15 @@
-module github.com/hexy-dev/spacebox-writer
+module github.com/bro-n-bro/spacebox-writer
 
 go 1.18
 
 require (
 	github.com/99designs/gqlgen v0.17.20
 	github.com/ClickHouse/clickhouse-go/v2 v2.4.3
+	github.com/bro-n-bro/spacebox v0.0.0-20230120163832-cb792d94ab5e
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/google/uuid v1.3.0
-	github.com/hexy-dev/spacebox v0.0.0-20230115132327-768a56e2fb0a
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
 	github.com/json-iterator/go v1.1.12

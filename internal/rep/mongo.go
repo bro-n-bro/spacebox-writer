@@ -3,7 +3,7 @@ package rep
 import (
 	"context"
 
-	"github.com/hexy-dev/spacebox-writer/adapter/mongo/model"
+	"github.com/bro-n-bro/spacebox-writer/adapter/mongo/model"
 )
 
 type Mongo interface {
