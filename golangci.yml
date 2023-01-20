@@ -46,7 +46,7 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/hexy-dev)
+      - prefix(github.com/bro-n-bro)
     skip-generated: false
     custom-order: true
   prealloc:
