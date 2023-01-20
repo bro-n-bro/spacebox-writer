@@ -4,8 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/rs/zerolog"
-
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 	auth2 "github.com/bro-n-bro/spacebox-writer/modules/auth"
 	bank2 "github.com/bro-n-bro/spacebox-writer/modules/bank"
@@ -14,6 +12,7 @@ import (
 	gov2 "github.com/bro-n-bro/spacebox-writer/modules/gov"
 	mint2 "github.com/bro-n-bro/spacebox-writer/modules/mint"
 	staking2 "github.com/bro-n-bro/spacebox-writer/modules/staking"
+	"github.com/rs/zerolog"
 )
 
 const (

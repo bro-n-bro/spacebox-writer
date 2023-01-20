@@ -3,11 +3,10 @@ package mongo
 import (
 	"context"
 
+	"github.com/bro-n-bro/spacebox-writer/adapter/mongo/model"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-
-	"github.com/bro-n-bro/spacebox-writer/adapter/mongo/model"
 )
 
 const (

@@ -3,10 +3,9 @@ package staking
 import (
 	"context"
 
-	jsoniter "github.com/json-iterator/go"
-
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 	"github.com/bro-n-bro/spacebox/broker/model"
+	jsoniter "github.com/json-iterator/go"
 )
 
 func ValidatorInfoHandler(ctx context.Context, msg []byte, ch rep.Storage) error {

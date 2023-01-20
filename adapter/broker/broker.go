@@ -3,13 +3,12 @@ package broker
 import (
 	"context"
 
+	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog"
-
-	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
-	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 )
 
 const (

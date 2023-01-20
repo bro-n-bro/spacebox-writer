@@ -3,9 +3,6 @@ package app
 import (
 	"context"
 
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
-
 	"github.com/bro-n-bro/spacebox-writer/adapter/broker"
 	ch "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
 	"github.com/bro-n-bro/spacebox-writer/adapter/metrics"
@@ -14,6 +11,8 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 	"github.com/bro-n-bro/spacebox-writer/models"
 	"github.com/bro-n-bro/spacebox-writer/modules"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -54,7 +53,7 @@ func (a *App) Start(ctx context.Context) error {
 	m := mongo.New(a.cfg.Mongo, *a.log)
 	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
 	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
-	metrics := metrics.New(a.cfg.Metrics, clickhouse, *a.log)
+	mtr := metrics.New(a.cfg.Metrics, clickhouse, *a.log)
 
 	a.cmps = append(
 		a.cmps,
@@ -62,7 +61,7 @@ func (a *App) Start(ctx context.Context) error {
 		cmp{mods, "modules"},
 		cmp{m, "mongo"},
 		cmp{brk, "broker"},
-		cmp{metrics, "metrics"},
+		cmp{mtr, "metrics"},
 	)
 
 	okCh, errCh := make(chan struct{}), make(chan error)
