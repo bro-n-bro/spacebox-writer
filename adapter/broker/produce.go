@@ -12,10 +12,9 @@ func (b *Broker) produce(topic string, data []byte, headers []kafka.Header) erro
 	}, nil)
 
 	if kafkaError, ok := err.(kafka.Error); ok && kafkaError.Code() == kafka.ErrQueueFull {
-		b.log.Info().Str("topic", topic).Msg("Kafka local queue full error - Going to Flush then retry...")
+		b.log.Info().Str(keyTopic, topic).Msg(msgKafkaLocalQueueFull)
 		flushedMessages := b.pr.Flush(30000)
-		b.log.Info().Str("topic", topic).
-			Msgf("Flushed kafka messages. Outstanding events still un-flushed: %d", flushedMessages)
+		b.log.Info().Str(keyTopic, topic).Msgf(msgFlushedKafkaMessages, flushedMessages)
 		return b.produce(topic, data, headers)
 	}
 

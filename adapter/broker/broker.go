@@ -12,6 +12,20 @@ import (
 	"github.com/hexy-dev/spacebox-writer/internal/rep"
 )
 
+
+const (
+	msgDeliveryError        = "delivery error: %v"
+	msgFlushedKafkaMessages = "flushed kafka messages. Outstanding events still un-flushed: %d"
+	msgKafkaLocalQueueFull  = "kafka local queue full error - Going to Flush then retry"
+
+	keyMsg       = "msg"
+	keyTopic     = "topic"
+	keyRetry     = "retry"
+	keyMessageID = "message_id"
+	keyPartition = "partition"
+	keyOffset    = "offset"
+)
+
 type (
 	Broker struct {
 		m         rep.Mongo
@@ -63,8 +77,7 @@ func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger)
 	return b
 }
 
-func (b *Broker) Start(_ context.Context) error {
-	var err error
+func (b *Broker) Start(_ context.Context) (err error) {
 	b.pr, err = kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": b.cfg.Address,
 	})
@@ -75,8 +88,9 @@ func (b *Broker) Start(_ context.Context) error {
 			if !ok {
 				continue
 			}
+
 			if err = m.TopicPartition.Error; err != nil {
-				b.log.Error().Err(err).Msgf("Delivery error: %v", m.TopicPartition)
+				b.log.Error().Err(err).Msgf(msgDeliveryError, m.TopicPartition)
 			}
 		}
 	}(b.pr.Events())
