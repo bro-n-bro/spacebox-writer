@@ -9,6 +9,7 @@ import (
 	"time"
 
 	clickhouseV2 "github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
 	migrator "github.com/golang-migrate/migrate/v4/database/clickhouse"
@@ -39,10 +40,11 @@ var (
 
 type (
 	Clickhouse struct {
-		log  *zerolog.Logger
-		sql  *sql.DB
-		gorm *gorm.DB
-		cfg  Config
+		log        *zerolog.Logger
+		sql        *sql.DB
+		driverConn driver.Conn
+		gorm       *gorm.DB
+		cfg        Config
 	}
 )
 
@@ -74,6 +76,23 @@ func (ch *Clickhouse) Start(context.Context) (err error) {
 		DialTimeout: ch.cfg.DialTimeout,
 	})
 
+	driverConn, err := clickhouseV2.Open(&clickhouseV2.Options{
+		Addr: []string{ch.cfg.Addr},
+		Auth: clickhouseV2.Auth{
+			Database: ch.cfg.Database,
+			Username: ch.cfg.User,
+			Password: ch.cfg.Password,
+		},
+		// Debug: true,
+		Settings: clickhouseV2.Settings{
+			"max_execution_time": ch.cfg.MaxExecutionTime,
+		},
+		DialTimeout: ch.cfg.DialTimeout,
+	})
+	if err != nil {
+		return err
+	}
+
 	sqlDB.SetMaxIdleConns(ch.cfg.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(ch.cfg.MaxOpenConns)
 
@@ -95,6 +114,7 @@ func (ch *Clickhouse) Start(context.Context) (err error) {
 
 	ch.sql = sqlDB
 	*ch.gorm = *gormDB
+	ch.driverConn = driverConn
 
 	if ch.cfg.AutoMigrate {
 		if ch.cfg.MigrationsPath == "" {
