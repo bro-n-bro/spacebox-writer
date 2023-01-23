@@ -10,7 +10,9 @@ import (
 )
 
 const (
-	insertMultiSendMessage = `INSERT INTO spacebox.multisend_message (height, address_from, addresses_to, tx_hash, coins, msg_index)`
+	insertMultiSendMessage = `
+		INSERT INTO spacebox.multisend_message 
+		    (height, address_from, addresses_to, tx_hash, coins, msg_index)`
 )
 
 func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {

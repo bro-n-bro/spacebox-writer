@@ -69,7 +69,7 @@ CREATE TABLE spacebox.transaction
     `hash`         String,
     `height`       Int64,
     `success`      BOOL,
-    `messages`     json,
+    `messages`     String,
     `memo`         String,
     `signatures`   Array(String),
     `signer_infos` json,
@@ -78,8 +78,7 @@ CREATE TABLE spacebox.transaction
     `gas_wanted`   Int64,
     `gas_used`     Int64,
     `raw_log`      String,
-    `logs`         json,
-    `code`         UInt32
+    `logs`         json
 ) ENGINE = MergeTree()
       PRIMARY KEY (height);
 
