@@ -1,10 +1,16 @@
 package clickhouse
 
 import (
+	"database/sql"
+
 	jsoniter "github.com/json-iterator/go"
 
 	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
 	"github.com/bro-n-bro/spacebox/broker/model"
+)
+
+const (
+	insertMultiSendMessage = `INSERT INTO spacebox.multisend_message (height, address_from, addresses_to, tx_hash, coins, msg_index)`
 )
 
 func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
@@ -29,30 +35,37 @@ func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
 
 func (ch *Clickhouse) MultiSendMessage(val model.MultiSendMessage) (err error) {
 	var (
-		coinsBytes       []byte
-		addressesToBytes []byte
+		stmt *sql.Stmt
+		tx   *sql.Tx
+
+		coinsBytes []byte
 	)
 
 	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
 		return err
 	}
 
-	if addressesToBytes, err = jsoniter.Marshal(val.AddressesTo); err != nil {
+	if tx, err = ch.sql.Begin(); err != nil {
 		return err
 	}
 
-	if err = ch.gorm.Table("multisend_message").Create(storageModel.MultiSendMessage{
-		Coins:       string(coinsBytes),
-		AddressesTo: string(addressesToBytes),
-		AddressFrom: val.AddressFrom,
-		TxHash:      val.TxHash,
-		Height:      val.Height,
-		MsgIndex:    val.MsgIndex,
-	}).Error; err != nil {
+	if stmt, err = tx.Prepare(insertMultiSendMessage); err != nil {
+		return err
+	}
+	defer func() { _ = stmt.Close() }()
+
+	if _, err = stmt.Exec(
+		val.Height,
+		val.AddressFrom,
+		val.AddressesTo,
+		val.TxHash,
+		string(coinsBytes),
+		val.MsgIndex,
+	); err != nil {
 		return err
 	}
 
-	return nil
+	return tx.Commit()
 }
 
 func (ch *Clickhouse) SendMessage(val model.SendMessage) (err error) {
