@@ -59,7 +59,7 @@ CREATE TABLE spacebox.message
     `msg_index`                   Int64,
     `type`                        String,
     `signer`                      String,
-    `value`                       json,
+    `value`                       String,
     `involved_accounts_addresses` Array(String)
 ) ENGINE = MergeTree()
       PRIMARY KEY (transaction_hash);
