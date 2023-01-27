@@ -1,6 +1,7 @@
 package clickhouse
 
 import (
+	"database/sql"
 	"encoding/json"
 
 	"github.com/jinzhu/copier"
@@ -65,7 +66,15 @@ func (ch *Clickhouse) Redelegation(val model.Redelegation) (err error) {
 	}
 
 	if err = ch.gorm.Table("redelegation").Create(storageModel.Redelegation{
-		CompletionTime:      val.CompletionTime,
+		// nolint: lll
+		// DEFAULT CLICKHOUSE ZERO TIME: 1970-01-01 00:00:00.
+		// https://github.com/ClickHouse/ClickHouse/issues/15081
+		// Source driver code: https://github.com/ClickHouse/clickhouse-go/blob/0c79b0fd50ee848198dde5a3392850820974ee6f/lib/column/datetime.go#L200
+		// Driver issue: https://github.com/ClickHouse/clickhouse-go/issues/882
+		CompletionTime: sql.NullTime{
+			Time:  val.CompletionTime,
+			Valid: !val.CompletionTime.IsZero(),
+		},
 		Coin:                string(coinBytes),
 		DelegatorAddress:    val.DelegatorAddress,
 		SrcValidatorAddress: val.SrcValidatorAddress,
@@ -88,7 +97,15 @@ func (ch *Clickhouse) RedelegationMessage(val model.RedelegationMessage) (err er
 	}
 
 	if err = ch.gorm.Table("redelegation_message").Create(storageModel.RedelegationMessage{
-		CompletionTime:      val.CompletionTime,
+		// nolint: lll
+		// DEFAULT CLICKHOUSE ZERO TIME: 1970-01-01 00:00:00.
+		// https://github.com/ClickHouse/ClickHouse/issues/15081
+		// Source driver code: https://github.com/ClickHouse/clickhouse-go/blob/0c79b0fd50ee848198dde5a3392850820974ee6f/lib/column/datetime.go#L200
+		// Driver issue: https://github.com/ClickHouse/clickhouse-go/issues/882
+		CompletionTime: sql.NullTime{
+			Time:  val.CompletionTime,
+			Valid: !val.CompletionTime.IsZero(),
+		},
 		Coin:                string(coinBytes),
 		DelegatorAddress:    val.DelegatorAddress,
 		SrcValidatorAddress: val.SrcValidatorAddress,

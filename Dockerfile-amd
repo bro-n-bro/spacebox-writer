@@ -16,7 +16,7 @@ RUN echo "build binary" && \
 
 RUN echo "move migration folder" && \
     mkdir -p /spacebox-writer/migrations && \
-    mv /go/src/github.com/spacebox-writer/adapter/clickhouse/migrations/ /spacebox-writer/migrations
+    mv /go/src/github.com/spacebox-writer/adapter/clickhouse/migrations/* /spacebox-writer/migrations
 
 
 FROM alpine:latest as app
