@@ -195,6 +195,8 @@ github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869/go.mod h1:Ekp36dR
 github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/bro-n-bro/spacebox v0.0.0-20230120163832-cb792d94ab5e h1:QOzmE/EGz4RsJF22LejnyyJyiIS/JE3UPBsqNu9UxII=
 github.com/bro-n-bro/spacebox v0.0.0-20230120163832-cb792d94ab5e/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
+github.com/bro-n-bro/spacebox v0.0.0-20230127163235-6a3855d0929d h1:kIcyGSkHP0h0A/9VjSMfe6dKlpI/g3O/O7SZ+9+A/dE=
+github.com/bro-n-bro/spacebox v0.0.0-20230127163235-6a3855d0929d/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
 github.com/bshuster-repo/logrus-logstash-hook v0.4.1/go.mod h1:zsTqEiSzDgAa/8GZR7E1qaXrhYNDKBYy5/dWPTIflbk=
 github.com/buger/jsonparser v0.0.0-20180808090653-f4dd9f5a6b44/go.mod h1:bbYlZJ7hK1yFx9hf58LP0zeX7UjIGs20ufpu3evjr+s=
 github.com/buger/jsonparser v1.1.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=

@@ -286,6 +286,9 @@ func (ch *Clickhouse) ValidatorStatus(val model.ValidatorStatus) (err error) {
 	return nil
 }
 
-func (ch *Clickhouse) ValidatorDescription(val model.ValidatorDescription) error {
-	return errors.New("not implemented")
+func (ch *Clickhouse) ValidatorDescription(val model.ValidatorDescription) (err error) {
+	if err = ch.gorm.Table("validator_description").Create(val).Error; err != nil {
+		return errors.Wrap(err, "create validator_description error")
+	}
+	return nil
 }
