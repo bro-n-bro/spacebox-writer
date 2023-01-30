@@ -9,6 +9,10 @@ import (
 )
 
 const (
+	tableBlock       = "block"
+	tableMessage     = "message"
+	tableTransaction = "transaction"
+
 	insertMessageQuery = `
 		INSERT INTO spacebox.message 
 		    (transaction_hash, msg_index, type, signer, value, involved_accounts_addresses)
@@ -22,7 +26,7 @@ const (
 )
 
 func (ch *Clickhouse) Block(val model.Block) error {
-	if err := ch.gorm.Table("block").Create(storageModel.Block{
+	if err := ch.gorm.Table(tableBlock).Create(storageModel.Block{
 		Height:          val.Height,
 		Hash:            val.Hash,
 		NumTXS:          val.TxNum,
@@ -39,22 +43,29 @@ func (ch *Clickhouse) Block(val model.Block) error {
 func (ch *Clickhouse) Message(val model.Message) (err error) {
 	var (
 		accountAddresses = make(clickhouse.ArraySet, len(val.InvolvedAccountsAddresses))
+		exists           bool
 	)
 
 	for i, addr := range val.InvolvedAccountsAddresses {
 		accountAddresses[i] = addr
 	}
 
-	if _, err = ch.sql.Exec(
-		insertMessageQuery,
-		val.TransactionHash,
-		val.MsgIndex,
-		val.Type,
-		val.Signer,
-		string(val.Value),
-		accountAddresses,
-	); err != nil {
+	if exists, err = ch.ExistsTransaction(tableMessage, val.TransactionHash, val.MsgIndex); err != nil {
 		return err
+	}
+
+	if !exists {
+		if _, err = ch.sql.Exec(
+			insertMessageQuery,
+			val.TransactionHash,
+			val.MsgIndex,
+			val.Type,
+			val.Signer,
+			string(val.Value),
+			accountAddresses,
+		); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -93,9 +104,6 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 		return err
 	}
 
-	//			hash, height, success, messages, memo, signatures, signer_infos,
-	//		 	fee, signer, gas_wanted, gas_used, raw_log, logs
-
 	if _, err = ch.sql.Exec(
 		insertTransactionQuery,
 
@@ -117,15 +125,4 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	}
 
 	return nil
-}
-
-func (ch *Clickhouse) LatestBlockHeight() (int64, error) {
-	var lastHeight int64
-
-	if err := ch.gorm.Select("height").Table("block").Order("height DESC").
-		Limit(1).Scan(&lastHeight).Error; err != nil {
-		return 0, err
-	}
-
-	return lastHeight, nil
 }

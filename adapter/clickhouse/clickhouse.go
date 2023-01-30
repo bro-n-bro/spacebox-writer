@@ -149,3 +149,37 @@ func (ch *Clickhouse) Stop(ctx context.Context) error {
 
 	return nil
 }
+
+func (ch *Clickhouse) LatestBlockHeight() (lastHeight int64, err error) {
+	if err = ch.gorm.Select("height").
+		Table("block").
+		Order("height DESC").
+		Limit(1).
+		Scan(&lastHeight).Error; err != nil {
+		return 0, err
+	}
+
+	return lastHeight, nil
+}
+
+func (ch *Clickhouse) ExistsTx(table, txHash string, msgIndex int64) (exists bool, err error) {
+	var count int64
+	if err = ch.gorm.Table(table).
+		Where("tx_hash = ? AND msg_index = ?", txHash, msgIndex).
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func (ch *Clickhouse) ExistsTransaction(table, txHash string, msgIndex int64) (exists bool, err error) {
+	var count int64
+	if err = ch.gorm.Table(table).
+		Where("transaction_hash = ? AND msg_index = ?", txHash, msgIndex).
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}

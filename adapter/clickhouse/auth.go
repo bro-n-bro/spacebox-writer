@@ -8,17 +8,21 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+const (
+	tableAccount = "account"
+)
+
 func (ch *Clickhouse) Account(val model.Account) (err error) {
 	var (
 		updates model.Account
 		getVal  model.Account
 	)
 
-	if err = ch.gorm.Table("account").
+	if err = ch.gorm.Table(tableAccount).
 		Where("address = ?", val.Address).
 		First(&getVal).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err = ch.gorm.Table("account").Create(val).Error; err != nil {
+			if err = ch.gorm.Table(tableAccount).Create(val).Error; err != nil {
 				return errors.Wrap(err, "error of create")
 			}
 			return nil
@@ -31,7 +35,7 @@ func (ch *Clickhouse) Account(val model.Account) (err error) {
 			return errors.Wrap(err, "error of prepare update")
 		}
 
-		if err = ch.gorm.Table("account").Where("address = ?", val.Height).Updates(&updates).Error; err != nil {
+		if err = ch.gorm.Table(tableAccount).Where("address = ?", val.Height).Updates(&updates).Error; err != nil {
 			return errors.Wrap(err, "error of update")
 		}
 	}
