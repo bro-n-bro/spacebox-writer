@@ -1,6 +1,8 @@
 package clickhouse
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/copier"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
@@ -18,59 +20,77 @@ const (
 	tableProposalTallyResult    = "proposal_tally_result"
 )
 
+// GovParams TODO: unsupported Scan, storing driver.Value type *map[string]interface {} into type *string
 func (ch *Clickhouse) GovParams(val model.GovParams) (err error) {
 	var (
-		tallyParamsBytes   []byte
-		votingParamsBytes  []byte
-		depositParamsBytes []byte
-		valStorage         storageModel.GovParams
-		prevValStorage     storageModel.GovParams
-		updates            storageModel.GovParams
+		//tallyParamsBytes   []byte
+		//votingParamsBytes  []byte
+		//depositParamsBytes []byte
+		//valToStorage       storageModel.GovParams
+		prevValStorage storageModel.GovParams
+		//updates        storageModel.GovParams
 	)
 
-	if tallyParamsBytes, err = jsoniter.Marshal(val.TallyParams); err != nil {
-		return err
-	}
-	if votingParamsBytes, err = jsoniter.Marshal(val.VotingParams); err != nil {
-		return err
-	}
-	if depositParamsBytes, err = jsoniter.Marshal(val.DepositParams); err != nil {
+	//if tallyParamsBytes, err = jsoniter.Marshal(val.TallyParams); err != nil {
+	//	return err
+	//}
+	//if votingParamsBytes, err = jsoniter.Marshal(val.VotingParams); err != nil {
+	//	return err
+	//}
+	//if depositParamsBytes, err = jsoniter.Marshal(val.DepositParams); err != nil {
+	//	return err
+	//}
+
+	//valToStorage = storageModel.GovParams{
+	//	DepositParams: string(depositParamsBytes),
+	//	VotingParams:  string(votingParamsBytes),
+	//	TallyParams:   string(tallyParamsBytes),
+	//	Height:        val.Height,
+	//}
+
+	row := ch.sql.QueryRow("SELECT deposit_params, voting_params, tally_params, height FROM spacebox.gov_params LIMIT 1")
+	if err = row.Scan(
+		&prevValStorage.DepositParams,
+		&prevValStorage.VotingParams,
+		&prevValStorage.TallyParams,
+		&prevValStorage.Height,
+	); err != nil {
 		return err
 	}
 
-	valStorage = storageModel.GovParams{
-		DepositParams: string(depositParamsBytes),
-		VotingParams:  string(votingParamsBytes),
-		TallyParams:   string(tallyParamsBytes),
-		Height:        val.Height,
-	}
+	fmt.Println(prevValStorage.DepositParams)
+	fmt.Println(prevValStorage.VotingParams)
+	fmt.Println(prevValStorage.TallyParams)
+	fmt.Println(prevValStorage.Height)
 
-	if err = ch.gorm.Table(tableGovParams).
-		First(&prevValStorage).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err = ch.gorm.Table(tableGovParams).Create(val).Error; err != nil {
-				return errors.Wrap(err, "error of create")
-			}
-			return nil
-		}
-		return errors.Wrap(err, "error of database: %w")
-	}
-
-	if valStorage.Height > prevValStorage.Height {
-		if err = copier.Copy(&valStorage, &updates); err != nil {
-			return errors.Wrap(err, "error of prepare update")
-		}
-		if err = ch.gorm.Table(tableGovParams).
-			Where("height = ?", valStorage.Height).
-			Updates(&updates).Error; err != nil {
-			return errors.Wrap(err, "error of update")
-		}
-	}
+	//if err = ch.gorm.Table(tableGovParams).
+	//	First(&prevValStorage).Error; err != nil {
+	//	if errors.Is(err, gorm.ErrRecordNotFound) {
+	//if err = ch.gorm.Table(tableGovParams).Create(valToStorage).Error; err != nil {
+	//	return errors.Wrap(err, "error of create")
+	//}
+	//		return nil
+	//	}
+	//	return errors.Wrap(err, "error of database: %w")
+	//}
+	//
+	//fmt.Println(prevValStorage, valToStorage)
+	//if valToStorage.Height > prevValStorage.Height {
+	//	if err = copier.Copy(&updates, &valToStorage); err != nil {
+	//		return errors.Wrap(err, "error of prepare update")
+	//	}
+	//	if err = ch.gorm.Table(tableGovParams).
+	//		Where("height = ?", prevValStorage.Height).
+	//		Updates(&updates).Error; err != nil {
+	//		return errors.Wrap(err, "error of update")
+	//	}
+	//}
 
 	return nil
 }
 
 // Proposal TODO: если status = pass / error / reject -  то это конечное сообщение и его не надо обновлять
+// TODO: unsupported Scan, storing driver.Value type *map[string]interface {} into type *string
 func (ch *Clickhouse) Proposal(val model.Proposal) (err error) {
 	if err = ch.gorm.Table(tableProposal).Create(storageModel.Proposal{
 		ID:              val.ID,
@@ -124,8 +144,8 @@ func (ch *Clickhouse) ProposalDepositMessage(val model.ProposalDepositMessage) (
 
 func (ch *Clickhouse) ProposalTallyResult(val model.ProposalTallyResult) (err error) {
 	var (
-		updates        model.ValidatorCommission
-		prevValStorage model.ValidatorCommission
+		updates        model.ProposalTallyResult
+		prevValStorage model.ProposalTallyResult
 	)
 
 	if err = ch.gorm.Table(tableProposalTallyResult).
@@ -154,15 +174,25 @@ func (ch *Clickhouse) ProposalTallyResult(val model.ProposalTallyResult) (err er
 	return nil
 }
 
-// ProposalVoteMessage TODO: добавить в ProposalVoteMessage поле TxHash
 func (ch *Clickhouse) ProposalVoteMessage(val model.ProposalVoteMessage) (err error) {
-	if err = ch.gorm.Table(tableProposalVoteMessage).Create(storageModel.ProposalVoteMessage{
-		ProposalID:   val.ProposalID,
-		VoterAddress: val.VoterAddress,
-		Option:       val.Option,
-		Height:       val.Height,
-	}).Error; err != nil {
+	var (
+		exists bool
+	)
+
+	if exists, err = ch.ExistsTx(tableProposalVoteMessage, val.TxHash, val.MsgIndex); err != nil {
 		return err
+	}
+
+	if !exists {
+		if err = ch.gorm.Table(tableProposalVoteMessage).Create(storageModel.ProposalVoteMessage{
+			ProposalID:   val.ProposalID,
+			VoterAddress: val.VoterAddress,
+			Option:       val.Option,
+			Height:       val.Height,
+			TxHash:       val.TxHash,
+		}).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil

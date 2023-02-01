@@ -17,6 +17,7 @@ const (
 	tableValidatorCommission     = "validator_commission"
 )
 
+// CommunityPool TODO: unsupported Scan, storing driver.Value type *map[string]interface {} into type *string
 func (ch *Clickhouse) CommunityPool(val model.CommunityPool) (err error) {
 	var (
 		coinsBytes     []byte
@@ -37,7 +38,7 @@ func (ch *Clickhouse) CommunityPool(val model.CommunityPool) (err error) {
 	if err = ch.gorm.Table(tableCommunityPool).
 		First(&prevValStorage).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err = ch.gorm.Table(tableCommunityPool).Create(val).Error; err != nil {
+			if err = ch.gorm.Table(tableCommunityPool).Create(valStorage).Error; err != nil {
 				return errors.Wrap(err, "error of create")
 			}
 			return nil
@@ -89,6 +90,7 @@ func (ch *Clickhouse) DelegationRewardMessage(val model.DelegationRewardMessage)
 	return nil
 }
 
+// DistributionParams TODO: unsupported Scan, storing driver.Value type *map[string]interface {} into type *string
 func (ch *Clickhouse) DistributionParams(val model.DistributionParams) (err error) {
 	var (
 		paramsBytes    []byte
@@ -109,7 +111,7 @@ func (ch *Clickhouse) DistributionParams(val model.DistributionParams) (err erro
 	if err = ch.gorm.Table(tableDistributionParams).
 		First(&prevValStorage).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err = ch.gorm.Table(tableDistributionParams).Create(val).Error; err != nil {
+			if err = ch.gorm.Table(tableDistributionParams).Create(valStorage).Error; err != nil {
 				return errors.Wrap(err, "error of create")
 			}
 			return nil

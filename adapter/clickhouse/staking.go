@@ -24,8 +24,8 @@ const (
 	tableValidatorDescription       = "validator_description"
 	tableValidatorStatus            = "validator_status"
 	tableValidatorInfo              = "validator_info"
-	tableStackingPool               = "stacking_pool"
-	tableStackingParams             = "stacking_params"
+	tableStakingPool                = "staking_pool"
+	tableStakingParams              = "staking_params"
 )
 
 func (ch *Clickhouse) Delegation(val model.Delegation) (err error) {
@@ -191,7 +191,7 @@ func (ch *Clickhouse) StakingParams(val model.StakingParams) (err error) {
 		Height: val.Height,
 	}
 
-	if err = ch.gorm.Table(tableStackingParams).
+	if err = ch.gorm.Table(tableStakingParams).
 		Where("height = ?", val.Height).
 		First(&prevStorageVal).Error; !errors.Is(gorm.ErrRecordNotFound, err) {
 		return err
@@ -199,7 +199,7 @@ func (ch *Clickhouse) StakingParams(val model.StakingParams) (err error) {
 		if err = copier.Copy(&storageVal, &updates); err != nil {
 			return err
 		}
-		if err = ch.gorm.Table(tableStackingParams).
+		if err = ch.gorm.Table(tableStakingParams).
 			Where("height = ?", storageVal.Height).
 			Updates(&updates).Error; err != nil {
 			return err
@@ -210,7 +210,7 @@ func (ch *Clickhouse) StakingParams(val model.StakingParams) (err error) {
 }
 
 func (ch *Clickhouse) StakingPool(val model.StakingPool) (err error) {
-	return ch.gorm.Table(tableStackingPool).Create(val).Error
+	return ch.gorm.Table(tableStakingPool).Create(val).Error
 }
 
 func (ch *Clickhouse) UnbondingDelegation(val model.UnbondingDelegation) (err error) {
@@ -266,17 +266,16 @@ func (ch *Clickhouse) UnbondingDelegationMessage(val model.UnbondingDelegationMe
 	return nil
 }
 
-// Validator TODO: добавить height
 func (ch *Clickhouse) Validator(val model.Validator) (err error) {
-	//var count int66
-	//if ch.gorm.Table(tableValidator).
+	// var count int66
+	// if ch.gorm.Table(tableValidator).
 	//	Where("consensus_address = ?", val.ConsensusAddress).
 	//	Count(&count); count != 0 {
 	//	return nil
-	//}
+	// }
 
 	if err = ch.gorm.Table(tableValidator).Create(val).Error; err != nil {
-		return errors.Wrap(err, "create validator error")
+		return err
 	}
 
 	return nil

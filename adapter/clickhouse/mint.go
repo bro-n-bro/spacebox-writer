@@ -48,7 +48,7 @@ func (ch *Clickhouse) MintParams(val model.MintParams) (err error) {
 	}
 
 	if valStorage.Height > prevValStorage.Height {
-		if err = copier.Copy(&valStorage, &updates); err != nil {
+		if err = copier.Copy(&updates, &valStorage); err != nil {
 			return errors.Wrap(err, "error of prepare update")
 		}
 		if err = ch.gorm.Table(tableMintParams).

@@ -6,4 +6,5 @@ type ProposalVoteMessage struct {
 	ProposalID   uint64 `json:"proposal_id"`
 	Height       int64  `json:"height"`
 	MsgIndex     int64  `json:"msg_index"`
+	TxHash       string `json:"tx_hash"`
 }

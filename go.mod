@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/99designs/gqlgen v0.17.20
 	github.com/ClickHouse/clickhouse-go/v2 v2.4.3
-	github.com/bro-n-bro/spacebox v0.0.0-20230127163235-6a3855d0929d
+	github.com/bro-n-bro/spacebox v0.0.0-20230130184443-07344dd57a12
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/golang-migrate/migrate/v4 v4.15.2

@@ -81,6 +81,7 @@ func (ch *Clickhouse) MultiSendMessage(val model.MultiSendMessage) (err error) {
 	if exists, err = ch.ExistsTx(tableMultiSendMessage, val.TxHash, val.MsgIndex); err != nil {
 		return err
 	}
+
 	if !exists {
 		if tx, err = ch.sql.Begin(); err != nil {
 			return err

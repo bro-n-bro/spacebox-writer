@@ -50,7 +50,7 @@ func (ch *Clickhouse) Message(val model.Message) (err error) {
 		accountAddresses[i] = addr
 	}
 
-	if exists, err = ch.ExistsTransaction(tableMessage, val.TransactionHash, val.MsgIndex); err != nil {
+	if exists, err = ch.ExistsTx(tableMessage, val.TransactionHash, val.MsgIndex); err != nil {
 		return err
 	}
 
