@@ -9,9 +9,8 @@ import (
 
 const (
 	insertTransactionQuery = `
-		INSERT INTO spacebox.transaction 
-		    (hash, height, success, messages, memo, signatures, signer_infos,
-		     fee, signer, gas_wanted, gas_used, raw_log, logs)
+		INSERT INTO spacebox.transaction (hash, height, success, messages, memo, signatures, signer_infos,
+		                                  fee, signer, gas_wanted, gas_used, raw_log, logs)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 )
 

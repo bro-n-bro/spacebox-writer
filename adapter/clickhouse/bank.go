@@ -15,8 +15,8 @@ const (
 	tableSupply         = "supply"
 
 	insertMultiSendMessage = `
-		INSERT INTO spacebox.multisend_message 
-		    (height, address_from, addresses_to, tx_hash, coins, msg_index)`
+		INSERT INTO spacebox.multisend_message (height, address_from, addresses_to, tx_hash, coins, msg_index)
+		VALUES (?, ?, ?, ?, ?, ?);`
 )
 
 func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
