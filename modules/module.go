@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
-	auth2 "github.com/bro-n-bro/spacebox-writer/modules/auth"
 	bank2 "github.com/bro-n-bro/spacebox-writer/modules/bank"
 	core2 "github.com/bro-n-bro/spacebox-writer/modules/core"
 	distribution2 "github.com/bro-n-bro/spacebox-writer/modules/distribution"
@@ -25,12 +24,7 @@ const (
 var (
 	moduleHandlers = map[string][]topicHandler{
 		"core": {
-			{"block", core2.BlockHandler},
-			{"message", core2.MessageHandler},
 			{"transaction", core2.TransactionHandler},
-		},
-		"auth": {
-			{"account", auth2.AccountHandler},
 		},
 		"bank": {
 			{"supply", bank2.SupplyHandler},
@@ -41,33 +35,24 @@ var (
 		"distribution": {
 			{"distribution_params", distribution2.DistributionParamsHandler},
 			{"community_pool", distribution2.CommunityPoolHandler},
-			{"validator_commission", distribution2.ValidatorCommissionHandler},
 			{"delegation_reward_message", distribution2.DelegationRewardMessageHandler},
 		},
 		"gov": {
 			{"gov_params", gov2.GovParamsHandler},
 			{"proposal", gov2.ProposalHandler},
 			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
-			{"proposal_tally_result", gov2.ProposalTallyResultHandler},
-			{"proposal_vote_message", gov2.ProposalVoteMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint2.MintParamsHandler},
-			{"annual_provision", mint2.AnnualProvisionHandler},
 		},
 		"staking": {
-			{"validator", staking2.ValidatorHandler},
 			{"delegation", staking2.DelegationHandler},
 			{"delegation_message", staking2.DelegationMessageHandler},
 			{"redelegation", staking2.RedelegationHandler},
 			{"redelegation_message", staking2.RedelegationMessageHandler},
 			{"staking_params", staking2.StakingParamsHandler},
-			{"staking_pool", staking2.StakingPoolHandler},
 			{"unbonding_delegation", staking2.UnbondingDelegationHandler},
 			{"unbonding_delegation_message", staking2.UnbondingDelegationMessageHandler},
-			{"validator_info", staking2.ValidatorInfoHandler},
-			{"validator_status", staking2.ValidatorStatusHandler},
-			{"validator_description", staking2.ValidatorDescriptionHandler},
 		},
 	}
 )

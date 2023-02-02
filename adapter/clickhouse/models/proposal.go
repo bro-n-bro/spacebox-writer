@@ -15,6 +15,6 @@ type (
 		ProposerAddress string    `json:"proposer_address"`
 		Status          string    `json:"status"`
 		Content         string    `json:"content"`
-		ID              uint64    `json:"id"`
+		ID              int64     `json:"id"`
 	}
 )

@@ -162,22 +162,3 @@ func (ch *Clickhouse) LatestBlockHeight() (lastHeight int64, err error) {
 
 	return lastHeight, nil
 }
-
-func (ch *Clickhouse) ExistsTx(table, txHash string, msgIndex int64) (exists bool, err error) {
-	var (
-		where = "tx_hash = ? AND msg_index = ?"
-		count int64
-	)
-
-	if table == tableMessage {
-		where = "transaction_hash = ? AND msg_index = ?"
-	}
-
-	if err = ch.gorm.Table(table).
-		Where(where, txHash, msgIndex).
-		Count(&count).Error; err != nil {
-		return false, err
-	}
-
-	return count > 0, nil
-}

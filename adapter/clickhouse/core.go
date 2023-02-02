@@ -4,72 +4,16 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2"
 	jsoniter "github.com/json-iterator/go"
 
-	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 const (
-	tableBlock       = "block"
-	tableMessage     = "message"
-	tableTransaction = "transaction"
-
-	insertMessageQuery = `
-		INSERT INTO spacebox.message 
-		    (transaction_hash, msg_index, type, signer, value, involved_accounts_addresses)
-		VALUES (?, ?, ?, ?, ?, ?);`
-
 	insertTransactionQuery = `
 		INSERT INTO spacebox.transaction 
 		    (hash, height, success, messages, memo, signatures, signer_infos,
 		     fee, signer, gas_wanted, gas_used, raw_log, logs)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 )
-
-func (ch *Clickhouse) Block(val model.Block) error {
-	if err := ch.gorm.Table(tableBlock).Create(storageModel.Block{
-		Height:          val.Height,
-		Hash:            val.Hash,
-		NumTXS:          val.TxNum,
-		TotalGas:        int64(val.TotalGas),
-		ProposerAddress: val.ProposerAddress,
-		Timestamp:       val.Timestamp,
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (ch *Clickhouse) Message(val model.Message) (err error) {
-	var (
-		accountAddresses = make(clickhouse.ArraySet, len(val.InvolvedAccountsAddresses))
-		exists           bool
-	)
-
-	for i, addr := range val.InvolvedAccountsAddresses {
-		accountAddresses[i] = addr
-	}
-
-	if exists, err = ch.ExistsTx(tableMessage, val.TransactionHash, val.MsgIndex); err != nil {
-		return err
-	}
-
-	if !exists {
-		if _, err = ch.sql.Exec(
-			insertMessageQuery,
-			val.TransactionHash,
-			val.MsgIndex,
-			val.Type,
-			val.Signer,
-			string(val.Value),
-			accountAddresses,
-		); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
 
 func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	var (
@@ -87,11 +31,9 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	if feeBytes, err = jsoniter.Marshal(val.Fee); err != nil {
 		return err
 	}
-
 	if signerInfosBytes, err = jsoniter.Marshal(val.SignerInfos); err != nil {
 		return err
 	}
-
 	for _, msg := range val.Messages {
 		var tmp interface{}
 		if err = jsoniter.Unmarshal(msg, &tmp); err != nil {
@@ -103,10 +45,8 @@ func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	if messagesBytes, err = jsoniter.Marshal(messages); err != nil {
 		return err
 	}
-
 	if _, err = ch.sql.Exec(
 		insertTransactionQuery,
-
 		val.Hash,
 		val.Height,
 		val.Success,
