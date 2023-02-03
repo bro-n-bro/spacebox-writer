@@ -8,8 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog"
-
-	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
 )
 
 const (
@@ -17,22 +15,19 @@ const (
 	keyMetrics = "metrics"
 )
 
-type (
-	Metrics struct {
-		log *zerolog.Logger
-		srv *http.Server
-		ch  *clickhouse.Clickhouse
-		cfg Config
-	}
-)
+type (Metrics struct {
+	log *zerolog.Logger
+	srv *http.Server
+
+	cfg Config
+})
 
 // New is a constructor for Metrics
-func New(cfg Config, ch *clickhouse.Clickhouse, l zerolog.Logger) *Metrics {
+func New(cfg Config, l zerolog.Logger) *Metrics {
 	l = l.With().Str(keyCMP, keyMetrics).Logger()
 
 	return &Metrics{
 		log: &l,
-		ch:  ch,
 		cfg: cfg,
 	}
 }

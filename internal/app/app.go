@@ -56,7 +56,7 @@ func (a *App) Start(ctx context.Context) error {
 	m := mongo.New(a.cfg.Mongo, *a.log)
 	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
 	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
-	mtr := metrics.New(a.cfg.Metrics, clickhouse, *a.log)
+	mtr := metrics.New(a.cfg.Metrics, *a.log)
 
 	a.cmps = append(
 		a.cmps,
