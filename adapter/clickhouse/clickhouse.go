@@ -1,9 +1,11 @@
 package clickhouse
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -54,11 +56,49 @@ func New(cfg Config, log zerolog.Logger) *Clickhouse {
 	}
 }
 
+func (ch *Clickhouse) setupMigrations(ctx context.Context) (err error) {
+	var (
+		files     []os.FileInfo
+		fileBytes []byte
+		fPath     string
+	)
+
+	if files, err = ioutil.ReadDir(ch.cfg.MigrationsPath); err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		if !file.IsDir() {
+			fPath = fmt.Sprintf("%v/%v", ch.cfg.MigrationsPath, file.Name())
+			if fileBytes, err = ioutil.ReadFile(fPath); err != nil {
+				return err
+			}
+
+			fileBytes = bytes.ReplaceAll(
+				fileBytes,
+				[]byte("{{BROKER_SERVER_FOR_KAFKA_ENGINE}}"),
+				[]byte(ch.cfg.BrokerServerForKafkaEngine),
+			)
+
+			if err = ioutil.WriteFile(fPath, fileBytes, 0644); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (ch *Clickhouse) Start(context.Context) (err error) {
 	var (
 		gormDB *gorm.DB
 		sqlDB  *sql.DB
 	)
+
+	if err = ch.setupMigrations(context.Background()); err != nil {
+		ch.log.Error().Err(err).Msg("failed to setup migrations")
+		return err
+	}
 
 	sqlDB = clickhouseV2.OpenDB(&clickhouseV2.Options{
 		Addr: []string{ch.cfg.Addr},
