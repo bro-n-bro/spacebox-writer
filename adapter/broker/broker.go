@@ -70,7 +70,7 @@ func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger)
 	return b
 }
 
-//	Start starts broker.
+// Start starts broker.
 func (b *Broker) Start(_ context.Context) (err error) {
 	b.pr, err = kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": b.cfg.Address,

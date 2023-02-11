@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -59,12 +58,12 @@ func New(cfg Config, log zerolog.Logger) *Clickhouse {
 // setupMigrations replaces all {{BROKER_SERVER_FOR_KAFKA_ENGINE}} in migrations files with broker server for kafka engine
 func (ch *Clickhouse) setupMigrations(context.Context) (err error) {
 	var (
-		files     []os.FileInfo
+		files     []os.DirEntry
 		fileBytes []byte
 		fPath     string
 	)
 
-	if files, err = ioutil.ReadDir(ch.cfg.MigrationsPath); err != nil {
+	if files, err = os.ReadDir(ch.cfg.MigrationsPath); err != nil {
 		return err
 	}
 
@@ -72,7 +71,7 @@ func (ch *Clickhouse) setupMigrations(context.Context) (err error) {
 		// skip directories
 		if !file.IsDir() {
 			fPath = fmt.Sprintf("%v/%v", ch.cfg.MigrationsPath, file.Name())
-			if fileBytes, err = ioutil.ReadFile(fPath); err != nil {
+			if fileBytes, err = os.ReadFile(fPath); err != nil {
 				return err
 			}
 
@@ -84,7 +83,7 @@ func (ch *Clickhouse) setupMigrations(context.Context) (err error) {
 			)
 
 			// rewrite migration file with replaced broker server for kafka engine
-			if err = ioutil.WriteFile(fPath, fileBytes, 0644); err != nil { //nolint:gosec
+			if err = os.WriteFile(fPath, fileBytes, 0644); err != nil { //nolint:gosec
 				return err
 			}
 		}
@@ -195,18 +194,4 @@ func (ch *Clickhouse) Stop(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// LatestBlockHeight returns the latest block height
-func (ch *Clickhouse) LatestBlockHeight() (lastHeight int64, err error) {
-	if err = ch.gorm.
-		Select("height").
-		Table("block").
-		Order("height DESC").
-		Limit(1).
-		Scan(&lastHeight).Error; err != nil {
-		return 0, err
-	}
-
-	return lastHeight, nil
 }
