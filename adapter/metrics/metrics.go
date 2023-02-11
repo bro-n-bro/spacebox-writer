@@ -15,12 +15,14 @@ const (
 	keyMetrics = "metrics"
 )
 
-type (Metrics struct {
-	log *zerolog.Logger
-	srv *http.Server
+type (
+	Metrics struct {
+		log *zerolog.Logger
+		srv *http.Server
 
-	cfg Config
-})
+		cfg Config
+	}
+)
 
 // New is a constructor for Metrics
 func New(cfg Config, l zerolog.Logger) *Metrics {
