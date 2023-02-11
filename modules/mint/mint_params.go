@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// MintParamsHandler is a handler for mint params event
 func MintParamsHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.MintParams{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

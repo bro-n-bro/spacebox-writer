@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// TransactionHandler is a handler for transaction event
 func TransactionHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.Transaction{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

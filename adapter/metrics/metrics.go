@@ -12,18 +12,24 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
 )
 
-type Metrics struct {
-	log *zerolog.Logger
-	srv *http.Server
-	ch  *clickhouse.Clickhouse
+const (
+	keyCMP     = "cmp"
+	keyMetrics = "metrics"
+)
 
-	stopScraping chan struct{}
+type (
+	Metrics struct {
+		log          *zerolog.Logger
+		srv          *http.Server
+		ch           *clickhouse.Clickhouse
+		stopScraping chan struct{}
+		cfg          Config
+	}
+)
 
-	cfg Config
-}
-
+// New is a constructor for Metrics
 func New(cfg Config, ch *clickhouse.Clickhouse, l zerolog.Logger) *Metrics {
-	l = l.With().Str("cmp", "metrics").Logger()
+	l = l.With().Str(keyCMP, keyMetrics).Logger()
 
 	return &Metrics{
 		log:          &l,
@@ -33,6 +39,7 @@ func New(cfg Config, ch *clickhouse.Clickhouse, l zerolog.Logger) *Metrics {
 	}
 }
 
+// Start is a method for starting metrics server
 func (m *Metrics) Start(ctx context.Context) error {
 	if !m.cfg.MetricsEnabled {
 		return nil
@@ -56,6 +63,7 @@ func (m *Metrics) Start(ctx context.Context) error {
 	return nil
 }
 
+// Stop is a method for stopping metrics server
 func (m *Metrics) Stop(ctx context.Context) error {
 	if !m.cfg.MetricsEnabled {
 		return nil

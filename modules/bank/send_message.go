@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// SendMessageHandler is a handler for send message event
 func SendMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.SendMessage{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

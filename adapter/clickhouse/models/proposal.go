@@ -3,6 +3,7 @@ package models
 import "time"
 
 type (
+	// Proposal represents proposal
 	Proposal struct {
 		SubmitTime      time.Time `json:"submit_time"`
 		DepositEndTime  time.Time `json:"deposit_end_time"`
@@ -15,6 +16,6 @@ type (
 		ProposerAddress string    `json:"proposer_address"`
 		Status          string    `json:"status"`
 		Content         string    `json:"content"`
-		ID              uint64    `json:"id"`
+		ID              int64     `json:"id"`
 	}
 )

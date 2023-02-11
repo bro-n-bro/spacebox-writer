@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// RedelegationHandler is a handler for redelegation event
 func RedelegationHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.Redelegation{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

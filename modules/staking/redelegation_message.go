@@ -8,6 +8,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// RedelegationMessageHandler is a handler for redelegation message event
 func RedelegationMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.RedelegationMessage{}
 	if err := json.Unmarshal(msg, &val); err != nil {

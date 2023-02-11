@@ -11,6 +11,7 @@ const (
 	namespace = "spacebox_writer"
 )
 
+// startScraping is a method for scraping metrics
 func (m *Metrics) startScraping() {
 	m.log.Info().Msg("start metrics scraper")
 

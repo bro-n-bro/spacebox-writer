@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// GovParamsHandler is a handler for gov params event
 func GovParamsHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.GovParams{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

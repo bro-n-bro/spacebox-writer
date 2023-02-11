@@ -14,6 +14,7 @@ const (
 	keyID = "_id"
 )
 
+// HasBrokerMessage is a method for checking if a broker message exists in the database
 func (s *Mongo) HasBrokerMessage(ctx context.Context, id string) (r bool, err error) {
 	msg := model.BrokerMessage{}
 
@@ -28,6 +29,7 @@ func (s *Mongo) HasBrokerMessage(ctx context.Context, id string) (r bool, err er
 	return false, err
 }
 
+// CreateBrokerMessage is a method for creating a broker message in the database
 func (s *Mongo) CreateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error {
 	if _, err := s.collection.InsertOne(ctx, msg); err != nil {
 		return err
@@ -36,6 +38,7 @@ func (s *Mongo) CreateBrokerMessage(ctx context.Context, msg *model.BrokerMessag
 	return nil
 }
 
+// UpdateBrokerMessage is a method for updating a broker message in the database
 func (s *Mongo) UpdateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error {
 	filter := bson.D{{Key: keyID, Value: msg.ID}}
 	update := bson.D{
@@ -52,6 +55,7 @@ func (s *Mongo) UpdateBrokerMessage(ctx context.Context, msg *model.BrokerMessag
 	return nil
 }
 
+// GetMessagesByTopic is a method for getting broker messages by topic from the database
 func (s *Mongo) GetMessagesByTopic(ctx context.Context, topic string) ([]*model.BrokerMessage, error) {
 	filter := bson.D{{Key: "topic", Value: topic}}
 	cursor, err := s.collection.Find(ctx, filter)
@@ -67,6 +71,7 @@ func (s *Mongo) GetMessagesByTopic(ctx context.Context, topic string) ([]*model.
 	return messages, nil
 }
 
+// DeleteBrokerMessage is a method for deleting a broker message from the database
 func (s *Mongo) DeleteBrokerMessage(ctx context.Context, id string) error {
 	filter := bson.D{{Key: keyID, Value: id}}
 	if _, err := s.collection.DeleteOne(ctx, filter); err != nil {

@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// DistributionParamsHandler is a handler for distribution params event
 func DistributionParamsHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.DistributionParams{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

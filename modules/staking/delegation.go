@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// DelegationHandler is a handler for delegation event
 func DelegationHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.Delegation{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

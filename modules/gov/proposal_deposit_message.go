@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// ProposalDepositMessageHandler is a handler for proposal deposit message event
 func ProposalDepositMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.ProposalDepositMessage{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

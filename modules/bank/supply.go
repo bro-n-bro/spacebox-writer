@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// SupplyHandler is a handler for supply event
 func SupplyHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.Supply{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
-	auth2 "github.com/bro-n-bro/spacebox-writer/modules/auth"
 	bank2 "github.com/bro-n-bro/spacebox-writer/modules/bank"
 	core2 "github.com/bro-n-bro/spacebox-writer/modules/core"
 	distribution2 "github.com/bro-n-bro/spacebox-writer/modules/distribution"
@@ -23,14 +22,10 @@ const (
 )
 
 var (
+	// moduleHandlers is a map of module name and topic handlers
 	moduleHandlers = map[string][]topicHandler{
 		"core": {
-			{"block", core2.BlockHandler},
-			{"message", core2.MessageHandler},
 			{"transaction", core2.TransactionHandler},
-		},
-		"auth": {
-			{"account", auth2.AccountHandler},
 		},
 		"bank": {
 			{"supply", bank2.SupplyHandler},
@@ -41,38 +36,30 @@ var (
 		"distribution": {
 			{"distribution_params", distribution2.DistributionParamsHandler},
 			{"community_pool", distribution2.CommunityPoolHandler},
-			{"validator_commission", distribution2.ValidatorCommissionHandler},
 			{"delegation_reward_message", distribution2.DelegationRewardMessageHandler},
 		},
 		"gov": {
 			{"gov_params", gov2.GovParamsHandler},
 			{"proposal", gov2.ProposalHandler},
 			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
-			{"proposal_tally_result", gov2.ProposalTallyResultHandler},
-			{"proposal_vote_message", gov2.ProposalVoteMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint2.MintParamsHandler},
-			{"annual_provision", mint2.AnnualProvisionHandler},
 		},
 		"staking": {
-			{"validator", staking2.ValidatorHandler},
 			{"delegation", staking2.DelegationHandler},
 			{"delegation_message", staking2.DelegationMessageHandler},
 			{"redelegation", staking2.RedelegationHandler},
 			{"redelegation_message", staking2.RedelegationMessageHandler},
 			{"staking_params", staking2.StakingParamsHandler},
-			{"staking_pool", staking2.StakingPoolHandler},
 			{"unbonding_delegation", staking2.UnbondingDelegationHandler},
 			{"unbonding_delegation_message", staking2.UnbondingDelegationMessageHandler},
-			{"validator_info", staking2.ValidatorInfoHandler},
-			{"validator_status", staking2.ValidatorStatusHandler},
-			{"validator_description", staking2.ValidatorDescriptionHandler},
 		},
 	}
 )
 
 type (
+	// Modules is a universal struct for all modules
 	Modules struct {
 		brk           rep.Broker
 		st            rep.Storage
@@ -82,12 +69,14 @@ type (
 		cfg           Config
 	}
 
+	// topicHandler is a struct for topic name and her handler
 	topicHandler struct { //nolint:govet
 		topicName string
 		handler   func(ctx context.Context, msg []byte, db rep.Storage) error
 	}
 )
 
+// New creates new instance of Modules
 func New(cfg Config, st rep.Storage, log zerolog.Logger, brk rep.Broker) *Modules {
 	return &Modules{
 		log:         &log,
@@ -98,10 +87,12 @@ func New(cfg Config, st rep.Storage, log zerolog.Logger, brk rep.Broker) *Module
 	}
 }
 
+// Start starts all modules
 func (m *Modules) Start(_ context.Context) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	m.stopConsumers = cancel
 
+	// subscribe to all topics
 	for _, moduleName := range m.cfg.Modules {
 		if topicHandlers, ok := moduleHandlers[moduleName]; ok {
 			for _, th := range topicHandlers {
@@ -117,6 +108,7 @@ func (m *Modules) Start(_ context.Context) error {
 	return nil
 }
 
+// Stop stops all modules
 func (m *Modules) Stop(ctx context.Context) error {
 	m.stopConsumers()
 	m.consumersWG.Wait()

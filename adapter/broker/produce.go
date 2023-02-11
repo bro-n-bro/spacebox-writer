@@ -4,6 +4,7 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
+// produce sends message to kafka.
 func (b *Broker) produce(topic string, data []byte, headers []kafka.Header) error {
 	err := b.pr.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
