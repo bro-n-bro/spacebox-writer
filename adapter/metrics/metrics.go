@@ -19,11 +19,10 @@ const (
 
 type (
 	Metrics struct {
-		log          *zerolog.Logger
-		srv          *http.Server
-		ch           *clickhouse.Clickhouse
-		stopScraping chan struct{}
-		cfg          Config
+		log *zerolog.Logger
+		srv *http.Server
+		ch  *clickhouse.Clickhouse
+		cfg Config
 	}
 )
 
@@ -32,10 +31,9 @@ func New(cfg Config, ch *clickhouse.Clickhouse, l zerolog.Logger) *Metrics {
 	l = l.With().Str(keyCMP, keyMetrics).Logger()
 
 	return &Metrics{
-		log:          &l,
-		ch:           ch,
-		cfg:          cfg,
-		stopScraping: make(chan struct{}),
+		log: &l,
+		ch:  ch,
+		cfg: cfg,
 	}
 }
 
@@ -58,8 +56,6 @@ func (m *Metrics) Start(ctx context.Context) error {
 		}
 	}()
 
-	go m.startScraping()
-
 	return nil
 }
 
@@ -68,8 +64,6 @@ func (m *Metrics) Stop(ctx context.Context) error {
 	if !m.cfg.MetricsEnabled {
 		return nil
 	}
-
-	m.stopScraping <- struct{}{}
 
 	return m.srv.Shutdown(ctx)
 }
