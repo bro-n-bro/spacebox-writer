@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// CommunityPoolHandler is a handler for community pool event
 func CommunityPoolHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.CommunityPool{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

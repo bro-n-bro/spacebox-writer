@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/modules"
 )
 
+// Config is a struct for app configuration
 type Config struct {
 	LogLevel     string `env:"LOG_LEVEL"`
 	Metrics      metrics.Config

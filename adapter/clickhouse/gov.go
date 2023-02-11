@@ -13,6 +13,7 @@ const (
 	tableProposalDepositMessage = "proposal_deposit_message"
 )
 
+// GovParams is a method for saving gov params data to clickhouse
 func (ch *Clickhouse) GovParams(val model.GovParams) (err error) {
 	var (
 		tallyParamsBytes   []byte
@@ -38,6 +39,7 @@ func (ch *Clickhouse) GovParams(val model.GovParams) (err error) {
 	}).Error
 }
 
+// Proposal is a method for saving proposal data to clickhouse
 func (ch *Clickhouse) Proposal(val model.Proposal) (err error) {
 	return ch.gorm.Table(tableProposal).Create(storageModel.Proposal{
 		ID:              int64(val.ID),
@@ -55,6 +57,7 @@ func (ch *Clickhouse) Proposal(val model.Proposal) (err error) {
 	}).Error
 }
 
+// ProposalDepositMessage is a method for saving proposal deposit message data to clickhouse
 func (ch *Clickhouse) ProposalDepositMessage(val model.ProposalDepositMessage) (err error) {
 	var (
 		coinsBytes []byte

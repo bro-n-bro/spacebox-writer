@@ -21,13 +21,31 @@ const (
 	keyTopic     = "topic"
 	keyRetry     = "retry"
 	keyMessageID = "message_id"
+
+	msgStopReadingMessagesFromTopic = "stop reading messages from topic"
+	msgEmptyMessageID               = "empty message id. Generate new id"
+	msgCreateBrokerMessageError     = "CreateBrokerMessage error"
+	msgUpdateBrokerMessageError     = "UpdateBrokerMessage error"
+	msgDeleteBrokerMessageError     = "DeleteBrokerMessage error. But handle message successful"
+	msgProduceMessageError          = "produce message error"
+	msgReadMessageError             = "read message error"
+	msgSomethingWentWrong           = "something went wrong with handle error"
+	msgCommitMessageError           = "commit message error"
+	msgRetryLimitExceeded           = "retry limit exceeded!"
+	msgHandleMessageError           = "handle message error"
+	msgHandleMessageSuccess         = "handle message successful. delete errors in storage"
+
+	logLayout = "[%v]: %s"
+
+	readMessageTimeout = 100
 )
 
+// Subscribe subscribes to kafka topic.
 func (b *Broker) Subscribe(
-	ctx context.Context,
-	wg *sync.WaitGroup,
-	topic string,
-	handler func(ctx context.Context, msg []byte, db rep.Storage) error,
+	ctx context.Context, //
+	wg *sync.WaitGroup, //
+	topic string, // name of topic to subscribe
+	handler func(ctx context.Context, msg []byte, db rep.Storage) error, // handler for processing messages
 ) error {
 
 	defer wg.Done()
@@ -61,12 +79,12 @@ func (b *Broker) Subscribe(
 		for {
 			select {
 			case <-ctx.Done():
-				b.log.Info().Str(keyTopic, topic).Msg("stop read messages from topic")
+				b.log.Info().Str(keyTopic, topic).Msg(msgStopReadingMessagesFromTopic)
 				return
 			default:
 			}
 
-			msg, err := consumer.ReadMessage(100)
+			msg, err := consumer.ReadMessage(readMessageTimeout)
 			if msg == nil {
 				continue
 			}
@@ -74,10 +92,10 @@ func (b *Broker) Subscribe(
 			if err != nil {
 				b.log.Fatal().Err(err).
 					Str(keyMsg, string(msg.Value)).
-					Msg("read message error")
+					Msg(msgReadMessageError)
 				return
 			} else {
-				b.log.Debug().Msgf("[%v]: %s", msg.String(), msg.Value)
+				b.log.Debug().Msgf(logLayout, msg.String(), msg.Value)
 			}
 
 			start = time.Now()
@@ -89,13 +107,13 @@ func (b *Broker) Subscribe(
 
 			// call handler and process error if needed
 			if err = b.handleError(ctx, hndlErr, msg); err != nil {
-				b.log.Error().Err(err).Msg("smth went wrong with handle error")
+				b.log.Error().Err(err).Msg(msgSomethingWentWrong)
 			}
 
 			if _, err = consumer.CommitMessage(msg); err != nil {
 				b.log.Error().Err(err).
 					Str(keyTopic, topic).
-					Msg("commit message error")
+					Msg(msgCommitMessageError)
 			}
 		}
 	}(wg)
@@ -116,7 +134,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 	messageID := string(findValueFromHeaders(keyMessageID, headers))
 
 	if messageID == "" {
-		b.log.Debug().Str(keyTopic, topic).Msg("empty message id. generate new")
+		b.log.Debug().Str(keyTopic, topic).Msg(msgEmptyMessageID)
 		messageID = uuid.New().String()
 	}
 
@@ -131,12 +149,12 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			b.log.Debug().
 				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
-				Msg("handle message successful. delete errors in storage")
+				Msg(msgHandleMessageSuccess)
 
 			if err = b.m.DeleteBrokerMessage(ctx, messageID); err != nil {
 				b.log.Warn().Err(err).
 					Str(keyMessageID, messageID).
-					Msg("DeleteBrokerMessage error. But handle message successful")
+					Msg(msgDeleteBrokerMessageError)
 			}
 		}
 
@@ -159,7 +177,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 		Int64(keyPartition, int64(msg.TopicPartition.Partition)).
 		Int(keyRetry, retry).
 		Str(keyMsg, string(msg.Value)).
-		Msg("handle message error")
+		Msg(msgHandleMessageError)
 
 	if retry > b.cfg.MaxRetries { // retry limit exceeded
 		// TODO: any notifications?
@@ -168,7 +186,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			Str(keyMessageID, messageID).
 			Str(keyMsg, string(msg.Value)).
 			Int(keyRetry, retry).
-			Msg("retry limit exceeded!!!")
+			Msg(msgRetryLimitExceeded)
 
 		if b.cfg.MetricsEnabled {
 			b.metrics.limitExceededCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
@@ -200,9 +218,9 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			Int64(keyPartition, int64(msg.TopicPartition.Partition)).
 			Str(keyMsg, string(msg.Value)).
 			Int(keyRetry, retry).
-			Msg("produce message error")
+			Msg(msgProduceMessageError)
 
-		return nil // log above we dont need an error here
+		return nil // log above we don't need an error here
 	}
 
 	if exists { // error message exists in mongo. just increase an attempts
@@ -218,7 +236,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 				Str(keyMessageID, messageID).
 				Str(keyMsg, string(msg.Value)).
 				Int(keyRetry, retry).
-				Msg("UpdateBrokerMessage error")
+				Msg(msgUpdateBrokerMessageError)
 		}
 	} else {
 		if err = b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
@@ -234,7 +252,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 				Str(keyMessageID, messageID).
 				Str(keyMsg, string(msg.Value)).
 				Int(keyMsg, retry).
-				Msg("CreateBrokerMessage error")
+				Msg(msgCreateBrokerMessageError)
 		}
 	}
 

@@ -13,6 +13,7 @@ const (
 	tableDelegationRewardMessage = "delegation_reward_message"
 )
 
+// CommunityPool is a method for saving community pool data to clickhouse
 func (ch *Clickhouse) CommunityPool(val model.CommunityPool) (err error) {
 	var (
 		coinsBytes []byte
@@ -27,6 +28,7 @@ func (ch *Clickhouse) CommunityPool(val model.CommunityPool) (err error) {
 	}).Error
 }
 
+// DelegationRewardMessage is a method for saving delegation reward message data to clickhouse
 func (ch *Clickhouse) DelegationRewardMessage(val model.DelegationRewardMessage) (err error) {
 	var (
 		paramsBytes []byte
@@ -46,6 +48,7 @@ func (ch *Clickhouse) DelegationRewardMessage(val model.DelegationRewardMessage)
 	}).Error
 }
 
+// DistributionParams is a method for saving distribution params data to clickhouse
 func (ch *Clickhouse) DistributionParams(val model.DistributionParams) (err error) {
 	var (
 		paramsBytes []byte

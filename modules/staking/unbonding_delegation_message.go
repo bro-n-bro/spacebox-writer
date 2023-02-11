@@ -9,6 +9,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// UnbondingDelegationMessageHandler is a handler for unbonding delegation message event
 func UnbondingDelegationMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.UnbondingDelegationMessage{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

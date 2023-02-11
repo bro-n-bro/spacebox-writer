@@ -9,6 +9,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// StakingParamsHandler is a handler for staking params event
 func StakingParamsHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.StakingParams{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

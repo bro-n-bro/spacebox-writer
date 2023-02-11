@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// AccountBalanceHandler is a handler for account balance event
 func AccountBalanceHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.AccountBalance{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

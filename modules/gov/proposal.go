@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// ProposalHandler is a handler for proposal event
 func ProposalHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.Proposal{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

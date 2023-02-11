@@ -14,6 +14,7 @@ const (
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 )
 
+// Transaction is a method for saving transaction data to clickhouse
 func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
 	var (
 		messages         = make([]interface{}, 0)

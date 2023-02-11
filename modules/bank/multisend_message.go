@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// MultiSendMessageHandler is a handler for multi send message event
 func MultiSendMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.MultiSendMessage{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

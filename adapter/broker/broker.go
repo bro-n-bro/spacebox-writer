@@ -36,6 +36,7 @@ type (
 	}
 )
 
+// New creates new broker instance.
 func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger) *Broker {
 	log = log.With().Str("cmp", "broker").Logger()
 
@@ -69,6 +70,7 @@ func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger)
 	return b
 }
 
+//	Start starts broker.
 func (b *Broker) Start(_ context.Context) (err error) {
 	b.pr, err = kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": b.cfg.Address,
@@ -90,6 +92,7 @@ func (b *Broker) Start(_ context.Context) (err error) {
 	return err
 }
 
+// Stop stops broker.
 func (b *Broker) Stop(ctx context.Context) error {
 	b.pr.Close()
 	for _, consumer := range b.consumers {

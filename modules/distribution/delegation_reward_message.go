@@ -10,6 +10,7 @@ import (
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
+// DelegationRewardMessageHandler is a handler for delegation reward message event
 func DelegationRewardMessageHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
 	val := model.DelegationRewardMessage{}
 	if err := jsoniter.Unmarshal(msg, &val); err != nil {

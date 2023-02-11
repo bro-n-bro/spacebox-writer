@@ -56,7 +56,8 @@ func New(cfg Config, log zerolog.Logger) *Clickhouse {
 	}
 }
 
-func (ch *Clickhouse) setupMigrations(ctx context.Context) (err error) {
+// setupMigrations replaces all {{BROKER_SERVER_FOR_KAFKA_ENGINE}} in migrations files with broker server for kafka engine
+func (ch *Clickhouse) setupMigrations(context.Context) (err error) {
 	var (
 		files     []os.FileInfo
 		fileBytes []byte
@@ -68,19 +69,22 @@ func (ch *Clickhouse) setupMigrations(ctx context.Context) (err error) {
 	}
 
 	for _, file := range files {
+		// skip directories
 		if !file.IsDir() {
 			fPath = fmt.Sprintf("%v/%v", ch.cfg.MigrationsPath, file.Name())
 			if fileBytes, err = ioutil.ReadFile(fPath); err != nil {
 				return err
 			}
 
+			// replace {{BROKER_SERVER_FOR_KAFKA_ENGINE}} with broker server for kafka engine
 			fileBytes = bytes.ReplaceAll(
 				fileBytes,
 				[]byte("{{BROKER_SERVER_FOR_KAFKA_ENGINE}}"),
 				[]byte(ch.cfg.BrokerServerForKafkaEngine),
 			)
 
-			if err = ioutil.WriteFile(fPath, fileBytes, 0644); err != nil {
+			// rewrite migration file with replaced broker server for kafka engine
+			if err = ioutil.WriteFile(fPath, fileBytes, 0644); err != nil { //nolint:gosec
 				return err
 			}
 		}
@@ -89,12 +93,14 @@ func (ch *Clickhouse) setupMigrations(ctx context.Context) (err error) {
 	return nil
 }
 
+// Start connects to Clickhouse and runs migrations
 func (ch *Clickhouse) Start(context.Context) (err error) {
 	var (
 		gormDB *gorm.DB
 		sqlDB  *sql.DB
 	)
 
+	// try to set up migrations
 	if err = ch.setupMigrations(context.Background()); err != nil {
 		ch.log.Error().Err(err).Msg("failed to setup migrations")
 		return err
@@ -182,6 +188,7 @@ func (ch *Clickhouse) Start(context.Context) (err error) {
 	return nil
 }
 
+// Stop closes connection to Clickhouse
 func (ch *Clickhouse) Stop(ctx context.Context) error {
 	if err := ch.sql.Close(); err != nil {
 		ch.log.Error().Err(err).Msg(msgFailedToCloseDB)
@@ -190,6 +197,7 @@ func (ch *Clickhouse) Stop(ctx context.Context) error {
 	return nil
 }
 
+// LatestBlockHeight returns the latest block height
 func (ch *Clickhouse) LatestBlockHeight() (lastHeight int64, err error) {
 	if err = ch.gorm.
 		Select("height").

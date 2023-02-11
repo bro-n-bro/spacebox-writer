@@ -22,6 +22,7 @@ const (
 )
 
 var (
+	// moduleHandlers is a map of module name and topic handlers
 	moduleHandlers = map[string][]topicHandler{
 		"core": {
 			{"transaction", core2.TransactionHandler},
@@ -58,6 +59,7 @@ var (
 )
 
 type (
+	// Modules is a universal struct for all modules
 	Modules struct {
 		brk           rep.Broker
 		st            rep.Storage
@@ -67,12 +69,14 @@ type (
 		cfg           Config
 	}
 
+	// topicHandler is a struct for topic name and her handler
 	topicHandler struct { //nolint:govet
 		topicName string
 		handler   func(ctx context.Context, msg []byte, db rep.Storage) error
 	}
 )
 
+// New creates new instance of Modules
 func New(cfg Config, st rep.Storage, log zerolog.Logger, brk rep.Broker) *Modules {
 	return &Modules{
 		log:         &log,
@@ -83,10 +87,12 @@ func New(cfg Config, st rep.Storage, log zerolog.Logger, brk rep.Broker) *Module
 	}
 }
 
+// Start starts all modules
 func (m *Modules) Start(_ context.Context) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	m.stopConsumers = cancel
 
+	// subscribe to all topics
 	for _, moduleName := range m.cfg.Modules {
 		if topicHandlers, ok := moduleHandlers[moduleName]; ok {
 			for _, th := range topicHandlers {
@@ -102,6 +108,7 @@ func (m *Modules) Start(_ context.Context) error {
 	return nil
 }
 
+// Stop stops all modules
 func (m *Modules) Stop(ctx context.Context) error {
 	m.stopConsumers()
 	m.consumersWG.Wait()

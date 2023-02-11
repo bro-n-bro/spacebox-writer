@@ -29,6 +29,7 @@ type (
 	}
 )
 
+// New is a constructor for App
 func New(cfg Config, l zerolog.Logger) *App {
 	level, err := zerolog.ParseLevel(cfg.LogLevel)
 	if err != nil {
@@ -43,6 +44,7 @@ func New(cfg Config, l zerolog.Logger) *App {
 	}
 }
 
+// Start is a method for starting all components
 func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
 	a.log.Info().
@@ -87,6 +89,7 @@ func (a *App) Start(ctx context.Context) error {
 	}
 }
 
+// Stop is a method for stopping all components
 func (a *App) Stop(ctx context.Context) error {
 	a.log.Info().Msg("shutting down service...")
 

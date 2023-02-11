@@ -19,6 +19,7 @@ const (
 		VALUES (?, ?, ?, ?, ?, ?);`
 )
 
+// AccountBalance is a method for saving account balance data to clickhouse
 func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
 	var (
 		coinsBytes []byte
@@ -38,6 +39,7 @@ func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
 	return nil
 }
 
+// MultiSendMessage is a method for saving multisend message data to clickhouse
 func (ch *Clickhouse) MultiSendMessage(val model.MultiSendMessage) (err error) {
 	var (
 		stmt       *sql.Stmt
@@ -69,6 +71,7 @@ func (ch *Clickhouse) MultiSendMessage(val model.MultiSendMessage) (err error) {
 	return tx.Commit()
 }
 
+// SendMessage is a method for saving send message data to clickhouse
 func (ch *Clickhouse) SendMessage(val model.SendMessage) (err error) {
 	var (
 		coinsBytes []byte
@@ -92,6 +95,7 @@ func (ch *Clickhouse) SendMessage(val model.SendMessage) (err error) {
 	return nil
 }
 
+// Supply is a method for saving supply data to clickhouse
 func (ch *Clickhouse) Supply(val model.Supply) (err error) {
 	var (
 		coinsBytes []byte

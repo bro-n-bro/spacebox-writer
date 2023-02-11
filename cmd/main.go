@@ -17,8 +17,14 @@ import (
 const (
 	DefaultEnvFile = ".env"
 	EnvFile        = "ENV_FILE"
+
+	msgCannotStartApplication = "cannot start application"
+	msgServiceIsDown          = "service is down"
+	msgCannotStopApplication  = "cannot stop application"
+	msgApplicationStarted     = "application started"
 )
 
+// init is a function for setting up logger before main function
 func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }
@@ -44,10 +50,10 @@ func main() {
 	startCtx, startCancel := context.WithTimeout(context.Background(), cfg.StartTimeout)
 	defer startCancel()
 	if err := application.Start(startCtx); err != nil {
-		log.Fatal().Err(err).Msg("cannot start application") // nolint
+		log.Fatal().Err(err).Msg(msgCannotStartApplication) // nolint
 	}
 
-	log.Info().Msg("application started")
+	log.Info().Msg(msgApplicationStarted)
 
 	quitCh := make(chan os.Signal, 1)
 	signal.Notify(quitCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -57,9 +63,9 @@ func main() {
 	defer stopCancel()
 
 	if err := application.Stop(stopCtx); err != nil {
-		log.Error().Err(err).Msg("cannot stop application")
+		log.Error().Err(err).Msg(msgCannotStopApplication)
 	}
 
-	log.Info().Msg("service is down")
+	log.Info().Msg(msgServiceIsDown)
 	// os.Exit()
 }

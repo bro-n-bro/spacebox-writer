@@ -2,6 +2,7 @@ package clickhouse
 
 import "time"
 
+// Config is a configuration for ClickHouse.
 type Config struct {
 	Addr                       string        `env:"CLICKHOUSE_ADDR" envDefault:"127.0.0.1:9000"`
 	Database                   string        `env:"CLICKHOUSE_DATABASE" envDefault:"spacebox"`

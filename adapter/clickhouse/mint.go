@@ -11,6 +11,7 @@ const (
 	tableMintParams = "mint_params"
 )
 
+// MintParams is a method for saving mint params data to clickhouse
 func (ch *Clickhouse) MintParams(val model.MintParams) (err error) {
 	var (
 		paramsBytes []byte

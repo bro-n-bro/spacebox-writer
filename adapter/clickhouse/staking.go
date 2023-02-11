@@ -21,6 +21,7 @@ const (
 	tableStakingParams              = "staking_params"
 )
 
+// Delegation is a method for saving delegation data to clickhouse
 func (ch *Clickhouse) Delegation(val model.Delegation) (err error) {
 	var (
 		coinBytes []byte
@@ -38,6 +39,7 @@ func (ch *Clickhouse) Delegation(val model.Delegation) (err error) {
 	}).Error
 }
 
+// DelegationMessage is a method for saving delegation message data to clickhouse
 func (ch *Clickhouse) DelegationMessage(val model.DelegationMessage) (err error) {
 	var (
 		coinBytes []byte
@@ -57,6 +59,7 @@ func (ch *Clickhouse) DelegationMessage(val model.DelegationMessage) (err error)
 	}).Error
 }
 
+// Redelegation is a method for saving redelegation data to clickhouse
 func (ch *Clickhouse) Redelegation(val model.Redelegation) (err error) {
 	var (
 		coinBytes []byte
@@ -84,6 +87,7 @@ func (ch *Clickhouse) Redelegation(val model.Redelegation) (err error) {
 	}).Error
 }
 
+// RedelegationMessage is a method for saving redelegation message data to clickhouse
 func (ch *Clickhouse) RedelegationMessage(val model.RedelegationMessage) (err error) {
 	var (
 		coinBytes []byte
@@ -112,6 +116,7 @@ func (ch *Clickhouse) RedelegationMessage(val model.RedelegationMessage) (err er
 	}).Error
 }
 
+// StakingParams is a method for saving staking params data to clickhouse
 func (ch *Clickhouse) StakingParams(val model.StakingParams) (err error) {
 	var (
 		paramsBytes []byte
@@ -127,6 +132,7 @@ func (ch *Clickhouse) StakingParams(val model.StakingParams) (err error) {
 	}).Error
 }
 
+// UnbondingDelegation is a method for saving unbonding delegation data to clickhouse
 func (ch *Clickhouse) UnbondingDelegation(val model.UnbondingDelegation) (err error) {
 	var (
 		coinBytes []byte
@@ -145,6 +151,7 @@ func (ch *Clickhouse) UnbondingDelegation(val model.UnbondingDelegation) (err er
 	}).Error
 }
 
+// UnbondingDelegationMessage is a method for saving unbonding delegation message data to clickhouse
 func (ch *Clickhouse) UnbondingDelegationMessage(val model.UnbondingDelegationMessage) (err error) {
 	var (
 		coinBytes []byte

@@ -1,5 +1,6 @@
 package mongo
 
+// Config is a configuration for mongo.
 type Config struct {
 	URI           string `env:"MONGO_WRITER_URI"`
 	User          string `env:"MONGO_USER"`

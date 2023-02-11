@@ -1,5 +1,6 @@
 package broker
 
+// Config is a configuration for broker.
 type Config struct {
 	Address         string `env:"BROKER_SERVER"`
 	GroupID         string `env:"GROUP_ID"`
