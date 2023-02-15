@@ -215,22 +215,7 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 			continue
 		}
 
-		if !isFirstAttempt { // error message exists in mongo. just increase an attempts
-			if err := b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
-				ID:               messageID,
-				LastErrorMessage: messageHandlerError.Error(),
-				Topic:            topic,
-				Attempts:         retry,
-				Data:             string(msg.Value),
-			}); err != nil {
-				b.log.Error().Err(err).
-					Str(keyTopic, topic).
-					Str(keyMessageID, messageID).
-					Str(keyMsg, string(msg.Value)).
-					Int(keyRetry, retry).
-					Msg(msgUpdateBrokerMessageError)
-			}
-		} else {
+		if isFirstAttempt { // first attempt to process message
 			if err := b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
 				ID:               messageID,
 				LastErrorMessage: messageHandlerError.Error(),
@@ -245,6 +230,21 @@ func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg
 					Str(keyMsg, string(msg.Value)).
 					Int(keyMsg, retry).
 					Msg(msgCreateBrokerMessageError)
+			}
+		} else { // error message exists in mongo. just increase an attempts
+			if err := b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
+				ID:               messageID,
+				LastErrorMessage: messageHandlerError.Error(),
+				Topic:            topic,
+				Attempts:         retry,
+				Data:             string(msg.Value),
+			}); err != nil {
+				b.log.Error().Err(err).
+					Str(keyTopic, topic).
+					Str(keyMessageID, messageID).
+					Str(keyMsg, string(msg.Value)).
+					Int(keyRetry, retry).
+					Msg(msgUpdateBrokerMessageError)
 			}
 		}
 	}
