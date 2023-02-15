@@ -14,65 +14,76 @@ const (
 )
 
 // GovParams is a method for saving gov params data to clickhouse
-func (ch *Clickhouse) GovParams(val model.GovParams) (err error) {
+func (ch *Clickhouse) GovParams(vals []model.GovParams) (err error) {
 	var (
-		tallyParamsBytes   []byte
-		votingParamsBytes  []byte
-		depositParamsBytes []byte
+		tallyParams, votingParams, depositParams string
 	)
 
-	if tallyParamsBytes, err = jsoniter.Marshal(val.TallyParams); err != nil {
-		return err
-	}
-	if votingParamsBytes, err = jsoniter.Marshal(val.VotingParams); err != nil {
-		return err
-	}
-	if depositParamsBytes, err = jsoniter.Marshal(val.DepositParams); err != nil {
-		return err
+	batch := make([]storageModel.GovParams, len(vals))
+	for i, val := range vals {
+		if tallyParams, err = jsoniter.MarshalToString(val.TallyParams); err != nil {
+			return err
+		}
+		if votingParams, err = jsoniter.MarshalToString(val.VotingParams); err != nil {
+			return err
+		}
+		if depositParams, err = jsoniter.MarshalToString(val.DepositParams); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.GovParams{
+			DepositParams: depositParams,
+			VotingParams:  votingParams,
+			TallyParams:   tallyParams,
+			Height:        val.Height,
+		}
 	}
 
-	return ch.gorm.Table(tableGovParams).Create(storageModel.GovParams{
-		DepositParams: string(depositParamsBytes),
-		VotingParams:  string(votingParamsBytes),
-		TallyParams:   string(tallyParamsBytes),
-		Height:        val.Height,
-	}).Error
+	return ch.gorm.Table(tableGovParams).CreateInBatches(batch, len(batch)).Error
 }
 
 // Proposal is a method for saving proposal data to clickhouse
-func (ch *Clickhouse) Proposal(val model.Proposal) (err error) {
-	return ch.gorm.Table(tableProposal).Create(storageModel.Proposal{
-		ID:              int64(val.ID),
-		Title:           val.Title,
-		Description:     val.Description,
-		ProposalRoute:   val.ProposalRoute,
-		ProposalType:    val.ProposalType,
-		ProposerAddress: val.ProposerAddress,
-		Status:          val.Status,
-		Content:         string(val.Content),
-		SubmitTime:      val.SubmitTime,
-		DepositEndTime:  val.DepositEndTime,
-		VotingStartTime: val.VotingStartTime,
-		VotingEndTime:   val.VotingEndTime,
-	}).Error
+func (ch *Clickhouse) Proposal(vals []model.Proposal) (err error) {
+	batch := make([]storageModel.Proposal, len(vals))
+	for i, val := range vals {
+		batch[i] = storageModel.Proposal{
+			ID:              int64(val.ID),
+			Title:           val.Title,
+			Description:     val.Description,
+			ProposalRoute:   val.ProposalRoute,
+			ProposalType:    val.ProposalType,
+			ProposerAddress: val.ProposerAddress,
+			Status:          val.Status,
+			Content:         string(val.Content),
+			SubmitTime:      val.SubmitTime,
+			DepositEndTime:  val.DepositEndTime,
+			VotingStartTime: val.VotingStartTime,
+			VotingEndTime:   val.VotingEndTime,
+		}
+	}
+
+	return ch.gorm.Table(tableProposal).CreateInBatches(batch, len(batch)).Error
 }
 
 // ProposalDepositMessage is a method for saving proposal deposit message data to clickhouse
-func (ch *Clickhouse) ProposalDepositMessage(val model.ProposalDepositMessage) (err error) {
+func (ch *Clickhouse) ProposalDepositMessage(vals []model.ProposalDepositMessage) (err error) {
 	var (
-		coinsBytes []byte
+		coins string
 	)
-
-	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
-		return err
+	batch := make([]storageModel.ProposalDepositMessage, len(vals))
+	for i, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
+			return err
+		}
+		batch[i] = storageModel.ProposalDepositMessage{
+			DepositorAddress: val.DepositorAddress,
+			Coins:            coins,
+			TxHash:           val.TxHash,
+			ProposalID:       int64(val.ProposalID),
+			Height:           val.Height,
+			MsgIndex:         val.MsgIndex,
+		}
 	}
 
-	return ch.gorm.Table(tableProposalDepositMessage).Create(storageModel.ProposalDepositMessage{
-		DepositorAddress: val.DepositorAddress,
-		Coins:            string(coinsBytes),
-		TxHash:           val.TxHash,
-		ProposalID:       int64(val.ProposalID),
-		Height:           val.Height,
-		MsgIndex:         val.MsgIndex,
-	}).Error
+	return ch.gorm.Table(tableProposalDepositMessage).CreateInBatches(batch, len(batch)).Error
 }

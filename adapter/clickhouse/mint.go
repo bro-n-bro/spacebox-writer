@@ -12,16 +12,21 @@ const (
 )
 
 // MintParams is a method for saving mint params data to clickhouse
-func (ch *Clickhouse) MintParams(val model.MintParams) (err error) {
+func (ch *Clickhouse) MintParams(vals []model.MintParams) (err error) {
 	var (
-		paramsBytes []byte
+		params string
 	)
 
-	if paramsBytes, err = jsoniter.Marshal(val.Params); err != nil {
-		return err
+	batch := make([]storageModel.MintParams, len(vals))
+	for i, val := range vals {
+		if params, err = jsoniter.MarshalToString(val.Params); err != nil {
+			return err
+		}
+		batch[i] = storageModel.MintParams{
+			Params: params,
+			Height: val.Height,
+		}
 	}
-	return ch.gorm.Table(tableMintParams).Create(storageModel.MintParams{
-		Params: string(paramsBytes),
-		Height: val.Height,
-	}).Error
+
+	return ch.gorm.Table(tableMintParams).CreateInBatches(batch, len(batch)).Error
 }

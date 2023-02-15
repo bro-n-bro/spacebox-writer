@@ -15,12 +15,13 @@ import (
 )
 
 const (
-	keyMsg       = "msg"
-	keyPartition = "partition"
-	keyOffset    = "offset"
-	keyTopic     = "topic"
-	keyRetry     = "retry"
-	keyMessageID = "message_id"
+	keyMsg           = "msg"
+	keyPartition     = "partition"
+	keyOffset        = "offset"
+	keyTopic         = "topic"
+	keyRetry         = "retry"
+	keyMessageID     = "message_id"
+	keyMessagesCount = "messages_count"
 
 	msgStopReadingMessagesFromTopic = "stop reading messages from topic"
 	msgEmptyMessageID               = "empty message id. Generate new id"
@@ -29,7 +30,6 @@ const (
 	msgDeleteBrokerMessageError     = "DeleteBrokerMessage error. But handle message successful"
 	msgProduceMessageError          = "produce message error"
 	msgReadMessageError             = "read message error"
-	msgSomethingWentWrong           = "something went wrong with handle error"
 	msgCommitMessageError           = "commit message error"
 	msgRetryLimitExceeded           = "retry limit exceeded!"
 	msgHandleMessageError           = "handle message error"
@@ -45,7 +45,7 @@ func (b *Broker) Subscribe(
 	ctx context.Context, //
 	wg *sync.WaitGroup, //
 	topic string, // name of topic to subscribe
-	handler func(ctx context.Context, msg []byte, db rep.Storage) error, // handler for processing messages
+	handler func(ctx context.Context, msg [][]byte, db rep.Storage) error, // handler for processing messages
 ) error {
 
 	defer wg.Done()
@@ -74,13 +74,23 @@ func (b *Broker) Subscribe(
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 
-		var start time.Time
+		var (
+			batch  = newBatch(*b.log, topic, b.cfg.BatchBufferSize, handler)
+			ticker = time.NewTicker(b.cfg.FlushBufferInterval)
+		)
+
+		batch.setErrorHandler(b.handleError)
+
+		defer ticker.Stop()
 
 		for {
 			select {
 			case <-ctx.Done():
+				batch.flushBuffer(context.Background(), b.st)
 				b.log.Info().Str(keyTopic, topic).Msg(msgStopReadingMessagesFromTopic)
 				return
+			case <-ticker.C:
+				batch.flushBuffer(ctx, b.st)
 			default:
 			}
 
@@ -94,21 +104,11 @@ func (b *Broker) Subscribe(
 					Str(keyMsg, string(msg.Value)).
 					Msg(msgReadMessageError)
 				return
-			} else {
-				b.log.Debug().Msgf(logLayout, msg.String(), msg.Value)
 			}
 
-			start = time.Now()
-			hndlErr := handler(ctx, msg.Value, b.st)
-			if b.cfg.MetricsEnabled {
-				b.metrics.histogram.
-					With(prometheus.Labels{keyTopic: topic}).Observe(time.Since(start).Seconds())
-			}
+			b.log.Debug().Msgf(logLayout, msg.String(), msg.Value)
 
-			// call handler and process error if needed
-			if err = b.handleError(ctx, hndlErr, msg); err != nil {
-				b.log.Error().Err(err).Msg(msgSomethingWentWrong)
-			}
+			batch.insertMessage(ctx, msg, b.st)
 
 			if _, err = consumer.CommitMessage(msg); err != nil {
 				b.log.Error().Err(err).
@@ -121,140 +121,154 @@ func (b *Broker) Subscribe(
 	return nil
 }
 
-// handleError processes an error of handle function for a consumer if needed.
+// handleError2 processes an error of handle function for a consumer if needed.
 // Writes to storage any info about the error if message retries from broker <= .env MAX_RETRIES
 //
 // Do nothing if the message handling func does not return an error and this is the first message from the broker
 // with the unique message_id
-func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msg *kafka.Message) error {
-	headers := msg.Headers
-	topic := *msg.TopicPartition.Topic
-
-	// find unique message_id from kafka header
-	messageID := string(findValueFromHeaders(keyMessageID, headers))
-
-	if messageID == "" {
-		b.log.Debug().Str(keyTopic, topic).Msg(msgEmptyMessageID)
-		messageID = uuid.New().String()
-	}
-
-	// check if error message already exists in mongo
-	exists, err := b.m.HasBrokerMessage(ctx, messageID)
-	if err != nil {
-		return err
+func (b *Broker) handleError(ctx context.Context, messageHandlerError error, msgs []*kafka.Message) {
+	if len(msgs) == 0 {
+		return
 	}
 
 	if messageHandlerError == nil {
-		if exists {
-			b.log.Debug().
-				Str(keyTopic, topic).
-				Str(keyMessageID, messageID).
-				Msg(msgHandleMessageSuccess)
+		b.removeProcessedMessages(ctx, msgs)
+		return // handle message successful
+	}
 
-			if err = b.m.DeleteBrokerMessage(ctx, messageID); err != nil {
-				b.log.Warn().Err(err).
-					Str(keyMessageID, messageID).
-					Msg(msgDeleteBrokerMessageError)
-			}
+	// send to broker each message to process it again
+	for _, msg := range msgs {
+		headers := msg.Headers
+		topic := *msg.TopicPartition.Topic
+
+		// find unique message_id from kafka header
+		var (
+			isFirstAttempt bool
+			messageID      = string(findValueFromHeaders(keyMessageID, headers))
+		)
+
+		if messageID == "" {
+			b.log.Debug().Str(keyTopic, topic).Msg(msgEmptyMessageID)
+			messageID = uuid.New().String()
+			isFirstAttempt = true
 		}
 
-		return nil // handle message successful
-	}
-
-	// handle occurred error
-	if b.cfg.MetricsEnabled {
-		b.metrics.errorsCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
-	}
-
-	// find how much we already tried to handle this message
-	retry := bytesToInt(findValueFromHeaders(keyRetry, headers))
-	retry++
-
-	// got error of handling message from the broker
-	b.log.Error().Err(messageHandlerError).
-		Str(keyTopic, topic).
-		Int64(keyOffset, int64(msg.TopicPartition.Offset)).
-		Int64(keyPartition, int64(msg.TopicPartition.Partition)).
-		Int(keyRetry, retry).
-		Str(keyMsg, string(msg.Value)).
-		Msg(msgHandleMessageError)
-
-	if retry > b.cfg.MaxRetries { // retry limit exceeded
-		// TODO: any notifications?
-		b.log.Error().
-			Str(keyTopic, topic).
-			Str(keyMessageID, messageID).
-			Str(keyMsg, string(msg.Value)).
-			Int(keyRetry, retry).
-			Msg(msgRetryLimitExceeded)
-
+		// handle occurred error
 		if b.cfg.MetricsEnabled {
-			b.metrics.limitExceededCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
+			b.metrics.errorsCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
 		}
 
-		return nil
-	}
+		// find how much we already tried to handle this message
+		retry := bytesToInt(findValueFromHeaders(keyRetry, headers))
+		retry++
 
-	// add to the end of the queue again with new retry value
-	// FIXME: what about another headers?
-	msg.Headers = []kafka.Header{
-		{
-			Key:   keyRetry,
-			Value: []byte(strconv.Itoa(retry)),
-		},
-		{
-			Key:   keyMessageID,
-			Value: []byte(messageID),
-		},
-	}
-
-	// produce the message at the end of the broker`s queue
-	if err = b.produce(topic, msg.Value, msg.Headers); err != nil {
-		// FIXME: what need to do?
-		b.log.Error().Err(err).
+		// got error of handling message from the broker
+		b.log.Error().Err(messageHandlerError).
 			Str(keyTopic, topic).
-			Str(keyMessageID, messageID).
 			Int64(keyOffset, int64(msg.TopicPartition.Offset)).
 			Int64(keyPartition, int64(msg.TopicPartition.Partition)).
-			Str(keyMsg, string(msg.Value)).
 			Int(keyRetry, retry).
-			Msg(msgProduceMessageError)
+			Str(keyMsg, string(msg.Value)).
+			Msg(msgHandleMessageError)
 
-		return nil // log above we don't need an error here
-	}
-
-	if exists { // error message exists in mongo. just increase an attempts
-		if err = b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
-			ID:               messageID,
-			LastErrorMessage: messageHandlerError.Error(),
-			Topic:            topic,
-			Attempts:         retry,
-			Data:             string(msg.Value),
-		}); err != nil {
-			b.log.Error().Err(err).
+		if retry > b.cfg.MaxRetries { // retry limit exceeded
+			// TODO: any notifications?
+			b.log.Error().
 				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
 				Str(keyMsg, string(msg.Value)).
 				Int(keyRetry, retry).
-				Msg(msgUpdateBrokerMessageError)
+				Msg(msgRetryLimitExceeded)
+
+			if b.cfg.MetricsEnabled {
+				b.metrics.limitExceededCounter.With(prometheus.Labels{keyTopic: topic}).Inc()
+			}
+
+			continue
 		}
-	} else {
-		if err = b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
-			ID:               messageID,
-			LastErrorMessage: messageHandlerError.Error(),
-			Topic:            topic,
-			Data:             string(msg.Value),
-			Attempts:         retry,
-			Created:          time.Now(),
-		}); err != nil {
+
+		// add to the end of the queue again with new retry value
+		// FIXME: what about another headers?
+		msg.Headers = []kafka.Header{
+			{
+				Key:   keyRetry,
+				Value: []byte(strconv.Itoa(retry)),
+			},
+			{
+				Key:   keyMessageID,
+				Value: []byte(messageID),
+			},
+		}
+
+		// produce the message at the end of the broker`s queue
+		if err := b.produce(topic, msg.Value, msg.Headers); err != nil {
+			// FIXME: what need to do?
 			b.log.Error().Err(err).
 				Str(keyTopic, topic).
 				Str(keyMessageID, messageID).
+				Int64(keyOffset, int64(msg.TopicPartition.Offset)).
+				Int64(keyPartition, int64(msg.TopicPartition.Partition)).
 				Str(keyMsg, string(msg.Value)).
-				Int(keyMsg, retry).
-				Msg(msgCreateBrokerMessageError)
+				Int(keyRetry, retry).
+				Msg(msgProduceMessageError)
+
+			continue
+		}
+
+		if !isFirstAttempt { // error message exists in mongo. just increase an attempts
+			if err := b.m.UpdateBrokerMessage(ctx, &model.BrokerMessage{
+				ID:               messageID,
+				LastErrorMessage: messageHandlerError.Error(),
+				Topic:            topic,
+				Attempts:         retry,
+				Data:             string(msg.Value),
+			}); err != nil {
+				b.log.Error().Err(err).
+					Str(keyTopic, topic).
+					Str(keyMessageID, messageID).
+					Str(keyMsg, string(msg.Value)).
+					Int(keyRetry, retry).
+					Msg(msgUpdateBrokerMessageError)
+			}
+		} else {
+			if err := b.m.CreateBrokerMessage(ctx, &model.BrokerMessage{
+				ID:               messageID,
+				LastErrorMessage: messageHandlerError.Error(),
+				Topic:            topic,
+				Data:             string(msg.Value),
+				Attempts:         retry,
+				Created:          time.Now(),
+			}); err != nil {
+				b.log.Error().Err(err).
+					Str(keyTopic, topic).
+					Str(keyMessageID, messageID).
+					Str(keyMsg, string(msg.Value)).
+					Int(keyMsg, retry).
+					Msg(msgCreateBrokerMessageError)
+			}
+		}
+	}
+}
+
+func (b *Broker) removeProcessedMessages(ctx context.Context, msgs []*kafka.Message) {
+	ids := make([]string, 0)
+
+	for _, msg := range msgs {
+		if messageID := string(findValueFromHeaders(keyMessageID, msg.Headers)); messageID != "" {
+			b.log.Debug().
+				Str(keyTopic, *msg.TopicPartition.Topic).
+				Str(keyMessageID, messageID).
+				Msg(msgHandleMessageSuccess)
+
+			ids = append(ids, messageID)
 		}
 	}
 
-	return nil
+	if len(ids) > 0 {
+		if err := b.m.DeleteBrokerMessages(ctx, ids); err != nil {
+			b.log.Warn().Err(err).
+				Int(keyMessagesCount, len(ids)).
+				Msg(msgDeleteBrokerMessageError)
+		}
+	}
 }

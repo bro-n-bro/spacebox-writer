@@ -3,19 +3,17 @@ package core
 import (
 	"context"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
-
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/modules/utils"
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 // TransactionHandler is a handler for transaction event
-func TransactionHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
-	val := model.Transaction{}
-	if err := jsoniter.Unmarshal(msg, &val); err != nil {
-		return errors.Wrap(err, "unmarshall error")
+func TransactionHandler(ctx context.Context, msgs [][]byte, ch rep.Storage) error {
+	vals, err := utils.ConvertMessages[model.Transaction](msgs)
+	if err != nil {
+		return err
 	}
 
-	return ch.Transaction(val)
+	return ch.Transaction(vals)
 }

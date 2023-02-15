@@ -10,59 +10,74 @@ import (
 const (
 	insertTransactionQuery = `
 		INSERT INTO spacebox.transaction (hash, height, success, messages, memo, signatures, signer_infos,
-		                                  fee, signer, gas_wanted, gas_used, raw_log, logs)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+		                                  fee, signer, gas_wanted, gas_used, raw_log, logs)`
 )
 
 // Transaction is a method for saving transaction data to clickhouse
-func (ch *Clickhouse) Transaction(val model.Transaction) (err error) {
+func (ch *Clickhouse) Transaction(vals []model.Transaction) (err error) {
+	tx, err := ch.sql.Begin()
+	if err != nil {
+		return err
+	}
+
 	var (
-		messages         = make([]interface{}, 0)
-		feeBytes         []byte
-		signerInfosBytes []byte
-		messagesBytes    []byte
-		signatures       = make(clickhouse.ArraySet, len(val.Signatures))
+		feeStr, signerInfosStr, messagesStr string
+		signatures                          clickhouse.ArraySet
+		messages                            []interface{}
 	)
 
-	for i, s := range val.Signatures {
-		signatures[i] = s
+	stmt, err := tx.Prepare(insertTransactionQuery)
+	if err != nil {
+		return err
 	}
 
-	if feeBytes, err = jsoniter.Marshal(val.Fee); err != nil {
-		return err
-	}
-	if signerInfosBytes, err = jsoniter.Marshal(val.SignerInfos); err != nil {
-		return err
-	}
-	for _, msg := range val.Messages {
-		var tmp interface{}
-		if err = jsoniter.Unmarshal(msg, &tmp); err != nil {
+	defer func() { _ = stmt.Close() }()
+
+	for _, val := range vals {
+		signatures = make(clickhouse.ArraySet, len(val.Signatures))
+
+		for i, s := range val.Signatures {
+			signatures[i] = s
+		}
+
+		if feeStr, err = jsoniter.MarshalToString(val.Fee); err != nil {
 			return err
 		}
-		messages = append(messages, tmp)
+		if signerInfosStr, err = jsoniter.MarshalToString(val.SignerInfos); err != nil {
+			return err
+		}
+
+		messages = make([]interface{}, 0, len(val.Messages))
+		for _, msg := range val.Messages {
+			var tmp interface{}
+			if err = jsoniter.Unmarshal(msg, &tmp); err != nil {
+				return err
+			}
+			messages = append(messages, tmp)
+		}
+
+		if messagesStr, err = jsoniter.MarshalToString(messages); err != nil {
+			return err
+		}
+
+		if _, err = stmt.Exec(
+			val.Hash,
+			val.Height,
+			val.Success,
+			messagesStr,
+			val.Memo,
+			signatures,
+			signerInfosStr,
+			feeStr,
+			val.Signer,
+			val.GasWanted,
+			val.GasUsed,
+			val.RawLog,
+			string(val.Logs),
+		); err != nil {
+			return err
+		}
 	}
 
-	if messagesBytes, err = jsoniter.Marshal(messages); err != nil {
-		return err
-	}
-	if _, err = ch.sql.Exec(
-		insertTransactionQuery,
-		val.Hash,
-		val.Height,
-		val.Success,
-		string(messagesBytes),
-		val.Memo,
-		signatures,
-		string(signerInfosBytes),
-		string(feeBytes),
-		val.Signer,
-		val.GasWanted,
-		val.GasUsed,
-		val.RawLog,
-		string(val.Logs),
-	); err != nil {
-		return err
-	}
-
-	return nil
+	return tx.Commit()
 }

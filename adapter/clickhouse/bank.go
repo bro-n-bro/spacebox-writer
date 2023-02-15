@@ -15,101 +15,107 @@ const (
 	tableSupply         = "supply"
 
 	insertMultiSendMessage = `
-		INSERT INTO spacebox.multisend_message (height, address_from, addresses_to, tx_hash, coins, msg_index)
-		VALUES (?, ?, ?, ?, ?, ?);`
+		INSERT INTO spacebox.multisend_message (height, address_from, addresses_to, tx_hash, coins, msg_index)`
 )
 
 // AccountBalance is a method for saving account balance data to clickhouse
-func (ch *Clickhouse) AccountBalance(val model.AccountBalance) (err error) {
+func (ch *Clickhouse) AccountBalance(vals []model.AccountBalance) (err error) {
 	var (
-		coinsBytes []byte
+		coins string
 	)
 
-	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
-		return err
-	}
-	if err = ch.gorm.Table(tableAccountBalance).Create(storageModel.AccountBalance{
-		Coins:   string(coinsBytes),
-		Address: val.Address,
-		Height:  val.Height,
-	}).Error; err != nil {
-		return err
+	batch := make([]storageModel.AccountBalance, len(vals))
+	for i, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.AccountBalance{
+			Coins:   coins,
+			Address: val.Address,
+			Height:  val.Height,
+		}
 	}
 
-	return nil
+	return ch.gorm.Table(tableAccountBalance).CreateInBatches(batch, len(batch)).Error
 }
 
 // MultiSendMessage is a method for saving multisend message data to clickhouse
-func (ch *Clickhouse) MultiSendMessage(val model.MultiSendMessage) (err error) {
+func (ch *Clickhouse) MultiSendMessage(vals []model.MultiSendMessage) (err error) {
 	var (
-		stmt       *sql.Stmt
-		tx         *sql.Tx
-		coinsBytes []byte
+		stmt  *sql.Stmt
+		tx    *sql.Tx
+		coins string
 	)
-
-	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
-		return err
-	}
 
 	if tx, err = ch.sql.Begin(); err != nil {
 		return err
 	}
+
 	if stmt, err = tx.Prepare(insertMultiSendMessage); err != nil {
 		return err
 	}
 	defer func() { _ = stmt.Close() }()
-	if _, err = stmt.Exec(
-		val.Height,
-		val.AddressFrom,
-		val.AddressesTo,
-		val.TxHash,
-		string(coinsBytes),
-		val.MsgIndex,
-	); err != nil {
-		return err
+
+	for _, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
+			return err
+		}
+		if _, err = stmt.Exec(
+			val.Height,
+			val.AddressFrom,
+			val.AddressesTo,
+			val.TxHash,
+			coins,
+			val.MsgIndex,
+		); err != nil {
+			return err
+		}
 	}
+
 	return tx.Commit()
 }
 
 // SendMessage is a method for saving send message data to clickhouse
-func (ch *Clickhouse) SendMessage(val model.SendMessage) (err error) {
+func (ch *Clickhouse) SendMessage(vals []model.SendMessage) (err error) {
 	var (
-		coinsBytes []byte
+		coins string
 	)
 
-	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
-		return err
-	}
-	if err = ch.gorm.Table(tableSendMessage).
-		Create(storageModel.SendMessage{
-			Coins:       string(coinsBytes),
+	batch := make([]storageModel.SendMessage, len(vals))
+	for i, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
+			return err
+		}
+		batch[i] = storageModel.SendMessage{
+			Coins:       coins,
 			AddressFrom: val.AddressFrom,
 			AddressTo:   val.AddressTo,
 			TxHash:      val.TxHash,
 			Height:      val.Height,
 			MsgIndex:    val.MsgIndex,
-		}).Error; err != nil {
-		return err
+		}
 	}
 
-	return nil
+	return ch.gorm.Table(tableSendMessage).CreateInBatches(batch, len(batch)).Error
 }
 
 // Supply is a method for saving supply data to clickhouse
-func (ch *Clickhouse) Supply(val model.Supply) (err error) {
+func (ch *Clickhouse) Supply(vals []model.Supply) (err error) {
 	var (
-		coinsBytes []byte
+		coins string
 	)
 
-	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
-		return err
-	}
-	if err = ch.gorm.Table(tableSupply).Create(storageModel.Supply{
-		Coins:  string(coinsBytes),
-		Height: val.Height,
-	}).Error; err != nil {
-		return err
+	batch := make([]storageModel.Supply, len(vals))
+	for i, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
+			return err
+		}
+		batch[i] = storageModel.Supply{
+			Coins:  coins,
+			Height: val.Height,
+		}
 	}
 
-	return nil
+	return ch.gorm.Table(tableSupply).CreateInBatches(batch, len(batch)).Error
 }

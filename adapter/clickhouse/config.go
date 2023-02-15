@@ -12,7 +12,7 @@ type Config struct {
 	BrokerServerForKafkaEngine string        `env:"BROKER_SERVER_FOR_KAFKA_ENGINE" envDefault:""`
 	MaxIdleConns               int           `env:"CLICKHOUSE_MAX_IDLE_CONNS" envDefault:"20"`
 	MaxOpenConns               int           `env:"CLICKHOUSE_MAX_OPEN_CONNS" envDefault:"25"`
-	MaxExecutionTime           int           `env:"CLICKHOUSE_MAX_EXECUtION_TIME" envDefault:"10"`
+	MaxExecutionTime           int           `env:"CLICKHOUSE_MAX_EXECUTION_TIME" envDefault:"60"`
 	DialTimeout                time.Duration `env:"CLICKHOUSE_DIAL_TIMEOUT" envDefault:"10s"`
 	AutoMigrate                bool          `env:"AUTO_MIGRATE"`
 }

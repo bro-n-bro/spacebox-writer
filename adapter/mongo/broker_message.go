@@ -80,3 +80,13 @@ func (s *Mongo) DeleteBrokerMessage(ctx context.Context, id string) error {
 
 	return nil
 }
+
+// DeleteBrokerMessages is a method for deleting a broker message from the database
+func (s *Mongo) DeleteBrokerMessages(ctx context.Context, ids []string) error {
+	filter := bson.D{{Key: keyID, Value: bson.D{{Key: "$in", Value: ids}}}}
+	if _, err := s.collection.DeleteMany(ctx, filter); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -3,19 +3,17 @@ package gov
 import (
 	"context"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
-
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/modules/utils"
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 // GovParamsHandler is a handler for gov params event
-func GovParamsHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
-	val := model.GovParams{}
-	if err := jsoniter.Unmarshal(msg, &val); err != nil {
-		return errors.Wrap(err, "unmarshall error")
+func GovParamsHandler(ctx context.Context, msgs [][]byte, ch rep.Storage) error {
+	vals, err := utils.ConvertMessages[model.GovParams](msgs)
+	if err != nil {
+		return err
 	}
 
-	return ch.GovParams(val)
+	return ch.GovParams(vals)
 }

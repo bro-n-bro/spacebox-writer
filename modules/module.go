@@ -72,7 +72,7 @@ type (
 	// topicHandler is a struct for topic name and her handler
 	topicHandler struct { //nolint:govet
 		topicName string
-		handler   func(ctx context.Context, msg []byte, db rep.Storage) error
+		handler   func(ctx context.Context, msg [][]byte, db rep.Storage) error
 	}
 )
 

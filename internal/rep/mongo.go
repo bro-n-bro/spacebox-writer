@@ -12,6 +12,7 @@ type (
 		HasBrokerMessage(ctx context.Context, id string) (bool, error)
 		CreateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error
 		DeleteBrokerMessage(ctx context.Context, id string) error
+		DeleteBrokerMessages(ctx context.Context, ids []string) error
 		UpdateBrokerMessage(ctx context.Context, msg *model.BrokerMessage) error
 	}
 )
