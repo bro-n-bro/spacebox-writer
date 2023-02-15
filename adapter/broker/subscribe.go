@@ -121,7 +121,7 @@ func (b *Broker) Subscribe(
 	return nil
 }
 
-// handleError2 processes an error of handle function for a consumer if needed.
+// handleError processes an error of handle function for a consumer if needed.
 // Writes to storage any info about the error if message retries from broker <= .env MAX_RETRIES
 //
 // Do nothing if the message handling func does not return an error and this is the first message from the broker
