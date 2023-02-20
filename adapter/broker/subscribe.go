@@ -70,6 +70,7 @@ func (b *Broker) Subscribe(
 
 	b.consumers = append(b.consumers, consumer)
 
+	// start reading messages from topic
 	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
