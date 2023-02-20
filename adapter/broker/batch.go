@@ -15,7 +15,12 @@ const (
 )
 
 type (
-	errorHandler func(ctx context.Context, err error, msgs []*kafka.Message)
+	errorHandler func(
+		ctx context.Context,
+		err error,
+		msgs []*kafka.Message,
+		handler func(ctx context.Context, msg [][]byte, db rep.Storage) error,
+	)
 
 	batch struct {
 		log          *zerolog.Logger
@@ -30,7 +35,7 @@ type (
 func newBatch(log zerolog.Logger, topic string, bufSize int,
 	handler func(ctx context.Context, msg [][]byte, db rep.Storage) error) *batch {
 
-	log = log.With().Str("cmp", "batch").Str("topic", topic).Logger()
+	log = log.With().Str("cmp", "batch").Str(keyTopic, topic).Logger()
 
 	if bufSize <= 0 {
 		bufSize = defaultBufferSize
@@ -62,7 +67,7 @@ func (b *batch) flushBuffer(ctx context.Context, db rep.Storage) {
 		err := b.handler(ctx, b.buf, db)
 		handleDur := time.Since(start)
 		if b.errorHandler != nil {
-			b.errorHandler(ctx, err, b.msgsBuf)
+			b.errorHandler(ctx, err, b.msgsBuf, b.handler)
 		}
 		b.resetBuf()
 		b.log.Info().Dur("duration", handleDur).Int("count", len(b.buf)).Msg("buffer reset")
