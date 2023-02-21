@@ -37,16 +37,16 @@ func (ch *Clickhouse) CommunityPool(vals []model.CommunityPool) (err error) {
 // DelegationRewardMessage is a method for saving delegation reward message data to clickhouse
 func (ch *Clickhouse) DelegationRewardMessage(vals []model.DelegationRewardMessage) (err error) {
 	var (
-		params string
+		coin string
 	)
 
 	batch := make([]storageModel.DelegationRewardMessage, len(vals))
 	for i, val := range vals {
-		if params, err = jsoniter.MarshalToString(val.Coins); err != nil {
+		if coin, err = jsoniter.MarshalToString(val.Coin); err != nil {
 			return err
 		}
 		batch[i] = storageModel.DelegationRewardMessage{
-			Coins:            params,
+			Coin:             coin,
 			Height:           val.Height,
 			DelegatorAddress: val.DelegatorAddress,
 			ValidatorAddress: val.ValidatorAddress,
