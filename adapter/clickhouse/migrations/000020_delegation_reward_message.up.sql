@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS spacebox.delegation_reward_message
 (
     `validator_address` String,
     `delegator_address` String,
-    `coins`             json,
+    `coin`              json,
     `height`            Int64,
     `tx_hash`           String,
     `msg_index`         Int64
