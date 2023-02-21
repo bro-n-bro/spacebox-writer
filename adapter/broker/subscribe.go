@@ -63,7 +63,7 @@ func (b *Broker) Subscribe(
 		defer wg.Done()
 
 		var (
-			batch  = newBatch(*b.log, topic, b.cfg.BatchBufferSize, handler)
+			batch  = newBatch(*b.log, topic, b.cfg.BatchBufferSize, b.metrics, handler)
 			ticker = time.NewTicker(b.cfg.FlushBufferInterval)
 		)
 

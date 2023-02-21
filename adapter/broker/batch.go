@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/zerolog"
 
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
@@ -24,6 +25,8 @@ type (
 
 	batch struct {
 		log          *zerolog.Logger
+		metrics      *metrics
+		topicName    string
 		handler      func(ctx context.Context, msg [][]byte, db rep.Storage) error
 		errorHandler errorHandler
 		buf          [][]byte
@@ -32,7 +35,7 @@ type (
 	}
 )
 
-func newBatch(log zerolog.Logger, topic string, bufSize int,
+func newBatch(log zerolog.Logger, topic string, bufSize int, metrics *metrics,
 	handler func(ctx context.Context, msg [][]byte, db rep.Storage) error) *batch {
 
 	log = log.With().Str("cmp", "batch").Str(keyTopic, topic).Logger()
@@ -43,6 +46,8 @@ func newBatch(log zerolog.Logger, topic string, bufSize int,
 
 	return &batch{
 		log:        &log,
+		metrics:    metrics,
+		topicName:  topic,
 		handler:    handler,
 		maxBufSize: bufSize,
 		buf:        make([][]byte, 0, bufSize),
@@ -66,6 +71,10 @@ func (b *batch) flushBuffer(ctx context.Context, db rep.Storage) {
 		start := time.Now()
 		err := b.handler(ctx, b.buf, db)
 		handleDur := time.Since(start)
+		if b.metrics != nil {
+			b.metrics.histogram.
+				With(prometheus.Labels{keyTopic: b.topicName}).Observe(handleDur.Seconds())
+		}
 		if b.errorHandler != nil {
 			b.errorHandler(ctx, err, b.msgsBuf, b.handler)
 		}
