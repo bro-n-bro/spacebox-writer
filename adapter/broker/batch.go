@@ -69,8 +69,8 @@ func (b *batch) flushBuffer(ctx context.Context, db rep.Storage) {
 		if b.errorHandler != nil {
 			b.errorHandler(ctx, err, b.msgsBuf, b.handler)
 		}
-		b.resetBuf()
 		b.log.Info().Dur("duration", handleDur).Int("count", len(b.buf)).Msg("buffer reset")
+		b.resetBuf()
 	}
 }
 
