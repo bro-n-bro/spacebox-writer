@@ -72,8 +72,7 @@ func (b *batch) flushBuffer(ctx context.Context, db rep.Storage) {
 		err := b.handler(ctx, b.buf, db)
 		handleDur := time.Since(start)
 		if b.metrics != nil {
-			b.metrics.histogram.
-				With(prometheus.Labels{keyTopic: b.topicName}).Observe(handleDur.Seconds())
+			b.metrics.histogram.With(prometheus.Labels{keyTopic: b.topicName}).Observe(handleDur.Seconds())
 		}
 		if b.errorHandler != nil {
 			b.errorHandler(ctx, err, b.msgsBuf, b.handler)
