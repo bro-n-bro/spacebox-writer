@@ -3,7 +3,7 @@ package models
 type (
 	// DelegationRewardMessage represents delegation reward message
 	DelegationRewardMessage struct {
-		Coins            string `json:"coins"`
+		Coin             string `json:"coin"`
 		DelegatorAddress string `json:"delegator_address"`
 		ValidatorAddress string `json:"validator_address"`
 		TxHash           string `json:"tx_hash"`
