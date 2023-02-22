@@ -35,7 +35,7 @@ type (
 	}
 )
 
-func newBatch(log zerolog.Logger, topic string, bufSize int, metrics *metrics,
+func newBatch(log zerolog.Logger, topic string, bufSize int,
 	handler func(ctx context.Context, msg [][]byte, db rep.Storage) error) *batch {
 
 	log = log.With().Str("cmp", "batch").Str(keyTopic, topic).Logger()
@@ -46,7 +46,6 @@ func newBatch(log zerolog.Logger, topic string, bufSize int, metrics *metrics,
 
 	return &batch{
 		log:        &log,
-		metrics:    metrics,
 		topicName:  topic,
 		handler:    handler,
 		maxBufSize: bufSize,
@@ -56,6 +55,10 @@ func newBatch(log zerolog.Logger, topic string, bufSize int, metrics *metrics,
 
 func (b *batch) setErrorHandler(errorHandler errorHandler) {
 	b.errorHandler = errorHandler
+}
+
+func (b *batch) setMetrics(metrics *metrics) {
+	b.metrics = metrics
 }
 
 func (b *batch) insertMessage(ctx context.Context, msg *kafka.Message, db rep.Storage) {

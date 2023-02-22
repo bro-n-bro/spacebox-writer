@@ -1,6 +1,8 @@
 package clickhouse
 
 import (
+	"database/sql"
+
 	jsoniter "github.com/json-iterator/go"
 
 	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
@@ -57,8 +59,11 @@ func (ch *Clickhouse) Proposal(vals []model.Proposal) (err error) {
 			Content:         string(val.Content),
 			SubmitTime:      val.SubmitTime,
 			DepositEndTime:  val.DepositEndTime,
-			VotingStartTime: val.VotingStartTime,
-			VotingEndTime:   val.VotingEndTime,
+			VotingStartTime: sql.NullTime{
+				Time:  val.VotingStartTime,
+				Valid: !val.VotingStartTime.IsZero(),
+			},
+			VotingEndTime: val.VotingEndTime,
 		}
 	}
 

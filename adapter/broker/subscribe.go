@@ -63,11 +63,15 @@ func (b *Broker) Subscribe(
 		defer wg.Done()
 
 		var (
-			batch  = newBatch(*b.log, topic, b.cfg.BatchBufferSize, b.metrics, handler)
+			batch  = newBatch(*b.log, topic, b.cfg.BatchBufferSize, handler)
 			ticker = time.NewTicker(b.cfg.FlushBufferInterval)
 		)
 
 		batch.setErrorHandler(b.handleError)
+
+		if b.cfg.MetricsEnabled {
+			batch.setMetrics(b.metrics)
+		}
 
 		defer ticker.Stop()
 
