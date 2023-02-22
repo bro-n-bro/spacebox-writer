@@ -6,14 +6,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
-	"github.com/bro-n-bro/spacebox-writer/adapter/broker"
 	ch "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
 	"github.com/bro-n-bro/spacebox-writer/adapter/metrics"
 	"github.com/bro-n-bro/spacebox-writer/adapter/mongo"
 	"github.com/bro-n-bro/spacebox-writer/consts"
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 	"github.com/bro-n-bro/spacebox-writer/models"
-	"github.com/bro-n-bro/spacebox-writer/modules"
 )
 
 type (
@@ -54,16 +52,12 @@ func (a *App) Start(ctx context.Context) error {
 
 	clickhouse := ch.New(a.cfg.Clickhouse, *a.log)
 	m := mongo.New(a.cfg.Mongo, *a.log)
-	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
-	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
 	mtr := metrics.New(a.cfg.Metrics, clickhouse, *a.log)
 
 	a.cmps = append(
 		a.cmps,
 		cmp{clickhouse, "clickhouse"},
-		cmp{mods, "modules"},
 		cmp{m, "mongo"},
-		cmp{brk, "broker"},
 		cmp{mtr, "metrics"},
 	)
 
