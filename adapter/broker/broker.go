@@ -12,18 +12,11 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 )
 
-const (
-	msgDeliveryError        = "delivery error: %v"
-	msgFlushedKafkaMessages = "flushed kafka messages. Outstanding events still un-flushed: %d"
-	msgKafkaLocalQueueFull  = "kafka local queue full error - Going to Flush then retry"
-)
-
 type (
 	Broker struct {
 		m         rep.Mongo
 		metrics   *metrics
 		log       *zerolog.Logger
-		pr        *kafka.Producer
 		st        *clickhouse.Clickhouse
 		consumers []*kafka.Consumer
 		cfg       Config
@@ -71,30 +64,12 @@ func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger)
 }
 
 // Start starts broker.
-func (b *Broker) Start(_ context.Context) (err error) {
-	b.pr, err = kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": b.cfg.Address,
-	})
-
-	go func(drs chan kafka.Event) {
-		for ev := range drs {
-			m, ok := ev.(*kafka.Message)
-			if !ok {
-				continue
-			}
-
-			if err = m.TopicPartition.Error; err != nil {
-				b.log.Error().Err(err).Msgf(msgDeliveryError, m.TopicPartition)
-			}
-		}
-	}(b.pr.Events())
-
-	return err
+func (b *Broker) Start(_ context.Context) error {
+	return nil
 }
 
 // Stop stops broker.
 func (b *Broker) Stop(ctx context.Context) error {
-	b.pr.Close()
 	for _, consumer := range b.consumers {
 		if err := consumer.Close(); err != nil {
 			return err

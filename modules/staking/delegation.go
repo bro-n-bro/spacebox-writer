@@ -3,19 +3,16 @@ package staking
 import (
 	"context"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
-
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/modules/utils"
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 // DelegationHandler is a handler for delegation event
-func DelegationHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
-	val := model.Delegation{}
-	if err := jsoniter.Unmarshal(msg, &val); err != nil {
-		return errors.Wrap(err, "unmarshall error")
+func DelegationHandler(ctx context.Context, msgs [][]byte, ch rep.Storage) error {
+	vals, err := utils.ConvertMessages[model.Delegation](msgs)
+	if err != nil {
+		return err
 	}
-
-	return ch.Delegation(val)
+	return ch.Delegation(vals)
 }

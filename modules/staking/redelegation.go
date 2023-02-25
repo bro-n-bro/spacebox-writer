@@ -3,19 +3,16 @@ package staking
 import (
 	"context"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
-
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/modules/utils"
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
-// RedelegationHandler is a handler for redelegation event
-func RedelegationHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
-	val := model.Redelegation{}
-	if err := jsoniter.Unmarshal(msg, &val); err != nil {
-		return errors.Wrap(err, "unmarshall error")
+// RedelegationHandle2r is a handler for redelegation event
+func RedelegationHandler(ctx context.Context, msgs [][]byte, ch rep.Storage) error {
+	vals, err := utils.ConvertMessages[model.Redelegation](msgs)
+	if err != nil {
+		return err
 	}
-
-	return ch.Redelegation(val)
+	return ch.Redelegation(vals)
 }

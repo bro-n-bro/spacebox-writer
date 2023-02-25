@@ -14,52 +14,66 @@ const (
 )
 
 // CommunityPool is a method for saving community pool data to clickhouse
-func (ch *Clickhouse) CommunityPool(val model.CommunityPool) (err error) {
+func (ch *Clickhouse) CommunityPool(vals []model.CommunityPool) (err error) {
 	var (
-		coinsBytes []byte
+		coins string
 	)
 
-	if coinsBytes, err = jsoniter.Marshal(val.Coins); err != nil {
-		return err
+	batch := make([]storageModel.CommunityPool, len(vals))
+
+	for i, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
+			return err
+		}
+		batch[i] = storageModel.CommunityPool{
+			Coins:  coins,
+			Height: val.Height,
+		}
 	}
-	return ch.gorm.Table(tableCommunityPool).Create(storageModel.CommunityPool{
-		Coins:  string(coinsBytes),
-		Height: val.Height,
-	}).Error
+
+	return ch.gorm.Table(tableCommunityPool).CreateInBatches(batch, len(batch)).Error
 }
 
 // DelegationRewardMessage is a method for saving delegation reward message data to clickhouse
-func (ch *Clickhouse) DelegationRewardMessage(val model.DelegationRewardMessage) (err error) {
+func (ch *Clickhouse) DelegationRewardMessage(vals []model.DelegationRewardMessage) (err error) {
 	var (
-		coinBytes []byte
+		coins string
 	)
 
-	if coinBytes, err = jsoniter.Marshal(val.Coin); err != nil {
-		return err
+	batch := make([]storageModel.DelegationRewardMessage, len(vals))
+	for i, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
+			return err
+		}
+		batch[i] = storageModel.DelegationRewardMessage{
+			Coins:            coins,
+			Height:           val.Height,
+			DelegatorAddress: val.DelegatorAddress,
+			ValidatorAddress: val.ValidatorAddress,
+			TxHash:           val.TxHash,
+			MsgIndex:         val.MsgIndex,
+		}
 	}
 
-	return ch.gorm.Table(tableDelegationRewardMessage).Create(storageModel.DelegationRewardMessage{
-		Coin:             string(coinBytes),
-		Height:           val.Height,
-		DelegatorAddress: val.DelegatorAddress,
-		ValidatorAddress: val.ValidatorAddress,
-		TxHash:           val.TxHash,
-		MsgIndex:         val.MsgIndex,
-	}).Error
+	return ch.gorm.Table(tableDelegationRewardMessage).CreateInBatches(batch, len(batch)).Error
 }
 
 // DistributionParams is a method for saving distribution params data to clickhouse
-func (ch *Clickhouse) DistributionParams(val model.DistributionParams) (err error) {
+func (ch *Clickhouse) DistributionParams(vals []model.DistributionParams) (err error) {
 	var (
-		paramsBytes []byte
+		params string
 	)
 
-	if paramsBytes, err = jsoniter.Marshal(val.Params); err != nil {
-		return err
+	batch := make([]storageModel.DistributionParams, len(vals))
+	for i, val := range vals {
+		if params, err = jsoniter.MarshalToString(val.Params); err != nil {
+			return err
+		}
+		batch[i] = storageModel.DistributionParams{
+			Params: params,
+			Height: val.Height,
+		}
 	}
 
-	return ch.gorm.Table(tableDistributionParams).Create(storageModel.DistributionParams{
-		Params: string(paramsBytes),
-		Height: val.Height,
-	}).Error
+	return ch.gorm.Table(tableDistributionParams).CreateInBatches(batch, len(batch)).Error
 }

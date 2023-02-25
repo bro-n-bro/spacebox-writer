@@ -3,6 +3,7 @@ package metrics
 import (
 	"context"
 	"net/http"
+	"net/http/pprof"
 	"time"
 
 	"github.com/pkg/errors"
@@ -36,16 +37,22 @@ func New(cfg Config, l zerolog.Logger) *Metrics {
 
 // Start is a method for starting metrics server
 func (m *Metrics) Start(ctx context.Context) error {
-	if !m.cfg.MetricsEnabled {
-		return nil
-	}
-
 	m.srv = &http.Server{
 		Addr:              ":" + m.cfg.Port,
 		ReadHeaderTimeout: 1 * time.Second,
 	}
 
-	http.Handle("/metrics", promhttp.Handler())
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/debug/pprof/", pprof.Index)
+	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+	if m.cfg.MetricsEnabled {
+		http.Handle("/metrics", promhttp.Handler())
+	}
 
 	go func() {
 		if err := m.srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -58,9 +65,5 @@ func (m *Metrics) Start(ctx context.Context) error {
 
 // Stop is a method for stopping metrics server
 func (m *Metrics) Stop(ctx context.Context) error {
-	if !m.cfg.MetricsEnabled {
-		return nil
-	}
-
 	return m.srv.Shutdown(ctx)
 }

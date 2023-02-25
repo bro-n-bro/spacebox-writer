@@ -3,18 +3,17 @@ package bank
 import (
 	"context"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
-
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/modules/utils"
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
 
 // SupplyHandler is a handler for supply event
-func SupplyHandler(ctx context.Context, msg []byte, ch rep.Storage) error {
-	val := model.Supply{}
-	if err := jsoniter.Unmarshal(msg, &val); err != nil {
-		return errors.Wrap(err, "unmarshall error")
+func SupplyHandler(ctx context.Context, msgs [][]byte, ch rep.Storage) error {
+	vals, err := utils.ConvertMessages[model.Supply](msgs)
+	if err != nil {
+		return err
 	}
-	return ch.Supply(val)
+
+	return ch.Supply(vals)
 }
