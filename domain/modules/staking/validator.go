@@ -4,11 +4,10 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/rs/zerolog"
 	"spacebox-writer/adapter/broker"
 	"spacebox-writer/adapter/clickhouse"
 	"spacebox-writer/internal/configs"
-
-	"github.com/rs/zerolog"
 
 	"github.com/bro-n-bro/spacebox/broker/model"
 )
