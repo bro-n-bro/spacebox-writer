@@ -56,7 +56,7 @@ func (ch *Clickhouse) DelegationMessage(vals []model.DelegationMessage) (err err
 		batch[i] = storageModel.DelegationMessage{
 			OperatorAddress:  val.OperatorAddress,
 			DelegatorAddress: val.DelegatorAddress,
-			Coins:            coin,
+			Coin:             coin,
 			Height:           val.Height,
 			TxHash:           val.TxHash,
 			MsgIndex:         val.MsgIndex,
