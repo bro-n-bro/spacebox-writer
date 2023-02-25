@@ -1,8 +1,6 @@
-**TODO:** *This readme need be updated*
+# Spacebox-writer
 
-# SpaceBox Writer
-
-SpaceBox Writer is a clickhouse client for writing data to a clickhouse database. It is a part of the spacebox project.
+Spacebox-writer is another one of the crucial parts of [Spacebox](https://github.com/bro-n-bro/spacebox) indexer. The writer pulls specific topics from Kafka broker and writes them to Clickhouse DB. Simultaneously it self-logs its progress to Mongo-db to ensure consistency.
 
 ## Installation
 

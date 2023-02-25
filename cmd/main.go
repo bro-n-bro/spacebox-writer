@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	DefaultEnvFile = ".env.local"
+	DefaultEnvFile = ".env"
 	EnvFile        = "ENV_FILE"
 
 	msgCannotStartApplication = "cannot start application"
