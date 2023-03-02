@@ -57,13 +57,22 @@ func (ch *Clickhouse) Proposal(vals []model.Proposal) (err error) {
 			ProposerAddress: val.ProposerAddress,
 			Status:          val.Status,
 			Content:         string(val.Content),
-			SubmitTime:      val.SubmitTime,
-			DepositEndTime:  val.DepositEndTime,
+			SubmitTime: sql.NullTime{
+				Time:  val.SubmitTime,
+				Valid: !val.SubmitTime.IsZero(),
+			},
+			DepositEndTime: sql.NullTime{
+				Time:  val.DepositEndTime,
+				Valid: !val.DepositEndTime.IsZero(),
+			},
 			VotingStartTime: sql.NullTime{
 				Time:  val.VotingStartTime,
 				Valid: !val.VotingStartTime.IsZero(),
 			},
-			VotingEndTime: val.VotingEndTime,
+			VotingEndTime: sql.NullTime{
+				Time:  val.VotingEndTime,
+				Valid: !val.VotingEndTime.IsZero(),
+			},
 		}
 	}
 

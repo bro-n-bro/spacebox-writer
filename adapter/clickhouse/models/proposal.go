@@ -2,16 +2,15 @@ package models
 
 import (
 	"database/sql"
-	"time"
 )
 
 type (
 	// Proposal represents proposal
 	Proposal struct {
-		SubmitTime      time.Time    `json:"submit_time"`
-		DepositEndTime  time.Time    `json:"deposit_end_time"`
+		SubmitTime      sql.NullTime `json:"submit_time"`
+		DepositEndTime  sql.NullTime `json:"deposit_end_time"`
 		VotingStartTime sql.NullTime `json:"voting_start_time"`
-		VotingEndTime   time.Time    `json:"voting_end_time"`
+		VotingEndTime   sql.NullTime `json:"voting_end_time"`
 		Title           string       `json:"title"`
 		Description     string       `json:"description"`
 		ProposalRoute   string       `json:"proposal_route"`
