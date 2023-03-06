@@ -1,7 +1,7 @@
 -- 000018_validator_description.up.sql
 CREATE TABLE IF NOT EXISTS spacebox.validator_description_topic
 (
-    `validator_address` String,
+    `operator_address`  String,
     `moniker`           String,
     `identity`          String,
     `avatar_url`        String,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_description_topic
 
 CREATE TABLE IF NOT EXISTS spacebox.validator_description
 (
-    `validator_address` String,
+    `operator_address`  String,
     `moniker`           String,
     `identity`          String,
     `avatar_url`        String,
@@ -22,11 +22,11 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_description
     `details`           String,
     `height`            Int64
 ) ENGINE = ReplacingMergeTree(`height`)
-      ORDER BY (`validator_address`);
+      ORDER BY (`operator_address`);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS validator_description_consumer TO spacebox.validator_description
 AS
-SELECT validator_address, moniker, identity, avatar_url, website, security_contact, details, height
+SELECT operator_address, moniker, identity, avatar_url, website, security_contact, details, height
 FROM spacebox.validator_description_topic
-GROUP BY validator_address, moniker, identity, avatar_url, website, security_contact, details, height;
+GROUP BY operator_address, moniker, identity, avatar_url, website, security_contact, details, height;
 
