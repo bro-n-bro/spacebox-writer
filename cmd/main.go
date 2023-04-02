@@ -10,18 +10,24 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"spacebox-writer/internal/app"
-	"spacebox-writer/internal/configs"
-)
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-}
+	"github.com/bro-n-bro/spacebox-writer/internal/app"
+)
 
 const (
 	DefaultEnvFile = ".env"
 	EnvFile        = "ENV_FILE"
+
+	msgCannotStartApplication = "cannot start application"
+	msgServiceIsDown          = "service is down"
+	msgCannotStopApplication  = "cannot stop application"
+	msgApplicationStarted     = "application started"
 )
+
+// init is a function for setting up logger before main function
+func init() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+}
 
 func main() {
 	fileName, ok := os.LookupEnv(EnvFile)
@@ -33,20 +39,21 @@ func main() {
 		panic(err)
 	}
 
-	var cfg configs.Config
+	var cfg app.Config
 	if err := env.Parse(&cfg); err != nil {
 		panic(err)
 	}
 
-	application := app.New(cfg)
+	l := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
+	application := app.New(cfg, l)
 
 	startCtx, startCancel := context.WithTimeout(context.Background(), cfg.StartTimeout)
 	defer startCancel()
 	if err := application.Start(startCtx); err != nil {
-		log.Fatal().Err(err).Msg("cannot start application") // nolint
+		log.Fatal().Err(err).Msg(msgCannotStartApplication) // nolint
 	}
 
-	log.Info().Msg("application started")
+	log.Info().Msg(msgApplicationStarted)
 
 	quitCh := make(chan os.Signal, 1)
 	signal.Notify(quitCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -56,8 +63,9 @@ func main() {
 	defer stopCancel()
 
 	if err := application.Stop(stopCtx); err != nil {
-		log.Error().Err(err).Msg("cannot stop application")
+		log.Error().Err(err).Msg(msgCannotStopApplication)
 	}
 
-	log.Info().Msg("service is down")
+	log.Info().Msg(msgServiceIsDown)
+	// os.Exit()
 }

@@ -1,0 +1,119 @@
+run:
+  concurrency: 4
+  deadline: 2m
+  issues-exit-code: 10
+  tests: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  gofmt:
+    simplify: true
+  gocyclo:
+    min-complexity: 20
+  dupl:
+    threshold: 100
+  goimports:
+    local-prefixes: github.com/org/project
+  depguard:
+    list-type: blacklist
+    include-go-root: false
+    packages:
+      - github.com/davecgh/go-spew/spew
+  misspell:
+    locale: UK
+    ignore-words:
+      - colorful
+  lll:
+    line-length: 126
+    tab-width: 8
+  govet:
+    check-shadowing: false
+    enable-all: true
+  decorder:
+    dec-order:
+      - const
+      - var
+      - type
+      - func
+    disable-dec-order-check: false
+    disable-init-func-first-check: false
+    disable-dec-num-check: false
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/bro-n-bro)
+    skip-generated: false
+    custom-order: true
+  prealloc:
+    simple: false
+    range-loops: true
+    for-loops: true
+  whitespace:
+    multi-if: true
+    multi-func: true
+
+linters:
+  enable:
+    - bodyclose
+#    - dupl
+    - errcheck
+    - goconst
+    - gocritic
+    - gocyclo
+    - goimports
+    - gosimple
+    - gosec
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - staticcheck
+    - stylecheck
+    - unconvert
+    - unparam
+    - unused
+    - sqlclosecheck
+    - decorder
+    - durationcheck
+    - errchkjson
+    - errname
+    - exportloopref
+    - forcetypeassert
+    - gci
+    - gocognit
+    - goerr113
+    - prealloc
+    - promlinter
+    - tenv
+    - usestdlibvars
+    - whitespace
+  fast: false
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gosec
+        - dupl
+        - lll
+        - unparam
+        - gocritic
+        - goconst
+        - govet
+        - gocyclo
+        - misspell
+    - path: proto.go
+      linters:
+        - misspell
+    - path: routecalculator.go
+      linters:
+        - misspell
+  exclude-use-default: true
+  max-issues-per-linter: 0
+  max-same-issues: 0

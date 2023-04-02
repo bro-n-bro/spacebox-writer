@@ -2,33 +2,41 @@ package app
 
 import (
 	"context"
-	"os"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"golang.org/x/sync/errgroup"
-	clhs "spacebox-writer/adapter/clickhouse"
-	"spacebox-writer/consts"
-	"spacebox-writer/domain/modules"
-	"spacebox-writer/internal/configs"
-	"spacebox-writer/internal/rep"
-	"spacebox-writer/models"
+
+	"github.com/bro-n-bro/spacebox-writer/adapter/broker"
+	ch "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
+	"github.com/bro-n-bro/spacebox-writer/adapter/metrics"
+	"github.com/bro-n-bro/spacebox-writer/adapter/mongo"
+	"github.com/bro-n-bro/spacebox-writer/consts"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
+	"github.com/bro-n-bro/spacebox-writer/models"
+	"github.com/bro-n-bro/spacebox-writer/modules"
 )
 
-type cmp struct {
-	Service rep.Lifecycle
-	Name    string
-}
+type (
+	App struct {
+		log  *zerolog.Logger
+		cmps []cmp
+		cfg  Config
+	}
 
-type App struct {
-	log  *zerolog.Logger
-	cmps []cmp
-	cfg  configs.Config
-}
+	cmp struct {
+		Service rep.Lifecycle
+		Name    string
+	}
+)
 
-func New(cfg configs.Config) *App {
-	l := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().
-		Str("cmp", "app").Logger()
+// New is a constructor for App
+func New(cfg Config, l zerolog.Logger) *App {
+	level, err := zerolog.ParseLevel(cfg.LogLevel)
+	if err != nil {
+		level = 0
+	}
+
+	l = l.Level(level).With().Str("cmp", "app").Logger()
 	return &App{
 		log:  &l,
 		cfg:  cfg,
@@ -36,15 +44,26 @@ func New(cfg configs.Config) *App {
 	}
 }
 
+// Start is a method for starting all components
 func (a *App) Start(ctx context.Context) error {
 	a.log.Info().Msg("starting app")
+	a.log.Info().
+		Uint8("log_level", uint8(a.log.GetLevel())).
+		Str("log_level_text", a.cfg.LogLevel).
+		Msg("logger")
 
-	clickhouse := clhs.New(a.cfg, a.log)
-	mods := modules.New(a.cfg, clickhouse, a.log)
+	clickhouse := ch.New(a.cfg.Clickhouse, *a.log)
+	m := mongo.New(a.cfg.Mongo, *a.log)
+	brk := broker.New(a.cfg.Broker, clickhouse, m, *a.log)
+	mods := modules.New(a.cfg.Modules, clickhouse, *a.log, brk)
+	mtr := metrics.New(a.cfg.Metrics, *a.log)
 
 	a.cmps = append(
 		a.cmps,
 		cmp{clickhouse, "clickhouse"},
+		cmp{m, "mongo"},
+		cmp{mtr, "metrics"},
+		cmp{brk, "broker"},
 		cmp{mods, "modules"},
 	)
 
@@ -70,30 +89,28 @@ func (a *App) Start(ctx context.Context) error {
 	}
 }
 
+// Stop is a method for stopping all components
 func (a *App) Stop(ctx context.Context) error {
 	a.log.Info().Msg("shutting down service...")
 
-	errCh := make(chan error)
+	okCh, errCh := make(chan struct{}), make(chan error)
 	go func() {
-		gr, ctx := errgroup.WithContext(ctx)
-		var c cmp
 		for i := len(a.cmps) - 1; i >= 0; i-- {
-			c = a.cmps[i]
-			a.log.Info().Msgf("stopping %q...", c.Name)
-			if err := c.Service.Stop(ctx); err != nil {
-				a.log.Error().Err(err).Msgf("cannot stop %q", c.Name)
+			a.log.Info().Msgf("stopping %q...", a.cmps[i].Name)
+			if err := a.cmps[i].Service.Stop(ctx); err != nil {
+				a.log.Error().Err(err).Msgf("cannot stop %q", a.cmps[i].Name)
+				errCh <- err
 			}
 		}
-		errCh <- gr.Wait()
+		okCh <- struct{}{}
 	}()
 
 	select {
 	case <-ctx.Done():
 		return models.ErrShutdownTimeout
 	case err := <-errCh:
-		if err != nil {
-			return err
-		}
+		return err
+	case <-okCh:
 		return nil
 	}
 }

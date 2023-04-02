@@ -2,77 +2,78 @@ package broker
 
 import (
 	"context"
-	"os"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog"
-	"spacebox-writer/internal/configs"
+
+	"github.com/bro-n-bro/spacebox-writer/adapter/clickhouse"
+	"github.com/bro-n-bro/spacebox-writer/internal/rep"
 )
 
-type Broker struct {
-	log *zerolog.Logger
-	con *kafka.Consumer
-	cfg configs.Config
-	ch  chan any
-}
+type (
+	Broker struct {
+		m         rep.Mongo
+		metrics   *metrics
+		log       *zerolog.Logger
+		st        *clickhouse.Clickhouse
+		consumers []*kafka.Consumer
+		cfg       Config
+	}
 
-func New(cfg configs.Config, ch chan any) *Broker {
-	lg := zerolog.New(os.Stderr).Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().
-		Str("cmp", "broker").Logger()
-	return &Broker{
-		log: &lg,
+	metrics struct {
+		histogram            *prometheus.HistogramVec
+		errorsCounter        *prometheus.CounterVec
+		limitExceededCounter *prometheus.CounterVec
+	}
+)
+
+// New creates new broker instance.
+func New(cfg Config, st *clickhouse.Clickhouse, m rep.Mongo, log zerolog.Logger) *Broker {
+	log = log.With().Str("cmp", "broker").Logger()
+
+	b := &Broker{
+		log: &log,
 		cfg: cfg,
-		ch:  ch,
+		st:  st,
+		m:   m,
 	}
+
+	if b.cfg.MetricsEnabled {
+		b.metrics = &metrics{
+			histogram: promauto.NewHistogramVec(prometheus.HistogramOpts{
+				Namespace: "spacebox_writer",
+				Name:      "process_duration",
+				Help:      "Duration of handling kafka messages.",
+			}, []string{keyTopic}),
+			errorsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+				Namespace: "spacebox_writer",
+				Name:      "fails_total",
+				Help:      "Count of handling errors for each topic.",
+			}, []string{keyTopic}),
+			limitExceededCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+				Namespace: "spacebox_writer",
+				Name:      "exceeded_limit_total",
+				Help:      "Count of limits exceeded for each topic.",
+			}, []string{keyTopic}),
+		}
+	}
+
+	return b
 }
 
-func (brk *Broker) Subscribe(ctx context.Context, topic string) (err error) {
-	brk.con, err = kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":        brk.cfg.Address,
-		"group.id":                 brk.cfg.GroupID,
-		"auto.offset.reset":        brk.cfg.AutoOffsetReset,
-		"allow.auto.create.topics": true,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	if err = brk.con.Subscribe(topic, nil); err != nil {
-		return err
-	}
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			msg, err := brk.con.ReadMessage(-1)
-			if err == nil {
-				brk.log.Info().Msgf("[%v]: %s", msg.String(), msg.Value)
-				brk.ch <- msg.Value
-
-			} else {
-				brk.log.
-					Error().
-					Err(err).
-					Interface("msg", msg).
-					Msg("consumer error")
-
-			}
-
-		}
-	}()
-
+// Start starts broker.
+func (b *Broker) Start(_ context.Context) error {
 	return nil
 }
 
-func (brk *Broker) Stop(ctx context.Context) (err error) {
-	if err = brk.con.Close(); err != nil {
-		return err
+// Stop stops broker.
+func (b *Broker) Stop(ctx context.Context) error {
+	for _, consumer := range b.consumers {
+		if err := consumer.Close(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
