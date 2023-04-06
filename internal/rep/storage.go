@@ -27,6 +27,7 @@ type (
 		CommunityPool([]model.CommunityPool) error
 		DistributionParams([]model.DistributionParams) error
 		DelegationRewardMessage([]model.DelegationRewardMessage) error
+		ProposerReward([]model.ProposerReward) error
 
 		Transaction([]model.Transaction) error
 	}
