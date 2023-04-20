@@ -37,6 +37,7 @@ var (
 			{"distribution_params", distribution2.DistributionParamsHandler},
 			{"community_pool", distribution2.CommunityPoolHandler},
 			{"delegation_reward_message", distribution2.DelegationRewardMessageHandler},
+			{"distribution_commission", distribution2.DistributionCommissionHandler},
 		},
 		"gov": {
 			{"gov_params", gov2.GovParamsHandler},
