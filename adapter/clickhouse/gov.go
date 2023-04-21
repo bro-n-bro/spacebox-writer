@@ -13,6 +13,7 @@ const (
 	tableGovParams              = "gov_params"
 	tableProposal               = "proposal"
 	tableProposalDepositMessage = "proposal_deposit_message"
+	tableSubmitProposalMessage  = "submit_proposal_message"
 )
 
 // GovParams is a method for saving gov params data to clickhouse
@@ -84,6 +85,7 @@ func (ch *Clickhouse) ProposalDepositMessage(vals []model.ProposalDepositMessage
 	var (
 		coins string
 	)
+
 	batch := make([]storageModel.ProposalDepositMessage, len(vals))
 	for i, val := range vals {
 		if coins, err = jsoniter.MarshalToString(val.Coins); err != nil {
@@ -100,4 +102,32 @@ func (ch *Clickhouse) ProposalDepositMessage(vals []model.ProposalDepositMessage
 	}
 
 	return ch.gorm.Table(tableProposalDepositMessage).CreateInBatches(batch, len(batch)).Error
+}
+
+// SubmitProposalMessage is a method for saving submit proposal message data to clickhouse
+func (ch *Clickhouse) SubmitProposalMessage(vals []model.SubmitProposalMessage) (err error) {
+	var (
+		initialDeposit string
+	)
+
+	batch := make([]storageModel.SubmitProposalMessage, len(vals))
+	for i, val := range vals {
+		if initialDeposit, err = jsoniter.MarshalToString(val.InitialDeposit); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.SubmitProposalMessage{
+			TxHash:         val.TxHash,
+			Proposer:       val.Proposer,
+			InitialDeposit: initialDeposit,
+			Title:          val.Title,
+			Description:    val.Description,
+			Type:           val.Type,
+			ProposalID:     int64(val.ProposalID),
+			Height:         val.Height,
+			MsgIndex:       val.MsgIndex,
+		}
+	}
+
+	return ch.gorm.Table(tableSubmitProposalMessage).CreateInBatches(batch, len(batch)).Error
 }
