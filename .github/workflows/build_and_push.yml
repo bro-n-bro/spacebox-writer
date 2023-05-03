@@ -20,13 +20,13 @@ jobs:
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build specify tag
       run: |
-        echo 'build image: to bronbro/spacebox-crawler:${{github.ref_name}}'
-        docker build -t bronbro/spacebox-crawler:${{github.ref_name}} --target=app .
+        echo 'build image: to bronbro/spacebox-writer:${{github.ref_name}}'
+        docker build -t bronbro/spacebox-writer:${{github.ref_name}} --target=app .
     - name: Build latest tag
       if: startsWith(github.ref, 'refs/tags/v')
-      run: docker build -t bronbro/spacebox-crawler:latest --target=app .
+      run: docker build -t bronbro/spacebox-writer:latest --target=app .
     - name: push specify tag to registry
-      run: docker push bronbro/spacebox-crawler:${{github.ref_name}}
+      run: docker push bronbro/spacebox-writer:${{github.ref_name}}
     - name: push latest tag to registry
       if: startsWith(github.ref, 'refs/tags/v')
-      run: docker push bronbro/spacebox-crawler:latest
+      run: docker push bronbro/spacebox-writer:latest
