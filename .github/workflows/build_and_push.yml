@@ -1,0 +1,32 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ 'v*.*.*' ]
+#   pull_request:
+#     branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: Build specify tag
+      run: |
+        echo 'build image: to bronbro/spacebox-crawler:${{github.ref_name}}'
+        docker build -t bronbro/spacebox-crawler:${{github.ref_name}} --target=app .
+    - name: Build latest tag
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: docker build -t bronbro/spacebox-crawler:latest --target=app .
+    - name: push specify tag to registry
+      run: docker push bronbro/spacebox-crawler:${{github.ref_name}}
+    - name: push latest tag to registry
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: docker push bronbro/spacebox-crawler:latest
