@@ -20,7 +20,7 @@ jobs:
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build specify tag
       run: |
-        echo 'build image: to bronbro/spacebox-writer:${{github.ref_name}}'
+        echo 'build image: bronbro/spacebox-writer:${{github.ref_name}}'
         docker build -t bronbro/spacebox-writer:${{github.ref_name}} --target=app .
     - name: Build latest tag
       if: startsWith(github.ref, 'refs/tags/v')
