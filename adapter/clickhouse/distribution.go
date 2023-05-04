@@ -12,7 +12,30 @@ const (
 	tableDistributionParams      = "distribution_params"
 	tableDistributionCommission  = "distribution_commission"
 	tableDelegationRewardMessage = "delegation_reward_message"
+	tableProposerReward          = "proposer_reward"
 )
+
+// ProposerReward is a method for saving proposer reward data to clickhouse
+func (ch *Clickhouse) ProposerReward(vals []model.ProposerReward) (err error) {
+	var (
+		coins string
+	)
+
+	batch := make([]storageModel.ProposerReward, len(vals))
+
+	for i, val := range vals {
+		if coins, err = jsoniter.MarshalToString(val.Reward); err != nil {
+			return err
+		}
+		batch[i] = storageModel.ProposerReward{
+			Reward:    coins,
+			Height:    val.Height,
+			Validator: val.Validator,
+		}
+	}
+
+	return ch.gorm.Table(tableProposerReward).CreateInBatches(batch, len(batch)).Error
+}
 
 // CommunityPool is a method for saving community pool data to clickhouse
 func (ch *Clickhouse) CommunityPool(vals []model.CommunityPool) (err error) {
