@@ -39,6 +39,10 @@ var (
 			{"delegation_reward_message", distribution2.DelegationRewardMessageHandler},
 			{"proposer_reward", distribution2.ProposerRewardHandler},
 			{"distribution_commission", distribution2.DistributionCommissionHandler},
+			{
+				"withdraw_validator_commission_message",
+				distribution2.WithdrawValidatorCommissionMessageHandler,
+			},
 		},
 		"gov": {
 			{"gov_params", gov2.GovParamsHandler},
