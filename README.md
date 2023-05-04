@@ -1,5 +1,7 @@
 # Spacebox-writer
 
+![linter](https://github.com/bro-n-bro/spacebox-writer/actions/workflows/lint.yml/badge.svg)
+
 Spacebox-writer is another one of the crucial parts of [Spacebox](https://github.com/bro-n-bro/spacebox) indexer. The writer pulls specific topics from Kafka broker and writes them to Clickhouse DB. Simultaneously it self-logs its progress to Mongo-db to ensure consistency.
 
 ## Installation

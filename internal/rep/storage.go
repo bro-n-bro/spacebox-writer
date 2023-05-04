@@ -23,11 +23,13 @@ type (
 		GovParams([]model.GovParams) error
 		Proposal([]model.Proposal) error
 		ProposalDepositMessage([]model.ProposalDepositMessage) error
+		SubmitProposalMessage([]model.SubmitProposalMessage) error
 
 		CommunityPool([]model.CommunityPool) error
 		DistributionParams([]model.DistributionParams) error
 		DelegationRewardMessage([]model.DelegationRewardMessage) error
 		ProposerReward([]model.ProposerReward) error
+		DistributionCommission([]model.DistributionCommission) error
 
 		Transaction([]model.Transaction) error
 	}
