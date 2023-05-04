@@ -23,6 +23,7 @@ type (
 		GovParams([]model.GovParams) error
 		Proposal([]model.Proposal) error
 		ProposalDepositMessage([]model.ProposalDepositMessage) error
+		SubmitProposalMessage([]model.SubmitProposalMessage) error
 
 		CommunityPool([]model.CommunityPool) error
 		DistributionParams([]model.DistributionParams) error

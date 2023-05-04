@@ -13,7 +13,7 @@ type models interface {
 		model.GovParams | model.Proposal | model.ProposalDepositMessage | model.MintParams |
 		model.Delegation | model.DelegationMessage | model.Redelegation | model.RedelegationMessage |
 		model.StakingParams | model.UnbondingDelegation | model.UnbondingDelegationMessage |
-		model.DistributionCommission
+		model.DistributionCommission | model.SubmitProposalMessage
 }
 
 func ConvertMessages[T models](msgs [][]byte) ([]T, error) {

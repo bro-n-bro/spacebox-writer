@@ -43,6 +43,7 @@ var (
 			{"gov_params", gov2.GovParamsHandler},
 			{"proposal", gov2.ProposalHandler},
 			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
+			{"submit_proposal_message", gov2.SubmitProposalMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint2.MintParamsHandler},
