@@ -37,11 +37,14 @@ var (
 			{"distribution_params", distribution2.DistributionParamsHandler},
 			{"community_pool", distribution2.CommunityPoolHandler},
 			{"delegation_reward_message", distribution2.DelegationRewardMessageHandler},
+			{"proposer_reward", distribution2.ProposerRewardHandler},
+			{"distribution_commission", distribution2.DistributionCommissionHandler},
 		},
 		"gov": {
 			{"gov_params", gov2.GovParamsHandler},
 			{"proposal", gov2.ProposalHandler},
 			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
+			{"submit_proposal_message", gov2.SubmitProposalMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint2.MintParamsHandler},
