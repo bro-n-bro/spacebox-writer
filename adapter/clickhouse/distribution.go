@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	tableCommunityPool           = "community_pool"
-	tableDistributionParams      = "distribution_params"
-	tableDistributionCommission  = "distribution_commission"
-	tableDelegationRewardMessage = "delegation_reward_message"
-	tableProposerReward          = "proposer_reward"
+	tableCommunityPool                      = "community_pool"
+	tableDistributionParams                 = "distribution_params"
+	tableDistributionCommission             = "distribution_commission"
+	tableDelegationRewardMessage            = "delegation_reward_message"
+	tableProposerReward                     = "proposer_reward"
+	tableWithdrawValidatorCommissionMessage = "withdraw_validator_commission_message"
 )
 
 // ProposerReward is a method for saving proposer reward data to clickhouse
@@ -122,4 +123,28 @@ func (ch *Clickhouse) DistributionCommission(vals []model.DistributionCommission
 	}
 
 	return ch.gorm.Table(tableDistributionCommission).CreateInBatches(batch, len(batch)).Error
+}
+
+// WithdrawValidatorCommissionMessage is a method for saving withdraw validator commission message data to clickhouse
+func (ch *Clickhouse) WithdrawValidatorCommissionMessage(vals []model.WithdrawValidatorCommissionMessage) (err error) {
+	var (
+		commission string
+	)
+
+	batch := make([]storageModel.WithdrawValidatorCommissionMessage, len(vals))
+	for i, val := range vals {
+		if commission, err = jsoniter.MarshalToString(val.WithdrawCommission); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.WithdrawValidatorCommissionMessage{
+			ValidatorAddress:   val.ValidatorAddress,
+			TxHash:             val.TxHash,
+			WithdrawCommission: commission,
+			MsgIndex:           val.MsgIndex,
+			Height:             val.Height,
+		}
+	}
+
+	return ch.gorm.Table(tableWithdrawValidatorCommissionMessage).CreateInBatches(batch, len(batch)).Error
 }

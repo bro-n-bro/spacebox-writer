@@ -27,6 +27,7 @@ type (
 
 		CommunityPool([]model.CommunityPool) error
 		DistributionParams([]model.DistributionParams) error
+		WithdrawValidatorCommissionMessage([]model.WithdrawValidatorCommissionMessage) error
 		DelegationRewardMessage([]model.DelegationRewardMessage) error
 		ProposerReward([]model.ProposerReward) error
 		DistributionCommission([]model.DistributionCommission) error
