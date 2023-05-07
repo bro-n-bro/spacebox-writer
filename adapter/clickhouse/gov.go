@@ -14,6 +14,7 @@ const (
 	tableProposal               = "proposal"
 	tableProposalDepositMessage = "proposal_deposit_message"
 	tableSubmitProposalMessage  = "submit_proposal_message"
+	tableVoteWeightedMessage    = "vote_weighted_message"
 )
 
 // GovParams is a method for saving gov params data to clickhouse
@@ -130,4 +131,29 @@ func (ch *Clickhouse) SubmitProposalMessage(vals []model.SubmitProposalMessage) 
 	}
 
 	return ch.gorm.Table(tableSubmitProposalMessage).CreateInBatches(batch, len(batch)).Error
+}
+
+// VoteWeightedMessage is a method for saving vote weighted message data to clickhouse
+func (ch *Clickhouse) VoteWeightedMessage(vals []model.VoteWeightedMessage) (err error) {
+	var (
+		weightedVoteOption string
+	)
+
+	batch := make([]storageModel.VoteWeightedMessage, len(vals))
+	for i, val := range vals {
+		if weightedVoteOption, err = jsoniter.MarshalToString(val.WeightedVoteOption); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.VoteWeightedMessage{
+			TxHash:             val.TxHash,
+			ProposalID:         int64(val.ProposalId),
+			Height:             val.Height,
+			MsgIndex:           val.MsgIndex,
+			Voter:              val.Voter,
+			WeightedVoteOption: weightedVoteOption,
+		}
+	}
+
+	return ch.gorm.Table(tableVoteWeightedMessage).CreateInBatches(batch, len(batch)).Error
 }

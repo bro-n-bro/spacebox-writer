@@ -50,6 +50,7 @@ var (
 			{"proposal", gov2.ProposalHandler},
 			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
 			{"submit_proposal_message", gov2.SubmitProposalMessageHandler},
+			{"vote_weighted_message", gov2.VoteWeightedMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint2.MintParamsHandler},
