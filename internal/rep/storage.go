@@ -41,5 +41,6 @@ type (
 		GrantMessage([]model.GrantMessage) error
 
 		GrantAllowanceMessage([]model.GrantAllowanceMessage) error
+		FeeAllowance([]model.FeeAllowance) error
 	}
 )
