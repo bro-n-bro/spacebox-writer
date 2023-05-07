@@ -1,5 +1,5 @@
 -- 000034_distribution_commission.up.sql
-CREATE TABLE IF NOT EXISTS spacebox.delegation_message
+CREATE TABLE IF NOT EXISTS spacebox.distribution_commission
 (
     `validator` String,
     `amount`    json,

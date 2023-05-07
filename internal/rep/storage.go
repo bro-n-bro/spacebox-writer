@@ -25,6 +25,7 @@ type (
 		Proposal([]model.Proposal) error
 		ProposalDepositMessage([]model.ProposalDepositMessage) error
 		SubmitProposalMessage([]model.SubmitProposalMessage) error
+		VoteWeightedMessage([]model.VoteWeightedMessage) error
 
 		CommunityPool([]model.CommunityPool) error
 		DistributionParams([]model.DistributionParams) error
