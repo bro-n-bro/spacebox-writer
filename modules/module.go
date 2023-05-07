@@ -72,6 +72,7 @@ var (
 		},
 		"feegrant": {
 			{"grant_allowance_message", feegrant.GrantAllowanceMessageHandler},
+			{"fee_allowance", feegrant.FeeAllowanceHandler},
 		},
 	}
 )
