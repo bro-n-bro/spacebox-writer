@@ -18,7 +18,10 @@ build: dep ## Build the binary file
 	@go build -v ./cmd/main.go
 
 test: ## Run unittests
-	@go test ./... -count=1
+	@go test ./... -count=1 -coverprofile=coverage.out
+
+make coverage: ## Run unittests with coverage
+	@go tool cover -html=coverage.out -o coverage.html
 
 race: dep ## Run data race detector
 	@go test -race ./... -count=1
