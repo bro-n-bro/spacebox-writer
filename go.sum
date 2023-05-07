@@ -197,6 +197,8 @@ github.com/bro-n-bro/spacebox v0.0.0-20230405191136-2d942d9606ae h1:b3pfsYg1b1NV
 github.com/bro-n-bro/spacebox v0.0.0-20230405191136-2d942d9606ae/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
 github.com/bro-n-bro/spacebox v0.0.0-20230424172140-ad82366b27f8 h1:FdDZbgtiJWKQQ5a+Zh/N/xmqo8DLYn81I7dynJXAnmY=
 github.com/bro-n-bro/spacebox v0.0.0-20230424172140-ad82366b27f8/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
+github.com/bro-n-bro/spacebox v0.0.0-20230506132437-63d6f4ec7b43 h1:L7I7N1ezwIJvHv2GcrRDNYcb2B7XnkCFdkfRLgMWF2A=
+github.com/bro-n-bro/spacebox v0.0.0-20230506132437-63d6f4ec7b43/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
 github.com/bshuster-repo/logrus-logstash-hook v0.4.1/go.mod h1:zsTqEiSzDgAa/8GZR7E1qaXrhYNDKBYy5/dWPTIflbk=
 github.com/buger/jsonparser v0.0.0-20180808090653-f4dd9f5a6b44/go.mod h1:bbYlZJ7hK1yFx9hf58LP0zeX7UjIGs20ufpu3evjr+s=
 github.com/buger/jsonparser v1.1.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
