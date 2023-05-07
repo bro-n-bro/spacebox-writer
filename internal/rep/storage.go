@@ -36,5 +36,7 @@ type (
 		DistributionReward([]model.DistributionReward) error
 
 		Transaction([]model.Transaction) error
+
+		ExecMessage([]model.ExecMessage) error
 	}
 )
