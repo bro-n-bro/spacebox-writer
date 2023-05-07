@@ -2,20 +2,20 @@
 
 CREATE TABLE IF NOT EXISTS spacebox.set_withdraw_address_message_topic
 (
-    height            Int64,
-    tx_hash           String,
-    msg_index         Int64,
-    delegator_address String,
-    withdraw_address  String
+    `height`            Int64,
+    `tx_hash`           String,
+    `msg_index`         Int64,
+    `delegator_address` String,
+    `withdraw_address`  String
 ) ENGINE = Kafka('kafka:9093', 'set_withdraw_address_message', 'spacebox', 'JSONEachRow');
 
 CREATE TABLE IF NOT EXISTS spacebox.set_withdraw_address_message
 (
-    height            Int64,
-    tx_hash           String,
-    msg_index         Int64,
-    delegator_address String,
-    withdraw_address  String
+    `height`            Int64,
+    `tx_hash`           String,
+    `msg_index`         Int64,
+    `delegator_address` String,
+    `withdraw_address`  String
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`tx_hash`, `msg_index`);
 
