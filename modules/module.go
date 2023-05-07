@@ -47,11 +47,11 @@ var (
 			},
 		},
 		"gov": {
-			{"gov_params", gov2.GovParamsHandler},
-			{"proposal", gov2.ProposalHandler},
-			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
-			{"submit_proposal_message", gov2.SubmitProposalMessageHandler},
-			{"vote_weighted_message", gov2.VoteWeightedMessageHandler},
+			{"gov_params", gov.GovParamsHandler},
+			{"proposal", gov.ProposalHandler},
+			{"proposal_deposit_message", gov.ProposalDepositMessageHandler},
+			{"submit_proposal_message", gov.SubmitProposalMessageHandler},
+			{"vote_weighted_message", gov.VoteWeightedMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint.MintParamsHandler},
