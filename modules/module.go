@@ -11,6 +11,7 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/modules/bank"
 	"github.com/bro-n-bro/spacebox-writer/modules/core"
 	"github.com/bro-n-bro/spacebox-writer/modules/distribution"
+	"github.com/bro-n-bro/spacebox-writer/modules/feegrant"
 	"github.com/bro-n-bro/spacebox-writer/modules/gov"
 	"github.com/bro-n-bro/spacebox-writer/modules/mint"
 	"github.com/bro-n-bro/spacebox-writer/modules/staking"
@@ -47,11 +48,11 @@ var (
 			},
 		},
 		"gov": {
-			{"gov_params", gov2.GovParamsHandler},
-			{"proposal", gov2.ProposalHandler},
-			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
-			{"submit_proposal_message", gov2.SubmitProposalMessageHandler},
-			{"vote_weighted_message", gov2.VoteWeightedMessageHandler},
+			{"gov_params", gov.GovParamsHandler},
+			{"proposal", gov.ProposalHandler},
+			{"proposal_deposit_message", gov.ProposalDepositMessageHandler},
+			{"submit_proposal_message", gov.SubmitProposalMessageHandler},
+			{"vote_weighted_message", gov.VoteWeightedMessageHandler},
 		},
 		"mint": {
 			{"mint_params", mint.MintParamsHandler},
@@ -68,6 +69,9 @@ var (
 		},
 		"authz": {
 			{"exec_message", authz.ExecMessageHandler},
+		},
+		"feegrant": {
+			{"grant_allowance_message", feegrant.GrantAllowanceMessageHandler},
 		},
 	}
 )
