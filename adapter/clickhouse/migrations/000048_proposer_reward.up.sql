@@ -1,4 +1,4 @@
--- 000032_proposer_reward.up.sql
+-- 000048_proposer_reward.up.sql
 CREATE TABLE IF NOT EXISTS spacebox.proposer_reward
 (
     `height`    Int64,

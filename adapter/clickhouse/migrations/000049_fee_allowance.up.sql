@@ -1,4 +1,4 @@
--- 000045_fee_allowance.up.sql
+-- 000049_fee_allowance.up.sql
 CREATE TABLE IF NOT EXISTS spacebox.fee_allowance
 (
     `height`     Int64,

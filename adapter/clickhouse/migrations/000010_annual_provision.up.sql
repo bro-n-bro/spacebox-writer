@@ -20,6 +20,6 @@ CREATE TABLE IF NOT EXISTS spacebox.annual_provision
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS annual_provision_consumer TO spacebox.annual_provision
 AS
-SELECT height, height, annual_provisions, bonded_ratio, inflation, amount
+SELECT height, annual_provisions, bonded_ratio, inflation, amount
 FROM spacebox.annual_provision_topic
-GROUP BY height, height, annual_provisions, bonded_ratio, inflation, amount;
+GROUP BY height, annual_provisions, bonded_ratio, inflation, amount;
