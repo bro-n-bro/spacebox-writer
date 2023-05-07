@@ -7,12 +7,13 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/bro-n-bro/spacebox-writer/internal/rep"
-	bank2 "github.com/bro-n-bro/spacebox-writer/modules/bank"
-	core2 "github.com/bro-n-bro/spacebox-writer/modules/core"
-	distribution2 "github.com/bro-n-bro/spacebox-writer/modules/distribution"
-	gov2 "github.com/bro-n-bro/spacebox-writer/modules/gov"
-	mint2 "github.com/bro-n-bro/spacebox-writer/modules/mint"
-	staking2 "github.com/bro-n-bro/spacebox-writer/modules/staking"
+	"github.com/bro-n-bro/spacebox-writer/modules/authz"
+	"github.com/bro-n-bro/spacebox-writer/modules/bank"
+	"github.com/bro-n-bro/spacebox-writer/modules/core"
+	"github.com/bro-n-bro/spacebox-writer/modules/distribution"
+	"github.com/bro-n-bro/spacebox-writer/modules/gov"
+	"github.com/bro-n-bro/spacebox-writer/modules/mint"
+	"github.com/bro-n-bro/spacebox-writer/modules/staking"
 )
 
 const (
@@ -25,43 +26,46 @@ var (
 	// moduleHandlers is a map of module name and topic handlers
 	moduleHandlers = map[string][]topicHandler{
 		"core": {
-			{"transaction", core2.TransactionHandler},
+			{"transaction", core.TransactionHandler},
 		},
 		"bank": {
-			{"supply", bank2.SupplyHandler},
-			{"account_balance", bank2.AccountBalanceHandler},
-			{"multisend_message", bank2.MultiSendMessageHandler},
-			{"send_message", bank2.SendMessageHandler},
+			{"supply", bank.SupplyHandler},
+			{"account_balance", bank.AccountBalanceHandler},
+			{"multisend_message", bank.MultiSendMessageHandler},
+			{"send_message", bank.SendMessageHandler},
 		},
 		"distribution": {
-			{"distribution_params", distribution2.DistributionParamsHandler},
-			{"community_pool", distribution2.CommunityPoolHandler},
-			{"delegation_reward_message", distribution2.DelegationRewardMessageHandler},
-			{"proposer_reward", distribution2.ProposerRewardHandler},
-			{"distribution_commission", distribution2.DistributionCommissionHandler},
-			{"distribution_reward", distribution2.DistributionRewardHandler},
+			{"distribution_params", distribution.DistributionParamsHandler},
+			{"community_pool", distribution.CommunityPoolHandler},
+			{"delegation_reward_message", distribution.DelegationRewardMessageHandler},
+			{"proposer_reward", distribution.ProposerRewardHandler},
+			{"distribution_commission", distribution.DistributionCommissionHandler},
+			{"distribution_reward", distribution.DistributionRewardHandler},
 			{
 				"withdraw_validator_commission_message",
-				distribution2.WithdrawValidatorCommissionMessageHandler,
+				distribution.WithdrawValidatorCommissionMessageHandler,
 			},
 		},
 		"gov": {
-			{"gov_params", gov2.GovParamsHandler},
-			{"proposal", gov2.ProposalHandler},
-			{"proposal_deposit_message", gov2.ProposalDepositMessageHandler},
-			{"submit_proposal_message", gov2.SubmitProposalMessageHandler},
+			{"gov_params", gov.GovParamsHandler},
+			{"proposal", gov.ProposalHandler},
+			{"proposal_deposit_message", gov.ProposalDepositMessageHandler},
+			{"submit_proposal_message", gov.SubmitProposalMessageHandler},
 		},
 		"mint": {
-			{"mint_params", mint2.MintParamsHandler},
+			{"mint_params", mint.MintParamsHandler},
 		},
 		"staking": {
-			{"delegation", staking2.DelegationHandler},
-			{"delegation_message", staking2.DelegationMessageHandler},
-			{"redelegation", staking2.RedelegationHandler},
-			{"redelegation_message", staking2.RedelegationMessageHandler},
-			{"staking_params", staking2.StakingParamsHandler},
-			{"unbonding_delegation", staking2.UnbondingDelegationHandler},
-			{"unbonding_delegation_message", staking2.UnbondingDelegationMessageHandler},
+			{"delegation", staking.DelegationHandler},
+			{"delegation_message", staking.DelegationMessageHandler},
+			{"redelegation", staking.RedelegationHandler},
+			{"redelegation_message", staking.RedelegationMessageHandler},
+			{"staking_params", staking.StakingParamsHandler},
+			{"unbonding_delegation", staking.UnbondingDelegationHandler},
+			{"unbonding_delegation_message", staking.UnbondingDelegationMessageHandler},
+		},
+		"authz": {
+			{"exec_message", authz.ExecMessageHandler},
 		},
 	}
 )
