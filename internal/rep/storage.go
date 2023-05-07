@@ -31,6 +31,7 @@ type (
 		DelegationRewardMessage([]model.DelegationRewardMessage) error
 		ProposerReward([]model.ProposerReward) error
 		DistributionCommission([]model.DistributionCommission) error
+		DistributionReward([]model.DistributionReward) error
 
 		Transaction([]model.Transaction) error
 	}
