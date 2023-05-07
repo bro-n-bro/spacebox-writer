@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS spacebox.exec_message
     `grantee`   String,
     `msgs`      String
 ) ENGINE = ReplacingMergeTree()
-    ORDER BY (`tx_hash`, `msg_index`);
+      ORDER BY (`tx_hash`, `msg_index`);

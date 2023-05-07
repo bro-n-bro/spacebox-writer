@@ -38,5 +38,7 @@ type (
 		Transaction([]model.Transaction) error
 
 		ExecMessage([]model.ExecMessage) error
+
+		GrantAllowanceMessage([]model.GrantAllowanceMessage) error
 	}
 )

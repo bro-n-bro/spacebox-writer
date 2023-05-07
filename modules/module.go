@@ -11,6 +11,7 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/modules/bank"
 	"github.com/bro-n-bro/spacebox-writer/modules/core"
 	"github.com/bro-n-bro/spacebox-writer/modules/distribution"
+	"github.com/bro-n-bro/spacebox-writer/modules/feegrant"
 	"github.com/bro-n-bro/spacebox-writer/modules/gov"
 	"github.com/bro-n-bro/spacebox-writer/modules/mint"
 	"github.com/bro-n-bro/spacebox-writer/modules/staking"
@@ -68,6 +69,9 @@ var (
 		},
 		"authz": {
 			{"exec_message", authz.ExecMessageHandler},
+		},
+		"feegrant": {
+			{"grant_allowance_message", feegrant.GrantAllowanceMessageHandler},
 		},
 	}
 )
