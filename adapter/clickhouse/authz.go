@@ -1,6 +1,8 @@
 package clickhouse
 
 import (
+	"database/sql"
+
 	jsoniter "github.com/json-iterator/go"
 
 	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
@@ -8,8 +10,29 @@ import (
 )
 
 const (
-	tableExecMessage = "exec_message"
+	tableGrantMessage = "grant_message"
+	tableExecMessage  = "exec_message"
 )
+
+// GrantMessage is a method for saving grant message data to clickhouse
+func (ch *Clickhouse) GrantMessage(vals []model.GrantMessage) (err error) {
+	batch := make([]storageModel.GrantMessage, len(vals))
+	for i, val := range vals {
+		batch[i] = storageModel.GrantMessage{
+			Grantee:  val.Grantee,
+			MsgType:  val.MsgType,
+			Height:   val.Height,
+			TxHash:   val.TxHash,
+			MsgIndex: val.MsgIndex,
+			Expiration: sql.NullTime{
+				Time:  val.Expiration,
+				Valid: !val.Expiration.IsZero(),
+			},
+		}
+	}
+
+	return ch.gorm.Table(tableGrantMessage).CreateInBatches(batch, len(batch)).Error
+}
 
 // ExecMessage is a method for saving exec message data to clickhouse
 func (ch *Clickhouse) ExecMessage(vals []model.ExecMessage) (err error) {
