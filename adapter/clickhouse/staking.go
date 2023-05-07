@@ -18,6 +18,7 @@ const (
 	tableUnbondingDelegation        = "unbonding_delegation"
 	tableUnbondingDelegationMessage = "unbonding_delegation_message"
 	tableStakingParams              = "staking_params"
+	tableEditValidatorMessage       = "edit_validator_message"
 )
 
 // Delegation is a method for saving delegation data to clickhouse
@@ -197,4 +198,27 @@ func (ch *Clickhouse) UnbondingDelegationMessage(vals []model.UnbondingDelegatio
 	}
 
 	return ch.gorm.Table(tableUnbondingDelegationMessage).CreateInBatches(batch, len(batch)).Error
+}
+
+// EditValidatorMessage is a method for saving edit validator message data to clickhouse
+func (ch *Clickhouse) EditValidatorMessage(vals []model.EditValidatorMessage) (err error) {
+	var (
+		description string
+	)
+
+	batch := make([]storageModel.EditValidatorMessage, len(vals))
+	for i, val := range vals {
+		if description, err = jsoniter.MarshalToString(val.Description); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.EditValidatorMessage{
+			Height:      val.Height,
+			MsgIndex:    val.Index,
+			TxHash:      val.Hash,
+			Description: description,
+		}
+	}
+
+	return ch.gorm.Table(tableEditValidatorMessage).CreateInBatches(batch, len(batch)).Error
 }
