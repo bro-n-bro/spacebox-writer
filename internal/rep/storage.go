@@ -39,6 +39,7 @@ type (
 
 		ExecMessage([]model.ExecMessage) error
 		GrantMessage([]model.GrantMessage) error
+		AuthzGrant([]model.AuthzGrant) error
 
 		GrantAllowanceMessage([]model.GrantAllowanceMessage) error
 		FeeAllowance([]model.FeeAllowance) error

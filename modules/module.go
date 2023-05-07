@@ -70,6 +70,7 @@ var (
 		"authz": {
 			{"exec_message", authz.ExecMessageHandler},
 			{"grant_message", authz.GrantMessageHandler},
+			{"authz_grant", authz.AuthzGrantHandler},
 		},
 		"feegrant": {
 			{"grant_allowance_message", feegrant.GrantAllowanceMessageHandler},
