@@ -40,5 +40,6 @@ type (
 		ExecMessage([]model.ExecMessage) error
 
 		GrantAllowanceMessage([]model.GrantAllowanceMessage) error
+		FeeAllowance([]model.FeeAllowance) error
 	}
 )
