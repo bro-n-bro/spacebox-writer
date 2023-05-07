@@ -2,3 +2,7 @@
 vendor
 volumes
 .env.local
+
+# Coverage artifacts
+coverage.out
+coverage.html
