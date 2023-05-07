@@ -12,6 +12,7 @@ import (
 const (
 	tableGrantMessage = "grant_message"
 	tableExecMessage  = "exec_message"
+	tablAuthzGrant    = "authz_grant"
 )
 
 // GrantMessage is a method for saving grant message data to clickhouse
@@ -66,4 +67,23 @@ func (ch *Clickhouse) ExecMessage(vals []model.ExecMessage) (err error) {
 	}
 
 	return ch.gorm.Table(tableExecMessage).CreateInBatches(batch, len(batch)).Error
+}
+
+// AuthzGrant is a method for saving authz grant data to clickhouse
+func (ch *Clickhouse) AuthzGrant(vals []model.AuthzGrant) (err error) {
+	batch := make([]storageModel.AuthzGrant, len(vals))
+	for i, val := range vals {
+		batch[i] = storageModel.AuthzGrant{
+			GranterAddress: val.GranterAddress,
+			GranteeAddress: val.GranteeAddress,
+			MsgType:        val.MsgType,
+			Height:         val.Height,
+			Expiration: sql.NullTime{
+				Time:  val.Expiration,
+				Valid: !val.Expiration.IsZero(),
+			},
+		}
+	}
+
+	return ch.gorm.Table(tablAuthzGrant).CreateInBatches(batch, len(batch)).Error
 }
