@@ -14,7 +14,7 @@ type models interface {
 		model.Delegation | model.DelegationMessage | model.Redelegation | model.RedelegationMessage |
 		model.StakingParams | model.UnbondingDelegation | model.UnbondingDelegationMessage | model.ProposerReward |
 		model.DistributionCommission | model.SubmitProposalMessage | model.WithdrawValidatorCommissionMessage |
-		model.DistributionReward | model.VoteWeightedMessage
+		model.DistributionReward | model.VoteWeightedMessage | model.EditValidatorMessage
 }
 
 func ConvertMessages[T models](msgs [][]byte) ([]T, error) {

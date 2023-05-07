@@ -63,6 +63,7 @@ var (
 			{"staking_params", staking2.StakingParamsHandler},
 			{"unbonding_delegation", staking2.UnbondingDelegationHandler},
 			{"unbonding_delegation_message", staking2.UnbondingDelegationMessageHandler},
+			{"edit_validator_message", staking2.EditValidatorMessageHandler},
 		},
 	}
 )

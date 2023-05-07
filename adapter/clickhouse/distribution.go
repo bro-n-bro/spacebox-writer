@@ -151,21 +151,21 @@ func (ch *Clickhouse) WithdrawValidatorCommissionMessage(vals []model.WithdrawVa
 }
 
 // DistributionReward is a method for saving distribution reward data to clickhouse
-func (ch *Clickhouse) DistributionReward(drs []model.DistributionReward) (err error) {
+func (ch *Clickhouse) DistributionReward(vals []model.DistributionReward) (err error) {
 	var (
 		amount string
 	)
 
-	batch := make([]storageModel.DistributionReward, len(drs))
-	for i, dr := range drs {
-		if amount, err = jsoniter.MarshalToString(dr.Amount); err != nil {
+	batch := make([]storageModel.DistributionReward, len(vals))
+	for i, val := range vals {
+		if amount, err = jsoniter.MarshalToString(val.Amount); err != nil {
 			return err
 		}
 
 		batch[i] = storageModel.DistributionReward{
-			Validator: dr.Validator,
+			Validator: val.Validator,
 			Amount:    amount,
-			Height:    dr.Height,
+			Height:    val.Height,
 		}
 	}
 
