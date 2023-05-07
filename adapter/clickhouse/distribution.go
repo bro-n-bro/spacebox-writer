@@ -14,6 +14,7 @@ const (
 	tableDelegationRewardMessage            = "delegation_reward_message"
 	tableProposerReward                     = "proposer_reward"
 	tableWithdrawValidatorCommissionMessage = "withdraw_validator_commission_message"
+	tableDistributionReward                 = "distribution_reward"
 )
 
 // ProposerReward is a method for saving proposer reward data to clickhouse
@@ -147,4 +148,26 @@ func (ch *Clickhouse) WithdrawValidatorCommissionMessage(vals []model.WithdrawVa
 	}
 
 	return ch.gorm.Table(tableWithdrawValidatorCommissionMessage).CreateInBatches(batch, len(batch)).Error
+}
+
+// DistributionReward is a method for saving distribution reward data to clickhouse
+func (ch *Clickhouse) DistributionReward(drs []model.DistributionReward) (err error) {
+	var (
+		amount string
+	)
+
+	batch := make([]storageModel.DistributionReward, len(drs))
+	for i, dr := range drs {
+		if amount, err = jsoniter.MarshalToString(dr.Amount); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.DistributionReward{
+			Validator: dr.Validator,
+			Amount:    amount,
+			Height:    dr.Height,
+		}
+	}
+
+	return ch.gorm.Table(tableDistributionReward).CreateInBatches(batch, len(batch)).Error
 }

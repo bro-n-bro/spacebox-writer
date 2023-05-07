@@ -193,10 +193,6 @@ github.com/blang/semver v3.1.0+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnweb
 github.com/blang/semver v3.5.1+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
 github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869/go.mod h1:Ekp36dRnpXw/yCqJaO+ZrUyxD+3VXMFFr56k5XYrpB4=
 github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
-github.com/bro-n-bro/spacebox v0.0.0-20230405191136-2d942d9606ae h1:b3pfsYg1b1NViLqFIRK/S5RFM4n4JDJ39/vTwI+ySSA=
-github.com/bro-n-bro/spacebox v0.0.0-20230405191136-2d942d9606ae/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
-github.com/bro-n-bro/spacebox v0.0.0-20230424172140-ad82366b27f8 h1:FdDZbgtiJWKQQ5a+Zh/N/xmqo8DLYn81I7dynJXAnmY=
-github.com/bro-n-bro/spacebox v0.0.0-20230424172140-ad82366b27f8/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
 github.com/bro-n-bro/spacebox v0.0.0-20230506132437-63d6f4ec7b43 h1:L7I7N1ezwIJvHv2GcrRDNYcb2B7XnkCFdkfRLgMWF2A=
 github.com/bro-n-bro/spacebox v0.0.0-20230506132437-63d6f4ec7b43/go.mod h1:HtLDKfstS5gaocXKym0e1LLygmxLFHgn4UxBbDzTyLg=
 github.com/bshuster-repo/logrus-logstash-hook v0.4.1/go.mod h1:zsTqEiSzDgAa/8GZR7E1qaXrhYNDKBYy5/dWPTIflbk=
