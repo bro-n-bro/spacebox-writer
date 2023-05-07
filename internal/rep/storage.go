@@ -17,6 +17,7 @@ type (
 		StakingParams([]model.StakingParams) error
 		UnbondingDelegation([]model.UnbondingDelegation) error
 		UnbondingDelegationMessage([]model.UnbondingDelegationMessage) error
+		EditValidatorMessage([]model.EditValidatorMessage) error
 
 		MintParams([]model.MintParams) error
 
