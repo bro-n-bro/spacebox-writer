@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS spacebox.handle_validator_signature
     `power`   String,
     `reason`  String,
     `jailed`  String,
-    `coin`    json
+    `burned`    json
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`height`, `address`);

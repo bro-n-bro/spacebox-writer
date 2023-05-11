@@ -43,5 +43,7 @@ type (
 
 		GrantAllowanceMessage([]model.GrantAllowanceMessage) error
 		FeeAllowance([]model.FeeAllowance) error
+
+		HandleValidatorSignature([]model.HandleValidatorSignature) error
 	}
 )

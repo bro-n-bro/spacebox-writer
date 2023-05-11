@@ -14,6 +14,7 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/modules/feegrant"
 	"github.com/bro-n-bro/spacebox-writer/modules/gov"
 	"github.com/bro-n-bro/spacebox-writer/modules/mint"
+	"github.com/bro-n-bro/spacebox-writer/modules/slashing"
 	"github.com/bro-n-bro/spacebox-writer/modules/staking"
 )
 
@@ -75,6 +76,9 @@ var (
 		"feegrant": {
 			{"grant_allowance_message", feegrant.GrantAllowanceMessageHandler},
 			{"fee_allowance", feegrant.FeeAllowanceHandler},
+		},
+		"slashing": {
+			{"handle_validator_signature", slashing.HandleValidatorSignatureHandler},
 		},
 	}
 )
