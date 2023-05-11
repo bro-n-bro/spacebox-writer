@@ -10,6 +10,5 @@ type (
 		Grantee    string       `json:"grantee"`
 		Allowance  string       `json:"allowance"`
 		Height     int64        `json:"height"`
-		IsActive   bool         `json:"is_active"`
 	}
 )

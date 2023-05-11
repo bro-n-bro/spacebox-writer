@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS spacebox.fee_allowance
     `granter`    String,
     `grantee`    String,
     `allowance`  String,
-    `expiration` TIMESTAMP,
-    `is_active`  BOOLEAN
+    `expiration` TIMESTAMP
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`granter`, `grantee`);

@@ -35,7 +35,6 @@ func (ch *Clickhouse) FeeAllowance(vals []model.FeeAllowance) (err error) {
 				Valid: !val.Expiration.IsZero(),
 			},
 			Allowance: allowance,
-			IsActive:  val.IsActive,
 		}
 	}
 
