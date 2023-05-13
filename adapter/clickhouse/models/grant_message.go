@@ -8,7 +8,6 @@ type (
 		Expiration sql.NullTime `json:"expiration"`
 		Granter    string       `json:"granter"`
 		Grantee    string       `json:"grantee"`
-		Allowance  string       `json:"allowance"`
 		TxHash     string       `json:"tx_hash"`
 		MsgType    string       `json:"msg_hash"`
 		Height     int64        `json:"height"`
