@@ -32,17 +32,11 @@ type (
 		WithdrawValidatorCommissionMessage([]model.WithdrawValidatorCommissionMessage) error
 		DelegationRewardMessage([]model.DelegationRewardMessage) error
 		ProposerReward([]model.ProposerReward) error
-		DistributionCommission([]model.DistributionCommission) error
 		DistributionReward([]model.DistributionReward) error
 
 		Transaction([]model.Transaction) error
 
 		ExecMessage([]model.ExecMessage) error
-		GrantMessage([]model.GrantMessage) error
-		AuthzGrant([]model.AuthzGrant) error
-
-		GrantAllowanceMessage([]model.GrantAllowanceMessage) error
-		FeeAllowance([]model.FeeAllowance) error
 
 		HandleValidatorSignature([]model.HandleValidatorSignature) error
 	}

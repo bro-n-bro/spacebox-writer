@@ -10,7 +10,6 @@ import (
 const (
 	tableCommunityPool                      = "community_pool"
 	tableDistributionParams                 = "distribution_params"
-	tableDistributionCommission             = "distribution_commission"
 	tableDelegationRewardMessage            = "delegation_reward_message"
 	tableProposerReward                     = "proposer_reward"
 	tableWithdrawValidatorCommissionMessage = "withdraw_validator_commission_message"
@@ -102,28 +101,6 @@ func (ch *Clickhouse) DistributionParams(vals []model.DistributionParams) (err e
 	}
 
 	return ch.gorm.Table(tableDistributionParams).CreateInBatches(batch, len(batch)).Error
-}
-
-// DistributionCommission is a method for saving distribution commission data to clickhouse
-func (ch *Clickhouse) DistributionCommission(vals []model.DistributionCommission) (err error) {
-	var (
-		amount string
-	)
-
-	batch := make([]storageModel.DistributionCommission, len(vals))
-	for i, val := range vals {
-		if amount, err = jsoniter.MarshalToString(val.Amount); err != nil {
-			return err
-		}
-
-		batch[i] = storageModel.DistributionCommission{
-			Validator: val.Validator,
-			Amount:    amount,
-			Height:    val.Height,
-		}
-	}
-
-	return ch.gorm.Table(tableDistributionCommission).CreateInBatches(batch, len(batch)).Error
 }
 
 // WithdrawValidatorCommissionMessage is a method for saving withdraw validator commission message data to clickhouse

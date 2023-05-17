@@ -11,7 +11,6 @@ import (
 	"github.com/bro-n-bro/spacebox-writer/modules/bank"
 	"github.com/bro-n-bro/spacebox-writer/modules/core"
 	"github.com/bro-n-bro/spacebox-writer/modules/distribution"
-	"github.com/bro-n-bro/spacebox-writer/modules/feegrant"
 	"github.com/bro-n-bro/spacebox-writer/modules/gov"
 	"github.com/bro-n-bro/spacebox-writer/modules/mint"
 	"github.com/bro-n-bro/spacebox-writer/modules/slashing"
@@ -41,7 +40,6 @@ var (
 			{"community_pool", distribution.CommunityPoolHandler},
 			{"delegation_reward_message", distribution.DelegationRewardMessageHandler},
 			{"proposer_reward", distribution.ProposerRewardHandler},
-			{"distribution_commission", distribution.DistributionCommissionHandler},
 			{"distribution_reward", distribution.DistributionRewardHandler},
 			{
 				"withdraw_validator_commission_message",
@@ -70,12 +68,6 @@ var (
 		},
 		"authz": {
 			{"exec_message", authz.ExecMessageHandler},
-			{"grant_message", authz.GrantMessageHandler},
-			{"authz_grant", authz.AuthzGrantHandler},
-		},
-		"feegrant": {
-			{"grant_allowance_message", feegrant.GrantAllowanceMessageHandler},
-			{"fee_allowance", feegrant.FeeAllowanceHandler},
 		},
 		"slashing": {
 			{"handle_validator_signature", slashing.HandleValidatorSignatureHandler},

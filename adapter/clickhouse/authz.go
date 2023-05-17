@@ -1,8 +1,6 @@
 package clickhouse
 
 import (
-	"database/sql"
-
 	jsoniter "github.com/json-iterator/go"
 
 	storageModel "github.com/bro-n-bro/spacebox-writer/adapter/clickhouse/models"
@@ -10,30 +8,8 @@ import (
 )
 
 const (
-	tableGrantMessage = "grant_message"
-	tableExecMessage  = "exec_message"
-	tablAuthzGrant    = "authz_grant"
+	tableExecMessage = "exec_message"
 )
-
-// GrantMessage is a method for saving grant message data to clickhouse
-func (ch *Clickhouse) GrantMessage(vals []model.GrantMessage) (err error) {
-	batch := make([]storageModel.GrantMessage, len(vals))
-	for i, val := range vals {
-		batch[i] = storageModel.GrantMessage{
-			Grantee:  val.Grantee,
-			MsgType:  val.MsgType,
-			Height:   val.Height,
-			TxHash:   val.TxHash,
-			MsgIndex: val.MsgIndex,
-			Expiration: sql.NullTime{
-				Time:  val.Expiration,
-				Valid: !val.Expiration.IsZero(),
-			},
-		}
-	}
-
-	return ch.gorm.Table(tableGrantMessage).CreateInBatches(batch, len(batch)).Error
-}
 
 // ExecMessage is a method for saving exec message data to clickhouse
 func (ch *Clickhouse) ExecMessage(vals []model.ExecMessage) (err error) {
@@ -67,23 +43,4 @@ func (ch *Clickhouse) ExecMessage(vals []model.ExecMessage) (err error) {
 	}
 
 	return ch.gorm.Table(tableExecMessage).CreateInBatches(batch, len(batch)).Error
-}
-
-// AuthzGrant is a method for saving authz grant data to clickhouse
-func (ch *Clickhouse) AuthzGrant(vals []model.AuthzGrant) (err error) {
-	batch := make([]storageModel.AuthzGrant, len(vals))
-	for i, val := range vals {
-		batch[i] = storageModel.AuthzGrant{
-			GranterAddress: val.GranterAddress,
-			GranteeAddress: val.GranteeAddress,
-			MsgType:        val.MsgType,
-			Height:         val.Height,
-			Expiration: sql.NullTime{
-				Time:  val.Expiration,
-				Valid: !val.Expiration.IsZero(),
-			},
-		}
-	}
-
-	return ch.gorm.Table(tablAuthzGrant).CreateInBatches(batch, len(batch)).Error
 }

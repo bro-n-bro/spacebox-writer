@@ -1,5 +1,4 @@
 -- 000041_edit_validator_message.up.sql
-
 CREATE TABLE IF NOT EXISTS spacebox.edit_validator_message
 (
     `height`      Int64,

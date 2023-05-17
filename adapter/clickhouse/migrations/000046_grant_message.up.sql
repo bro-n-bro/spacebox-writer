@@ -10,3 +10,23 @@ CREATE TABLE IF NOT EXISTS spacebox.grant_message
     `expiration` TIMESTAMP
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`tx_hash`, `msg_index`);
+
+CREATE TABLE IF NOT EXISTS spacebox.grant_message_topic
+(
+    `height`     Int64,
+    `msg_index`  Int64,
+    `tx_hash`    String,
+    `granter`    String,
+    `grantee`    String,
+    `msg_type`   String,
+    `expiration` TIMESTAMP
+) ENGINE = Kafka('kafka:9093', 'grant_message', 'spacebox', 'JSONEachRow');
+
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS grant_message_consumer TO spacebox.grant_message
+AS
+SELECT height, msg_index, tx_hash, granter, grantee, msg_type, toDateTimeOrZero(expiration) as expiration
+FROM spacebox.grant_message_topic
+GROUP BY height, msg_index, tx_hash, granter, grantee, msg_type, expiration;
+
+
