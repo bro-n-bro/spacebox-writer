@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS spacebox.authz_grant_topic
     `granter_address` String,
     `grantee_address` String,
     `msg_type`        String,
-    `expiration`      TIMESTAMP
+    `expiration`      String
 ) ENGINE = Kafka('kafka:9093', 'authz_grant', 'spacebox', 'JSONEachRow');
 
 CREATE TABLE IF NOT EXISTS spacebox.authz_grant
