@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS spacebox.create_validator_message
     `delegator_address`   String,
     `validator_address`   String,
     `description`         String,
-    `commission_rates`    String,
+    `commission_rates`    Float64,
     `min_self_delegation` Int64,
     `pubkey`              String
 ) ENGINE = ReplacingMergeTree()
