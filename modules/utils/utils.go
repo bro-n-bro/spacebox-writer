@@ -15,8 +15,7 @@ type models interface {
 		model.StakingParams | model.UnbondingDelegation | model.UnbondingDelegationMessage | model.ProposerReward |
 		model.DistributionCommission | model.SubmitProposalMessage | model.WithdrawValidatorCommissionMessage |
 		model.DistributionReward | model.VoteWeightedMessage | model.EditValidatorMessage | model.ExecMessage |
-		model.GrantAllowanceMessage | model.GrantMessage | model.FeeAllowance | model.AuthzGrant |
-		model.HandleValidatorSignature
+		model.HandleValidatorSignature | model.CreateValidatorMessage
 }
 
 func ConvertMessages[T models](msgs [][]byte) ([]T, error) {

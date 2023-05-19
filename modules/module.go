@@ -65,6 +65,7 @@ var (
 			{"unbonding_delegation", staking.UnbondingDelegationHandler},
 			{"unbonding_delegation_message", staking.UnbondingDelegationMessageHandler},
 			{"edit_validator_message", staking.EditValidatorMessageHandler},
+			{"create_validator_message", staking.CreateValidatorMessageHandler},
 		},
 		"authz": {
 			{"exec_message", authz.ExecMessageHandler},

@@ -18,6 +18,7 @@ type (
 		UnbondingDelegation([]model.UnbondingDelegation) error
 		UnbondingDelegationMessage([]model.UnbondingDelegationMessage) error
 		EditValidatorMessage([]model.EditValidatorMessage) error
+		CreateValidatorMessage([]model.CreateValidatorMessage) error
 
 		MintParams([]model.MintParams) error
 
