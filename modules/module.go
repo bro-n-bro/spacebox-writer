@@ -41,6 +41,7 @@ var (
 			{"delegation_reward_message", distribution.DelegationRewardMessageHandler},
 			{"proposer_reward", distribution.ProposerRewardHandler},
 			{"distribution_reward", distribution.DistributionRewardHandler},
+			{"distribution_commission", distribution.DistributionCommissionHandler},
 			{
 				"withdraw_validator_commission_message",
 				distribution.WithdrawValidatorCommissionMessageHandler,

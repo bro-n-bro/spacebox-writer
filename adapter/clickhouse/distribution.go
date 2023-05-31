@@ -12,6 +12,7 @@ const (
 	tableDistributionParams                 = "distribution_params"
 	tableDelegationRewardMessage            = "delegation_reward_message"
 	tableProposerReward                     = "proposer_reward"
+	tableDistributionCommission             = "distribution_commission"
 	tableWithdrawValidatorCommissionMessage = "withdraw_validator_commission_message"
 	tableDistributionReward                 = "distribution_reward"
 )
@@ -147,4 +148,26 @@ func (ch *Clickhouse) DistributionReward(vals []model.DistributionReward) (err e
 	}
 
 	return ch.gorm.Table(tableDistributionReward).CreateInBatches(batch, len(batch)).Error
+}
+
+// DistributionCommission is a method for saving distribution commission data to clickhouse
+func (ch *Clickhouse) DistributionCommission(vals []model.DistributionCommission) (err error) {
+	var (
+		amount string
+	)
+
+	batch := make([]storageModel.DistributionCommission, len(vals))
+	for i, val := range vals {
+		if amount, err = jsoniter.MarshalToString(val.Amount); err != nil {
+			return err
+		}
+
+		batch[i] = storageModel.DistributionCommission{
+			Validator: val.Validator,
+			Amount:    amount,
+			Height:    val.Height,
+		}
+	}
+
+	return ch.gorm.Table(tableDistributionCommission).CreateInBatches(batch, len(batch)).Error
 }
