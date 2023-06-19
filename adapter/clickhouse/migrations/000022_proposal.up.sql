@@ -14,4 +14,4 @@ CREATE TABLE IF NOT EXISTS spacebox.proposal
     `proposer_address`  String,
     `status`            String
 ) ENGINE = ReplacingMergeTree()
-      ORDER BY (`id`, `status`);
+      ORDER BY (`id`);
