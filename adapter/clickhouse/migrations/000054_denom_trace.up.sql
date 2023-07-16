@@ -18,4 +18,4 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS denom_trace_consumer TO spacebox.denom_tr
 AS
 SELECT denom_hash, path, base_denom
 FROM spacebox.denom_trace_topic
-GROUP BY denom_hash, path, base_denom
+GROUP BY denom_hash, path, base_denom;
