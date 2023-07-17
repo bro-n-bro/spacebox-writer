@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS spacebox.delegation_reward_message
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`tx_hash`, `msg_index`);
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS delegation_reward_message TO spacebox.delegation_reward_message
+CREATE MATERIALIZED VIEW IF NOT EXISTS delegation_reward_message_consumer TO spacebox.delegation_reward_message
 AS
 SELECT JSONExtractString(message, 'validator_address') as validator_address,
        JSONExtractString(message, 'delegator_address') as delegator_address,
