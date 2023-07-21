@@ -20,7 +20,11 @@ CREATE TABLE IF NOT EXISTS spacebox.fee_allowance
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS fee_allowance_consumer TO spacebox.fee_allowance
 AS
-SELECT height, granter, grantee, FROM_BASE64(allowance) as allowance, toDateTimeOrZero(expiration) as expiration
+SELECT height,
+       granter,
+       grantee,
+       FROM_BASE64(allowance)                    as allowance,
+       parseDateTimeBestEffortOrZero(expiration) as expiration
 FROM spacebox.fee_allowance_topic
 GROUP BY height, granter, grantee, allowance, expiration;
 

@@ -15,9 +15,9 @@ CREATE TABLE IF NOT EXISTS spacebox.account_balance
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS account_balance_consumer TO spacebox.account_balance
 AS
-SELECT JSONExtractString(message, 'validator') as address,
-       JSONExtractString(message, 'coins')     as coins,
-       JSONExtractInt(message, 'height')       as height
+SELECT JSONExtractString(message, 'address') as address,
+       JSONExtractString(message, 'coins')   as coins,
+       JSONExtractInt(message, 'height')     as height
 FROM spacebox.account_balance_topic
 GROUP BY address, coins, height;
 

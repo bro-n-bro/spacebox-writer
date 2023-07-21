@@ -23,18 +23,18 @@ CREATE TABLE IF NOT EXISTS spacebox.proposal
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS gov_params_consumer TO spacebox.gov_params
 AS
-SELECT JSONExtractInt(message, 'id')                                     as id,
-       JSONExtractString(message, 'title')                               as title,
-       JSONExtractString(message, 'description')                         as description,
-       JSONExtractString(message, 'content')                             as content,
-       JSONExtractString(message, 'proposal_route')                      as proposal_route,
-       JSONExtractString(message, 'proposal_type')                       as proposal_type,
-       toDateTimeOrZero(JSONExtractString(message, 'submit_time'))       as submit_time,
-       toDateTimeOrZero(JSONExtractString(message, 'deposit_end_time'))  as deposit_end_time,
-       toDateTimeOrZero(JSONExtractString(message, 'voting_start_time')) as voting_start_time,
-       toDateTimeOrZero(JSONExtractString(message, 'voting_end_time'))   as voting_end_time,
-       JSONExtractString(message, 'tally_params')                        as proposer_address,
-       JSONExtractString(message, 'status')                              as status
+SELECT JSONExtractInt(message, 'id')                                                  as id,
+       JSONExtractString(message, 'title')                                            as title,
+       JSONExtractString(message, 'description')                                      as description,
+       JSONExtractString(message, 'content')                                          as content,
+       JSONExtractString(message, 'proposal_route')                                   as proposal_route,
+       JSONExtractString(message, 'proposal_type')                                    as proposal_type,
+       parseDateTimeBestEffortOrZero(JSONExtractString(message, 'submit_time'))       as submit_time,
+       parseDateTimeBestEffortOrZero(JSONExtractString(message, 'deposit_end_time'))  as deposit_end_time,
+       parseDateTimeBestEffortOrZero(JSONExtractString(message, 'voting_start_time')) as voting_start_time,
+       parseDateTimeBestEffortOrZero(JSONExtractString(message, 'voting_end_time'))   as voting_end_time,
+       JSONExtractString(message, 'tally_params')                                     as proposer_address,
+       JSONExtractString(message, 'status')                                           as status
 FROM spacebox.gov_params_topic
 GROUP BY id, title, description, content, proposal_route, proposal_type, submit_time, deposit_end_time,
          voting_start_time, voting_end_time, proposer_address, status;
