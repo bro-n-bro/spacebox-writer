@@ -26,7 +26,7 @@ AS
 SELECT JSONExtractInt(message, 'id')                                                  as id,
        JSONExtractString(message, 'title')                                            as title,
        JSONExtractString(message, 'description')                                      as description,
-       JSONExtractString(message, 'content')                                          as content,
+       FROM_BASE64(JSONExtractString(message, 'content'))                             as content,
        JSONExtractString(message, 'proposal_route')                                   as proposal_route,
        JSONExtractString(message, 'proposal_type')                                    as proposal_type,
        parseDateTimeBestEffortOrZero(JSONExtractString(message, 'submit_time'))       as submit_time,
