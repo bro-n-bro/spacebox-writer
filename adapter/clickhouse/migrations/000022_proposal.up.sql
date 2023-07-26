@@ -33,7 +33,7 @@ SELECT JSONExtractInt(message, 'id')                                            
        parseDateTimeBestEffortOrZero(JSONExtractString(message, 'deposit_end_time'))  as deposit_end_time,
        parseDateTimeBestEffortOrZero(JSONExtractString(message, 'voting_start_time')) as voting_start_time,
        parseDateTimeBestEffortOrZero(JSONExtractString(message, 'voting_end_time'))   as voting_end_time,
-       JSONExtractString(message, 'tally_params')                                     as proposer_address,
+       JSONExtractString(message, 'proposer_address')                                 as proposer_address,
        JSONExtractString(message, 'status')                                           as status
 FROM spacebox.proposal_topic
 GROUP BY id, title, description, content, proposal_route, proposal_type, submit_time, deposit_end_time,
