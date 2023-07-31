@@ -26,7 +26,7 @@ SELECT JSONExtractString(message, 'delegator_address')                          
        JSONExtractString(message, 'coin')                                           as coin,
        JSONExtractInt(message, 'height')                                            as height,
        parseDateTimeBestEffortOrZero(JSONExtractString(message, 'completion_time')) as completion_time,
-       JSONExtractString(message, 'completion_time')                                as tx_hash,
+       JSONExtractString(message, 'tx_hash')                                        as tx_hash,
        JSONExtractInt(message, 'msg_index')                                         as msg_index
 FROM spacebox.redelegation_message_topic
 GROUP BY delegator_address, src_validator_address, dst_validator_address, coin, height, completion_time, tx_hash,
