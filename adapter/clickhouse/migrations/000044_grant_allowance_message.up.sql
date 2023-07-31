@@ -29,8 +29,8 @@ SELECT height,
        tx_hash,
        granter,
        grantee,
-       FROM_BASE64(allowance)       as allowance,
-       toDateTimeOrZero(expiration) as expiration
+       FROM_BASE64(allowance)                    as allowance,
+       parseDateTimeBestEffortOrZero(expiration) as expiration
 FROM spacebox.grant_allowance_message_topic
 GROUP BY height, msg_index, tx_hash, granter, grantee, allowance, expiration;
 

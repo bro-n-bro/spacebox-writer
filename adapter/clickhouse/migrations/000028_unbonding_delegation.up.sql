@@ -19,7 +19,7 @@ AS
 SELECT JSONExtractString(message, 'validator_address')                      as validator_address,
        JSONExtractString(message, 'delegator_address')                      as delegator_address,
        JSONExtractString(message, 'coin')                                   as coin,
-       toDateTimeOrZero(JSONExtractString(message, 'completion_timestamp')) as completion_timestamp,
+       parseDateTimeBestEffortOrZero(JSONExtractString(message, 'completion_timestamp')) as completion_timestamp,
        JSONExtractInt(message, 'height')                                    as height
 FROM spacebox.unbonding_delegation_topic
 GROUP BY validator_address, delegator_address, coin, completion_timestamp, height;

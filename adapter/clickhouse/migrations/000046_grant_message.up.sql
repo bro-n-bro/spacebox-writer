@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS spacebox.grant_message
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS grant_message_consumer TO spacebox.grant_message
 AS
-SELECT height, msg_index, tx_hash, granter, grantee, msg_type, toDateTimeOrZero(expiration) as expiration
+SELECT height, msg_index, tx_hash, granter, grantee, msg_type, parseDateTimeBestEffortOrZero(expiration) as expiration
 FROM spacebox.grant_message_topic
 GROUP BY height, msg_index, tx_hash, granter, grantee, msg_type, expiration;
 
