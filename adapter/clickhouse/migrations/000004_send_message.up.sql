@@ -19,10 +19,10 @@ CREATE TABLE IF NOT EXISTS spacebox.send_message
 CREATE MATERIALIZED VIEW IF NOT EXISTS send_message_consumer TO spacebox.send_message
 AS
 SELECT JSONExtractInt(message, 'height')          as height,
-       JSONExtractString(message, 'address_from') as address,
+       JSONExtractString(message, 'address_from') as address_from,
        JSONExtractString(message, 'address_to')   as address_to,
        JSONExtractString(message, 'tx_hash')      as tx_hash,
        JSONExtractString(message, 'coins')        as coins,
        JSONExtractInt(message, 'msg_index')       as msg_index
 FROM spacebox.send_message_topic
-GROUP BY height, address, address_to, tx_hash, coins, msg_index;
+GROUP BY height, address_from, address_to, tx_hash, coins, msg_index;
