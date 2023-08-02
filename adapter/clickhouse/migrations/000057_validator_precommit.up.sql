@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_precommit_topic
     `height`            Int64,
     `block_id_flag`     UInt32,
     `validator_address` String,
-    `timestamp`         TIMESTAMP
+    `timestamp`         String
 ) ENGINE = Kafka('kafka:9093', 'validator_precommit', 'spacebox', 'JSONEachRow');
 
 CREATE TABLE IF NOT EXISTS spacebox.validator_precommit
