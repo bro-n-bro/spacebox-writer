@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS spacebox.slashing_params
     `params` String,
     `height` Int64
 ) ENGINE = ReplacingMergeTree()
-    ORDER BY (`height`);
+      ORDER BY (`height`);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS slashing_params_consumer TO spacebox.slashing_params
 AS
