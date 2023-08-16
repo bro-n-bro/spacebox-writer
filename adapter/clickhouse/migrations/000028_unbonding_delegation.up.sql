@@ -6,20 +6,20 @@ CREATE TABLE IF NOT EXISTS spacebox.unbonding_delegation_topic
 
 CREATE TABLE IF NOT EXISTS spacebox.unbonding_delegation
 (
-    `validator_address`    String,
-    `delegator_address`    String,
-    `coin`                 String,
-    `completion_timestamp` TIMESTAMP,
-    `height`               Int64
+    `operator_address`  String,
+    `delegator_address` String,
+    `coin`              String,
+    `completion_time`   TIMESTAMP,
+    `height`            Int64
 ) ENGINE = ReplacingMergeTree()
-      ORDER BY (`validator_address`, `delegator_address`, `completion_timestamp`, `height`);
+      ORDER BY (`operator_address`, `delegator_address`, `completion_time`, `height`);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS unbonding_delegation_consumer TO spacebox.unbonding_delegation
 AS
-SELECT JSONExtractString(message, 'validator_address')                      as validator_address,
-       JSONExtractString(message, 'delegator_address')                      as delegator_address,
-       JSONExtractString(message, 'coin')                                   as coin,
-       parseDateTimeBestEffortOrZero(JSONExtractString(message, 'completion_timestamp')) as completion_timestamp,
-       JSONExtractInt(message, 'height')                                    as height
+SELECT JSONExtractString(message, 'operator_address')                               as operator_address,
+       JSONExtractString(message, 'delegator_address')                              as delegator_address,
+       JSONExtractString(message, 'coin')                                           as coin,
+       parseDateTimeBestEffortOrZero(JSONExtractString(message, 'completion_time')) as completion_time,
+       JSONExtractInt(message, 'height')                                            as height
 FROM spacebox.unbonding_delegation_topic
-GROUP BY validator_address, delegator_address, coin, completion_timestamp, height;
+GROUP BY operator_address, delegator_address, coin, completion_time, height;

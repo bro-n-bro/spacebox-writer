@@ -6,22 +6,22 @@ CREATE TABLE IF NOT EXISTS spacebox.handle_validator_signature_topic
 
 CREATE TABLE IF NOT EXISTS spacebox.handle_validator_signature
 (
-    `height`  Int64,
-    `address` String,
-    `power`   String,
-    `reason`  String,
-    `jailed`  String,
-    `burned`  String
+    `height`           Int64,
+    `operator_address` String,
+    `power`            String,
+    `reason`           String,
+    `jailed`           String,
+    `burned`           String
 ) ENGINE = ReplacingMergeTree()
-      ORDER BY (`height`, `address`);
+      ORDER BY (`height`, `operator_address`);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS handle_validator_signature_consumer TO spacebox.handle_validator_signature
 AS
-SELECT JSONExtractInt(message, 'height')     as height,
-       JSONExtractString(message, 'address') as address,
-       JSONExtractString(message, 'power')   as power,
-       JSONExtractString(message, 'reason')  as reason,
-       JSONExtractString(message, 'jailed')  as jailed,
-       JSONExtractString(message, 'burned')  as burned
+SELECT JSONExtractInt(message, 'height')              as height,
+       JSONExtractString(message, 'operator_address') as operator_address,
+       JSONExtractString(message, 'power')            as power,
+       JSONExtractString(message, 'reason')           as reason,
+       JSONExtractString(message, 'jailed')           as jailed,
+       JSONExtractString(message, 'burned')           as burned
 FROM spacebox.handle_validator_signature_topic
-GROUP BY height, address, power, reason, jailed, burned;
+GROUP BY height, operator_address, power, reason, jailed, burned;
