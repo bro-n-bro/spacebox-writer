@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_voting_power_topic
     `height`            Int64,
     `voting_power`      Int64,
     `validator_address` String,
-    `timestamp`         String
+    `proposer_priority` Int64
 ) ENGINE = Kafka('kafka:9093', 'validator_voting_power', 'spacebox', 'JSONEachRow');
 
 CREATE TABLE IF NOT EXISTS spacebox.validator_voting_power
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_voting_power
     `height`            Int64,
     `voting_power`      Int64,
     `validator_address` String,
-    `timestamp`         TIMESTAMP
+    `proposer_priority`         Int64
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`height`, `validator_address`);
 
@@ -21,6 +21,6 @@ AS
 SELECT height,
        voting_power,
        validator_address,
-       parseDateTimeBestEffortOrZero(timestamp) AS timestamp
+       proposer_priority
 FROM spacebox.validator_voting_power_topic
-GROUP BY height, voting_power, validator_address, timestamp;
+GROUP BY height, voting_power, validator_address, proposer_priority;
