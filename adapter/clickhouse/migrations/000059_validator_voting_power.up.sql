@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_voting_power
     `height`            Int64,
     `voting_power`      Int64,
     `validator_address` String,
-    `proposer_priority`         Int64
+    `proposer_priority` Int64
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`height`, `validator_address`);
 
