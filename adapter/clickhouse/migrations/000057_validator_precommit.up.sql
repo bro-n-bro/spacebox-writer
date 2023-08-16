@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_precommit_topic
 (
     `height`            Int64,
     `block_id_flag`     UInt32,
-    `voting_power`      Int64,
     `validator_address` String,
     `timestamp`         String
 ) ENGINE = Kafka('kafka:9093', 'validator_precommit', 'spacebox', 'JSONEachRow');
@@ -12,7 +11,6 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_precommit
 (
     `height`            Int64,
     `block_id_flag`     UInt32,
-    `voting_power`      Int64,
     `validator_address` String,
     `timestamp`         TIMESTAMP
 ) ENGINE = ReplacingMergeTree()
@@ -22,8 +20,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS validator_precommit_consumer TO spacebox.
 AS
 SELECT height,
        block_id_flag,
-       voting_power,
        validator_address,
        parseDateTimeBestEffortOrZero(timestamp) AS timestamp
 FROM spacebox.validator_precommit_topic
-GROUP BY height, block_id_flag, voting_power, validator_address, timestamp;
+GROUP BY height, block_id_flag, validator_address, timestamp;
