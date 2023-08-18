@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_description_topic
     `operator_address`  String,
     `moniker`           String,
     `identity`          String,
-    `avatar_url`        String,
     `website`           String,
     `security_contact`  String,
     `details`           String,
@@ -16,7 +15,6 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_description
     `operator_address`  String,
     `moniker`           String,
     `identity`          String,
-    `avatar_url`        String,
     `website`           String,
     `security_contact`  String,
     `details`           String,
@@ -26,7 +24,7 @@ CREATE TABLE IF NOT EXISTS spacebox.validator_description
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS validator_description_consumer TO spacebox.validator_description
 AS
-SELECT operator_address, moniker, identity, avatar_url, website, security_contact, details, height
+SELECT operator_address, moniker, identity, website, security_contact, details, height
 FROM spacebox.validator_description_topic
-GROUP BY operator_address, moniker, identity, avatar_url, website, security_contact, details, height;
+GROUP BY operator_address, moniker, identity, website, security_contact, details, height;
 

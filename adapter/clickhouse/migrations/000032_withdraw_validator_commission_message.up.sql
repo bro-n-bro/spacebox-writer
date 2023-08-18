@@ -10,17 +10,17 @@ CREATE TABLE IF NOT EXISTS spacebox.withdraw_validator_commission_message
     `tx_hash`             String,
     `msg_index`           Int64,
     `withdraw_commission` String,
-    `validator_address`   String
+    `operator_address`    String
 ) ENGINE = ReplacingMergeTree()
       ORDER BY (`tx_hash`, `msg_index`);
 
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS withdraw_validator_commission_message_consumer TO spacebox.withdraw_validator_commission_message
 AS
-SELECT JSONExtractInt(message, 'height')              as height,
+SELECT JSONExtractInt(message, 'height')                 as height,
        JSONExtractString(message, 'tx_hash')             as tx_hash,
        JSONExtractInt(message, 'msg_index')              as msg_index,
        JSONExtractString(message, 'withdraw_commission') as withdraw_commission,
-       JSONExtractString(message, 'validator_address')   as validator_address
+       JSONExtractString(message, 'operator_address')    as operator_address
 FROM spacebox.withdraw_validator_commission_message_topic
-GROUP BY height, tx_hash, msg_index, withdraw_commission, validator_address;
+GROUP BY height, tx_hash, msg_index, withdraw_commission, operator_address;

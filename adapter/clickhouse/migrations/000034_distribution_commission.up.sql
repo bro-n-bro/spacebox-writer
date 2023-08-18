@@ -7,18 +7,18 @@ CREATE TABLE IF NOT EXISTS spacebox.distribution_commission_topic
 
 CREATE TABLE IF NOT EXISTS spacebox.distribution_commission
 (
-    `validator` String,
+    `operator_address` String,
     `amount`    String,
     `height`    Int64
 ) ENGINE = ReplacingMergeTree()
-      ORDER BY (`height`, `validator`);
+      ORDER BY (`height`, `operator_address`);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS distribution_commission_consumer TO spacebox.distribution_commission
 AS
-SELECT JSONExtractString(message, 'validator') as validator,
+SELECT JSONExtractString(message, 'operator_address') as operator_address,
        JSONExtractString(message, 'amount')    as amount,
        JSONExtractInt(message, 'height')       as height
 FROM spacebox.distribution_commission_topic
-GROUP BY validator, amount, height;
+GROUP BY operator_address, amount, height;
 
 
